@@ -2,11 +2,10 @@
 
 import csv
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import src.config as cfg
 
 def init_csv():
-    """initial CSV if not exists"""
     folder = os.path.dirname(cfg.CSV_FILE)
     os.makedirs(folder, exist_ok=True)
 
@@ -14,30 +13,31 @@ def init_csv():
         with open(cfg.CSV_FILE, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
             writer.writerow([
-                "timestamp",
+                "timestamp_utc",
                 "tripId",
                 "line",
                 "direction",
-                "latitude",
-                "longitude",
-                "heading",
-                "speed"
+                "lat",
+                "lon",
+                "next_stop",
+                "next_time_utc",
+                "delay_min"
             ])
 
 def append_rows(rows):
-    """write in CSV"""
     with open(cfg.CSV_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        now = datetime.utcnow().isoformat()
+        now_utc = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
 
         for r in rows:
             writer.writerow([
-                now,
+                now_utc,
                 r["tripId"],
                 r["line"],
                 r["direction"],
                 r["lat"],
                 r["lon"],
-                r["heading"],
-                r["speed"]
+                r["next_stop"],
+                r["next_time"],   
+                r["delay_min"]
             ])

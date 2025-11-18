@@ -16,17 +16,19 @@ def extract_next_stopover(bus):
             next_stop = stopovers[0]
 
     if not next_stop:
-        return None, None, None  # name, time_str, delay_minutes
+        return None, None, None  # name, time_arr, time_parr, delay_minutes
 
     # ---- next stop ----
     stop_name = next_stop.get("stop", {}).get("name")
 
     # ---- arrival----
-    time_str = (
+    time_arr = (
         next_stop.get("arrival")
-        or next_stop.get("plannedArrival")
-        or next_stop.get("departure")
-        or next_stop.get("plannedDeparture")
+        or ""
+    )
+
+    time_parr = (
+        next_stop.get("plannedArrival")
         or ""
     )
 
@@ -36,9 +38,9 @@ def extract_next_stopover(bus):
         if next_stop.get("arrivalDelay") is not None
         else next_stop.get("departureDelay")
     )
-    delay_min = round(delay_sec / 60) if delay_sec is not None else 0
+    #delay_min = round(delay_sec / 60) if delay_sec is not None else 0
 
-    return stop_name, time_str, delay_min
+    return stop_name, time_arr, time_parr, delay_sec
 
 
 def extract_bus_movements(data):
@@ -56,7 +58,7 @@ def extract_bus_movements(data):
 
         loc = bus.get("location", {})
 
-        next_stop, next_time, delay_min = extract_next_stopover(bus)
+        next_stop, next_time, next_time_planned, delay_sec = extract_next_stopover(bus)
 
         results.append({
             "tripId": bus.get("tripId"),
@@ -65,8 +67,9 @@ def extract_bus_movements(data):
             "lat": loc.get("latitude"),
             "lon": loc.get("longitude"),
             "next_stop": next_stop,
-            "next_time": next_time,     
-            "delay_min": delay_min
+            "next_time": next_time,
+            "next_time_planned": next_time_planned,         
+            "delay_sec": delay_sec
         })
 
     return results

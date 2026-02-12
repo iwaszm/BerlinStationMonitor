@@ -314,6 +314,12 @@
       background-color: #ff3333; 
       animation: breathe-red 2s infinite; 
     }
+    /* 静态无信号状态 */
+    .status-static {
+      background-color: #888; /* 灰色 */
+      box-shadow: none;
+      animation: none;
+    }
 
     .line-badge {
       background-color: #fff;
@@ -502,8 +508,8 @@
               <!-- 下方：绝对时间 + 呼吸灯 (右下角) -->
               <div class="d-flex align-items-center">
                 <span class="time-sub">{{ formatAbsTime(dep.when || dep.plannedWhen) }}</span>
-                <!-- 延时状态呼吸灯 -->
-                <div class="status-dot" :class="getDelayClass(dep.delay)"></div>
+                <!-- 延时状态呼吸灯，传入整个 dep 对象以检查是否有实时数据 -->
+                <div class="status-dot" :class="getDelayClass(dep)"></div>
               </div>
 
             </div>
@@ -651,8 +657,17 @@
             );
             const apiResults = response.data.filter((item) => item.type === "stop");
             
+            // 地理过滤：只保留距离柏林中心 (52.52, 13.405) < 30km 范围内的站点 (ABC区)
+            const berlinCenter = { lat: 52.52, lon: 13.405 };
+            const filteredApiResults = apiResults.filter(station => {
+               if(!station.location) return true; // 没坐标的保留？或者丢弃
+               const dLat = Math.abs(station.location.latitude - berlinCenter.lat);
+               const dLon = Math.abs(station.location.longitude - berlinCenter.lon);
+               return dLat < 0.3 && dLon < 0.5;
+            });
+
             const localIds = new Set(localMatches.map(s => s.id));
-            const uniqueApiResults = apiResults.filter(s => !localIds.has(s.id));
+            const uniqueApiResults = filteredApiResults.filter(s => !localIds.has(s.id));
             searchResults.value = [...localMatches, ...uniqueApiResults];
           } catch (e) {
             console.error("Search error", e);
@@ -704,18 +719,25 @@
           let filtered = departuresRaw.value.filter((dep) => {
             const date = new Date(dep.when || dep.plannedWhen);
             const diffMs = date - now.value;
-            if (diffMs < -60000) return false;
+            // 修改：超过30秒前出发的车立即隐藏
+            if (diffMs < -30000) return false;
             return true;
           });
 
           // Multi-select Filtering Logic
-          // 如果 activeFilters 为空，通常意味着不显示任何内容，或者显示全部？这里假设只显示选中的。
           filtered = filtered.filter(dep => {
              const p = dep.line.product;
              if (p === 'express' || p === 'regional') {
                 return activeFilters.value.includes('regional');
              }
              return activeFilters.value.includes(p);
+          });
+          
+          // Bugfix: 显式按时间排序 (防止数据乱序，解决 RE 13min 排在第一位的问题)
+          filtered.sort((a, b) => {
+             const timeA = new Date(a.when || a.plannedWhen);
+             const timeB = new Date(b.when || b.plannedWhen);
+             return timeA - timeB;
           });
 
           return filtered;
@@ -724,13 +746,19 @@
         const isDeparted = (dep) => {
           const date = new Date(dep.when || dep.plannedWhen);
           const diffMs = date - now.value;
-          return diffMs <= -30000; 
+          // 修改：到达时间后立即变灰 (<= 0)
+          return diffMs <= 0; 
         };
 
         const getProductClass = (product) => `product-${product}`;
 
-        const getDelayClass = (delay) => {
-          if (delay === null || delay <= 60) return "status-green"; 
+        const getDelayClass = (dep) => {
+          // 修改：检查是否无实时信号 (delay 为 null 且没有 when 字段通常意味着没有实时信号)
+          // VBB API 逻辑: delay === null 通常表示没有实时数据
+          if (dep.delay === null) return "status-static";
+
+          const delay = dep.delay || 0;
+          if (delay <= 60) return "status-green"; 
           if (delay < 300) return "status-orange"; 
           return "status-red";
         };
@@ -744,9 +772,12 @@
           const date = new Date(isoString);
           const diffMs = date - now.value;
           const diffSeconds = diffMs / 1000;
+          
+          // 修改：变灰 (<= 0s) 后不显示 Sofort (返回空字符串)
+          if (diffSeconds <= 0) return ""; 
 
-          if (diffSeconds < -30) return "";
-          if (diffSeconds >= -30 && diffSeconds < 60) {
+          // 0 到 60秒显示 Sofort
+          if (diffSeconds > 0 && diffSeconds < 60) {
             return "Sofort";
           }
           

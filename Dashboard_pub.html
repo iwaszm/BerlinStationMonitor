@@ -17,7 +17,7 @@
       --bvg-sidebar-bg: #2b2b2b;
       --bvg-card-bg: #383838;
       --bvg-text: #ffffff;
-      --db-red: #EC0016; /* DB 官方红 */
+      --db-red: #EC0016;
     }
 
     body {
@@ -77,7 +77,7 @@
       letter-spacing: 2px;
     }
 
-    /* 2. 搜索区域 */
+    /* 2. 搜索与过滤区域 */
     .section-search {
       padding: 15px;
       border-bottom: 1px solid #444;
@@ -87,6 +87,7 @@
 
     .search-input-wrapper {
       position: relative;
+      margin-bottom: 10px;
     }
 
     .form-control-dark {
@@ -117,6 +118,78 @@
     }
     
     .clear-btn:hover { color: #fff; }
+
+    /* 过滤器工具栏 (Flex布局) */
+    .filter-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    /* 方形色块按钮样式 */
+    .type-btn {
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.3; /* 未选中状态变暗 */
+      transition: all 0.2s ease;
+      background-color: #444; /* 默认灰色背景 */
+    }
+
+    .type-btn:hover {
+      transform: scale(1.05);
+      opacity: 0.7;
+    }
+
+    /* 选中激活状态 */
+    .type-btn.active {
+      opacity: 1;
+      transform: scale(1.0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* 激活时的具体颜色 */
+    .type-btn.active.btn-s { background-color: #008D4F; }
+    .type-btn.active.btn-u { background-color: #0063A5; }
+    .type-btn.active.btn-tram { background-color: #CC0000; }
+    .type-btn.active.btn-bus { background-color: #A5027D; }
+    
+    /* Zug 改为银白色，文字改为黑色以保证对比度 */
+    .type-btn.active.btn-zug { 
+      background-color: #E0E0E0; 
+      color: #000000;
+    }
+
+    /* 时长下拉菜单 */
+    .duration-select {
+      background-color: #1a1a1a;
+      border: 1px solid #555;
+      color: #fff;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      height: 38px; /* 与按钮高度一致 */
+    }
+
+    .duration-select:focus {
+      border-color: var(--bvg-yellow);
+    }
 
     /* 搜索结果下拉 */
     .search-dropdown {
@@ -192,8 +265,8 @@
     .product-tram { border-left-color: #CC0000; }
     .product-subway { border-left-color: #006747; }
     .product-suburban { border-left-color: #008D4F; }
-    .product-regional { border-left-color: var(--db-red); } /* RE/RB 使用 DB 红 */
-    .product-express { border-left-color: #ffffff; } /* ICE/IC */
+    .product-regional { border-left-color: var(--db-red); }
+    .product-express { border-left-color: #ffffff; }
 
     /* 呼吸灯效果 Keyframes */
     @keyframes breathe {
@@ -224,7 +297,7 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      margin-left: 8px; /* 灯与时间的间距 */
+      margin-left: 8px;
       flex-shrink: 0;
       transform: translateY(1px); 
     }
@@ -260,7 +333,7 @@
     .product-suburban .line-badge { background-color: #008D4F; color: white; }
     .product-tram .line-badge { background-color: #CC0000; color: white; }
     .product-bus .line-badge { background-color: #A5027D; color: white; }
-    .product-regional .line-badge { background-color: var(--db-red); color: white; } /* RE/RB Badge 颜色 */
+    .product-regional .line-badge { background-color: var(--db-red); color: white; }
 
     .dest-text {
       font-size: 0.95rem;
@@ -310,7 +383,7 @@
         <div class="clock-display">{{ currentTime }}</div>
       </div>
 
-      <!-- 2. 搜索 -->
+      <!-- 2. 搜索与过滤 -->
       <div class="section-search">
         <div class="search-input-wrapper">
           <input
@@ -323,6 +396,33 @@
           <button v-if="searchQuery" @click="clearSearch" class="clear-btn">
             <i class="fas fa-times"></i>
           </button>
+        </div>
+
+        <!-- 过滤工具栏 -->
+        <div class="filter-toolbar">
+          
+          <!-- 左侧：车型多选开关 -->
+          <div class="filter-group">
+            <button class="type-btn btn-s" :class="{ active: isTypeActive('suburban') }" @click="toggleType('suburban')" title="S-Bahn">S</button>
+            <button class="type-btn btn-u" :class="{ active: isTypeActive('subway') }" @click="toggleType('subway')" title="U-Bahn">U</button>
+            <button class="type-btn btn-tram" :class="{ active: isTypeActive('tram') }" @click="toggleType('tram')" title="Tram">Tram</button>
+            <button class="type-btn btn-bus" :class="{ active: isTypeActive('bus') }" @click="toggleType('bus')" title="Bus">Bus</button>
+            <button class="type-btn btn-zug" :class="{ active: isTypeActive('regional') }" @click="toggleType('regional')" title="Zug">Zug</button>
+          </div>
+
+          <!-- 右侧：时长下拉菜单 -->
+          <div class="duration-group">
+            <select v-model="duration" @change="onDurationChange" class="duration-select">
+              <option :value="5">5 Min</option>
+              <option :value="10">10 Min</option>
+              <option :value="20">20 Min</option>
+              <option :value="30">30 Min</option>
+              <option :value="60">60 Min</option>
+              <option :value="90">90 Min</option>
+              <option :value="120">120 Min</option>
+            </select>
+          </div>
+        
         </div>
 
         <!-- 搜索结果列表 (浮动) -->
@@ -357,7 +457,7 @@
 
         <!-- 空状态 -->
         <div v-if="!loading && currentStation && departures.length === 0" class="alert alert-dark border-secondary text-center">
-          <small>Keine Abfahrten in den nächsten 20 Min.</small>
+          <small>Keine Abfahrten in den nächsten {{ duration }} Min.</small>
         </div>
 
         <!-- 引导信息 -->
@@ -438,6 +538,11 @@
         const currentStation = ref(null);
         const departuresRaw = ref([]);
         const loading = ref(false);
+        
+        // 过滤器状态：支持多选，默认全部选中
+        const activeFilters = ref(['suburban', 'subway', 'tram', 'bus', 'regional']);
+        // 时长：默认 60 分钟
+        const duration = ref(60);
 
         let map = null;
         let stationMarker = null;
@@ -483,6 +588,24 @@
 
         // --- Logic ---
 
+        const isTypeActive = (type) => activeFilters.value.includes(type);
+
+        const toggleType = (type) => {
+          if (activeFilters.value.includes(type)) {
+            // 如果只有最后一个了，是否允许取消？这里允许全部取消
+            activeFilters.value = activeFilters.value.filter(t => t !== type);
+          } else {
+            activeFilters.value.push(type);
+          }
+        };
+
+        const onDurationChange = () => {
+          // 改变时长后立即刷新数据
+          if (currentStation.value) {
+            fetchDepartures(currentStation.value.id);
+          }
+        };
+
         const isStarred = (station) => {
           return starredStations.value.some(s => s.id === station.id);
         };
@@ -517,20 +640,17 @@
             return;
           }
           
-          // 1. 本地搜索收藏
           const lowerQ = q.toLowerCase();
           const localMatches = starredStations.value.filter(s => 
             s.name.toLowerCase().includes(lowerQ)
           );
 
           try {
-            // 2. API 网络搜索
             const response = await axios.get(
               `${API_BASE}/locations?query=${encodeURIComponent(q)}&results=8&stops=true&addresses=false&poi=false`
             );
             const apiResults = response.data.filter((item) => item.type === "stop");
             
-            // 3. 合并去重
             const localIds = new Set(localMatches.map(s => s.id));
             const uniqueApiResults = apiResults.filter(s => !localIds.has(s.id));
             searchResults.value = [...localMatches, ...uniqueApiResults];
@@ -560,8 +680,10 @@
         const fetchDepartures = async (stationId, silent = false) => {
           if (!silent) loading.value = true;
           try {
+            // 使用动态 duration
+            const resultsLimit = Math.max(30, duration.value * 2); // 估算结果数量，防止时长长但结果不够
             const response = await axios.get(
-              `${API_BASE}/stops/${stationId}/departures?duration=60&results=30&remarks=true`
+              `${API_BASE}/stops/${stationId}/departures?duration=${duration.value}&results=${resultsLimit}&remarks=true`
             );
             if (response.data.departures) {
               departuresRaw.value = response.data.departures;
@@ -578,19 +700,31 @@
 
         const departures = computed(() => {
           if (!departuresRaw.value) return [];
-          return departuresRaw.value.filter((dep) => {
+          
+          let filtered = departuresRaw.value.filter((dep) => {
             const date = new Date(dep.when || dep.plannedWhen);
             const diffMs = date - now.value;
-            // 隐藏条件：超过1分钟前出发的车
             if (diffMs < -60000) return false;
             return true;
           });
+
+          // Multi-select Filtering Logic
+          // 如果 activeFilters 为空，通常意味着不显示任何内容，或者显示全部？这里假设只显示选中的。
+          filtered = filtered.filter(dep => {
+             const p = dep.line.product;
+             if (p === 'express' || p === 'regional') {
+                return activeFilters.value.includes('regional');
+             }
+             return activeFilters.value.includes(p);
+          });
+
+          return filtered;
         });
 
         const isDeparted = (dep) => {
           const date = new Date(dep.when || dep.plannedWhen);
           const diffMs = date - now.value;
-          return diffMs <= -30000; // -30秒
+          return diffMs <= -30000; 
         };
 
         const getProductClass = (product) => `product-${product}`;
@@ -601,7 +735,6 @@
           return "status-red";
         };
 
-        // 获取特别信息文本 (先留空)
         const getRemarkText = (dep) => {
             return ""; 
         };
@@ -640,6 +773,11 @@
           currentStation,
           departures,
           loading,
+          activeFilters, // Export active filters
+          duration,      // Export duration
+          isTypeActive,
+          toggleType,
+          onDurationChange,
           onSearchInput,
           selectStation,
           clearSearch,

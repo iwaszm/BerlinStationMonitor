@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Abfahrtsmonitor Berlin (Radar Unified)</title>
+  <title>Abfahrtsmonitor Berlin (Styled Popup)</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Font Awesome -->
@@ -18,6 +18,8 @@
       --bvg-card-bg: #383838;
       --bvg-text: #ffffff;
       --db-red: #EC0016;
+      --ice-white: #F0F0F0;
+      --ubahn-blue: #0063A5; 
     }
 
     body {
@@ -63,7 +65,7 @@
 
     /* --- 平滑动画关键 CSS --- */
     .smooth-transition {
-      transition: transform 10s linear; /* 匹配刷新频率 */
+      transition: transform 10s linear;
     }
     .no-transition {
       transition: none !important;
@@ -71,7 +73,7 @@
 
     /* 地图上的 Tooltip 自定义样式 - 站点 */
     .station-tooltip {
-      background-color: rgba(30, 30, 30, 0.9);
+      background-color: rgba(30, 30, 30, 0.95);
       border: 1px solid var(--bvg-yellow);
       color: #fff;
       font-weight: bold;
@@ -81,11 +83,52 @@
       padding: 4px 8px;
     }
     .leaflet-tooltip-top:before {
-      border-top-color: rgba(30, 30, 30, 0.9);
+      border-top-color: rgba(30, 30, 30, 0.95);
     }
 
-    /* --- 车辆图标样式 (统一圆形) --- */
-    
+    /* --- 1. 新增：车辆 Popup 自定义样式 (复用站点风格) --- */
+    .vehicle-popup .leaflet-popup-content-wrapper {
+      background-color: rgba(30, 30, 30, 0.95); /* 深色背景 */
+      border: 1px solid var(--bvg-yellow);       /* 黄色边框 */
+      border-radius: 4px;
+      padding: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      color: #fff;
+    }
+
+    .vehicle-popup .leaflet-popup-content {
+      margin: 8px 12px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      text-align: center;
+      white-space: nowrap; /* 保持在一行 */
+    }
+
+    .vehicle-popup .leaflet-popup-tip {
+      background-color: rgba(30, 30, 30, 0.95);
+      border: 1px solid var(--bvg-yellow); 
+      border-top: none; 
+      border-left: none;
+      box-shadow: none;
+    }
+
+    .vehicle-popup a.leaflet-popup-close-button {
+      display: none; /* 隐藏关闭按钮，看起来更简洁 */
+    }
+
+    /* 站点定位图标 */
+    .station-pos-marker {
+      background-color: var(--bvg-yellow);
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      box-shadow: 0 0 15px rgba(240, 228, 0, 0.8);
+      box-sizing: border-box;
+    }
+
+    /* --- 车辆图标样式 --- */
     .vehicle-marker-wrapper {
       position: relative;
       width: 36px;
@@ -95,7 +138,6 @@
       justify-content: center;
     }
 
-    /* 圆圈和文字 */
     .vehicle-marker {
       position: relative;
       z-index: 10;
@@ -113,13 +155,14 @@
       background-color: #555;
     }
     
-    /* 车辆类型颜色 & 形状统一 */
+    /* 车辆类型颜色 */
     .marker-bus { background-color: #A5027D; }
     .marker-tram { background-color: #CC0000; }
-    .marker-subway { background-color: #0063A5; border-radius: 50%; } /* 强制改为圆形 */
-    .marker-suburban { background-color: #008D4F; border-radius: 50%; }
+    .marker-subway { background-color: var(--ubahn-blue); }
+    .marker-suburban { background-color: #008D4F; }
     .marker-regional { background-color: var(--db-red); }
-    
+    .marker-express { background-color: #fff; color: #333; border-color: #999; }
+
     /* 右上角浮岛菜单 */
     .top-right-menu {
       position: absolute;
@@ -321,10 +364,11 @@
     }
 
     .type-btn.active.btn-s { background-color: #008D4F; }
-    .type-btn.active.btn-u { background-color: #0063A5; }
+    .type-btn.active.btn-u { background-color: var(--ubahn-blue); }
     .type-btn.active.btn-tram { background-color: #CC0000; }
     .type-btn.active.btn-bus { background-color: #A5027D; }
-    .type-btn.active.btn-zug { background-color: #E0E0E0; color: #000000; }
+    .type-btn.active.btn-re { background-color: #EC0016; } 
+    .type-btn.active.btn-fern { background-color: #F0F0F0; color: #333; } 
 
     .duration-select {
       background-color: #1a1a1a;
@@ -364,7 +408,6 @@
 
     .search-item:hover { background-color: #444; }
 
-    /* 标星按钮样式 */
     .star-btn {
       background: none;
       border: none;
@@ -374,12 +417,8 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    .star-btn:hover {
-      transform: scale(1.2);
-    }
-    .star-btn.starred {
-      color: var(--bvg-yellow);
-    }
+    .star-btn:hover { transform: scale(1.2); }
+    .star-btn.starred { color: var(--bvg-yellow); }
     
     .fav-header {
       padding: 8px 15px;
@@ -411,7 +450,6 @@
       background-color: #444;
     }
 
-    /* 班次取消样式 */
     .bus-card.cancelled {
       opacity: 0.65;
     }
@@ -425,9 +463,9 @@
     .cancel-text {
       color: #ff5555;
       font-weight: bold;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-size: 0.9rem;
+      text-transform: none;
+      letter-spacing: 0.5px;
     }
 
     .bus-card.cancelled {
@@ -439,12 +477,13 @@
       color: #bbb !important;
     }
 
+    /* 布局调整：修复对齐 */
     .card-header {
       padding: 12px;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: center; 
     }
 
     .card-info-left {
@@ -468,9 +507,10 @@
 
     .product-bus { border-left-color: #A5027D; }
     .product-tram { border-left-color: #CC0000; }
-    .product-subway { border-left-color: #006747; }
+    .product-subway { border-left-color: var(--ubahn-blue); } 
     .product-suburban { border-left-color: #008D4F; }
     .product-regional { border-left-color: var(--db-red); }
+    .product-express { border-left-color: #FFFFFF; } 
 
     @keyframes breathe-green {
       0% { box-shadow: 0 0 0 0 rgba(77, 255, 77, 0.6); }
@@ -505,11 +545,12 @@
       margin-right: 8px;
     }
     
-    .product-subway .line-badge { background-color: #0063A5; color: white; }
+    .product-subway .line-badge { background-color: var(--ubahn-blue); color: white; }
     .product-suburban .line-badge { background-color: #008D4F; color: white; }
     .product-tram .line-badge { background-color: #CC0000; color: white; }
     .product-bus .line-badge { background-color: #A5027D; color: white; }
     .product-regional .line-badge { background-color: var(--db-red); color: white; }
+    .product-express .line-badge { background-color: #FFFFFF; color: #333; border: 1px solid #ccc; }
 
     .dest-text {
       font-size: 0.95rem;
@@ -523,12 +564,14 @@
       font-size: 1.1rem;
       font-weight: bold;
       color: #fff;
+      line-height: 1.2;
     }
 
     .time-sub {
       font-size: 0.75rem;
-      color: #aaa;
+      color: #ddd; 
       text-align: right;
+      margin-top: 4px;
     }
 
     .stopover-container {
@@ -604,7 +647,8 @@
             <button class="type-btn btn-u" :class="{ active: isTypeActive('subway') }" @click="toggleType('subway')">U</button>
             <button class="type-btn btn-tram" :class="{ active: isTypeActive('tram') }" @click="toggleType('tram')">Tram</button>
             <button class="type-btn btn-bus" :class="{ active: isTypeActive('bus') }" @click="toggleType('bus')">Bus</button>
-            <button class="type-btn btn-zug" :class="{ active: isTypeActive('regional') }" @click="toggleType('regional')">Zug</button>
+            <button class="type-btn btn-re" :class="{ active: isTypeActive('regional') }" @click="toggleType('regional')">RE</button>
+            <button class="type-btn btn-fern" :class="{ active: isTypeActive('express') }" @click="toggleType('express')">Fern</button>
           </div>
 
           <select v-model="duration" @change="onDurationChange" class="duration-select">
@@ -626,7 +670,7 @@
             :key="station.id"
             @click="selectStation(station)"
           >
-            <div><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ station.name }}</div>
+            <div><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ cleanName(station.name) }}</div>
             <button 
               class="star-btn" 
               :class="{ 'starred': isStarred(station.id) }" 
@@ -658,18 +702,18 @@
         >
           <div class="card-header" @click="toggleTrip(dep)">
             <div class="card-info-left">
-              <div class="d-flex align-items-center">
+              <div class="d-flex align-items-center"> 
                 <span class="line-badge">{{ dep.line.name }}</span>
-                <div class="dest-text" :title="dep.direction">{{ dep.direction }}</div>
+                <div class="dest-text" :title="cleanName(dep.direction)">{{ cleanName(dep.direction) }}</div>
               </div>
             </div>
 
             <div class="card-time-right">
               <div class="time-large" :class="{ 'cancel-text': dep.cancelled }">
-                {{ dep.cancelled ? 'ENTFÄLLT' : formatTime(dep.when || dep.plannedWhen) }}
+                {{ dep.cancelled ? 'fällt aus' : formatTime(dep.when || dep.plannedWhen) }}
               </div>
               <div class="time-sub">
-                <span :class="{ 'text-muted': dep.cancelled }">
+                <span>
                     {{ formatAbsTime(dep.when || dep.plannedWhen) }}
                 </span>
                 <div class="status-dot" :class="getDelayClass(dep)"></div>
@@ -688,7 +732,7 @@
                 <div class="stopover-item" v-for="stop in visibleStopovers" :key="stop.stop.id">
                    <div class="stopover-time">{{ formatAbsTime(stop.arrival || stop.plannedArrival || stop.departure) }}</div>
                    <div class="stopover-node"></div>
-                   <div class="stopover-name">{{ stop.stop.name }}</div>
+                   <div class="stopover-name">{{ cleanName(stop.stop.name) }}</div>
                 </div>
                 <button v-if="currentTripStopovers.length > stopoverLimit" class="weiter-btn" @click.stop="stopoverLimit += 5">Weiter...</button>
              </div>
@@ -728,7 +772,7 @@
         const currentStation = ref(null);
         const departuresRaw = ref([]);
         const loading = ref(false);
-        const activeFilters = ref(['suburban', 'subway', 'tram', 'bus', 'regional']);
+        const activeFilters = ref(['suburban', 'subway', 'tram', 'bus', 'regional', 'express']);
         const duration = ref(60);
         
         const expandedTripId = ref(null);
@@ -746,12 +790,17 @@
         let vehicleTrails = {}; 
         let radarInterval; 
         
+        let searchTimeout;
+        const searchAbortController = ref(null);
+        let radarAbortController = null;
+
         const productColors = {
           bus: '#A5027D',
           tram: '#CC0000',
-          subway: '#0063A5',
+          subway: '#0063A5', // Update default color ref
           suburban: '#008D4F',
           regional: '#EC0016',
+          express: '#FFFFFF', 
           default: '#555'
         };
 
@@ -787,6 +836,12 @@
         onUnmounted(() => {
           if (radarInterval) clearInterval(radarInterval);
         });
+
+        // 3. Helper Function to remove (Berlin)
+        const cleanName = (name) => {
+            if (!name) return "";
+            return name.replace(/\s*\(Berlin\)\s*/gi, "").replace(/,\s*Berlin\s*/gi, "");
+        };
 
         const isStarred = (id) => starredStations.value.some(s => s.id === id);
         
@@ -828,7 +883,6 @@
           }
         });
 
-        // 监听 activeFilters 变化，立即更新地图上的车辆
         watch(activeFilters, () => {
             if (lastRadarData.value.length > 0) {
                 updateVehicleMarkers(lastRadarData.value);
@@ -863,30 +917,51 @@
           loading.value = true;
           navigator.geolocation.getCurrentPosition(async (pos) => {
             const { latitude, longitude } = pos.coords;
-            const res = await axios.get(`${API_BASE}/stops/nearby`, { params: { latitude, longitude, results: 8, distance: 2000 } });
-            searchResults.value = res.data;
-            if (res.data.length > 0) {
-              searchQuery.value = "Ihr Standort";
-              map.setView([latitude, longitude], 15);
-            }
+            try {
+              const res = await axios.get(`${API_BASE}/stops/nearby`, { params: { latitude, longitude, results: 8, distance: 2000 } });
+              searchResults.value = res.data;
+              if (res.data.length > 0) {
+                searchQuery.value = "Ihr Standort";
+                map.setView([latitude, longitude], 15);
+              }
+            } catch(e) { console.error(e); }
             loading.value = false;
           }, () => { loading.value = false; alert("Geo-Zugriff verweigert."); });
         };
 
-        const onSearchInput = async () => {
-          if (!searchQuery.value) {
-            searchResults.value = [];
-            isShowingFavorites.value = true;
-            return;
+        const onSearchInput = () => {
+          if (searchTimeout) clearTimeout(searchTimeout);
+          
+          if (searchAbortController.value) {
+            searchAbortController.value.abort();
           }
-          const res = await axios.get(`${API_BASE}/locations`, { params: { query: searchQuery.value, results: 6, stops: true } });
-          searchResults.value = res.data.filter(s => s.type === 'stop');
+
+          searchTimeout = setTimeout(async () => {
+            if (!searchQuery.value) {
+              searchResults.value = [];
+              isShowingFavorites.value = true;
+              return;
+            }
+
+            searchAbortController.value = new AbortController();
+
+            try {
+              const res = await axios.get(`${API_BASE}/locations`, { 
+                params: { query: searchQuery.value, results: 6, stops: true },
+                signal: searchAbortController.value.signal 
+              });
+              searchResults.value = res.data.filter(s => s.type === 'stop');
+            } catch (e) {
+              if (axios.isCancel(e)) return; 
+              console.error(e);
+            }
+          }, 300);
         };
 
         const selectStation = (station) => {
           currentStation.value = station;
           searchResults.value = []; 
-          searchQuery.value = station.name;
+          searchQuery.value = cleanName(station.name); // Clean input on select
 
           if (radarInterval) clearInterval(radarInterval);
           
@@ -908,12 +983,20 @@
 
             map.setView([lat, lon], 14); 
 
-            stationMarker = L.marker([lat, lon])
+            // 2. 修改：使用自定义 CSS 图标
+            const stationIcon = L.divIcon({
+              className: 'station-pos-marker', 
+              iconSize: [20, 20],
+              iconAnchor: [10, 10], 
+              popupAnchor: [0, -10]
+            });
+
+            stationMarker = L.marker([lat, lon], { icon: stationIcon })
               .addTo(map)
-              .bindTooltip(station.name, { 
+              .bindTooltip(cleanName(station.name), { // Clean tooltip
                 permanent: true,       
                 direction: 'top',      
-                offset: [0, -25],      
+                offset: [0, -14],  // 2. 修改：调整 offset，让文字更近 (原 -25)    
                 className: 'station-tooltip' 
               })
               .openTooltip();
@@ -939,8 +1022,6 @@
           } catch (e) { departuresRaw.value = []; } finally { loading.value = false; }
         };
 
-        // --- Radar Logic Start ---
-        
         const getBoundingBox = (lat, lon, radiusKm) => {
             const latDelta = radiusKm / 111; 
             const lonDelta = radiusKm / (111 * Math.cos(lat * (Math.PI / 180)));
@@ -956,7 +1037,12 @@
             if (!currentStation.value || !currentStation.value.location) return;
             
             const { latitude, longitude } = currentStation.value.location;
-            const bbox = getBoundingBox(latitude, longitude, 2.0); // 2km 半径
+            const bbox = getBoundingBox(latitude, longitude, 2.0);
+
+            if (radarAbortController) {
+                radarAbortController.abort();
+            }
+            radarAbortController = new AbortController();
 
             try {
                 const res = await axios.get(`${API_BASE}/radar`, {
@@ -965,11 +1051,12 @@
                         west: bbox.west,
                         south: bbox.south,
                         east: bbox.east,
-                        results: 256, // API上限
+                        results: 256,
                         duration: 60,
                         frames: 3,
                         polylines: true 
-                    }
+                    },
+                    signal: radarAbortController.signal
                 });
                 
                 const allVehicles = Array.isArray(res.data) ? res.data : (res.data.movements || []);
@@ -981,7 +1068,8 @@
                 radarError.value = false;
 
             } catch (e) {
-                console.error("Radar fetch failed", e);
+                if (axios.isCancel(e)) return; 
+                console.warn("Radar update skipped (network/rate limit)"); 
                 isRadarActive.value = false;
                 radarError.value = true;
             }
@@ -990,23 +1078,16 @@
         const updateVehicleMarkers = (vehicles) => {
             const activeIds = new Set();
             
-            // TripID 验证：必须在出发列表中
             const validTripIds = new Set(departuresRaw.value.map(d => d.tripId));
             
-            // 过滤函数: 现在包含 bus, tram, suburban (S-Bahn), subway (U-Bahn)
             const isMapRelevant = (prod) => ['bus', 'tram', 'suburban', 'subway'].includes(prod);
             const isProductActive = (prod) => activeFilters.value.includes(prod);
 
             vehicles.forEach(v => {
                 if (!v.location || !v.line) return;
                 
-                // 1. 严格过滤：地图只显示特定类型 (现已扩展)
                 if (!isMapRelevant(v.line.product)) return;
-
-                // 2. 交互过滤：必须按钮开启
                 if (!isProductActive(v.line.product)) return;
-                
-                // 3. 关联过滤：必须是本站相关的车辆
                 if (!validTripIds.has(v.tripId)) return;
 
                 const tripId = v.tripId;
@@ -1038,22 +1119,20 @@
                     }).addTo(map);
                 }
 
-                // 只有当 Marker 不存在时才创建 HTML 字符串
+                // 2. 更新内容：线路 + 终点站
+                const popupContent = `${v.line.name} ${cleanName(v.direction)}`;
+
                 if (vehicleMarkers[tripId]) {
                     const marker = vehicleMarkers[tripId];
                     const newLatLng = L.latLng(v.location.latitude, v.location.longitude);
                     
-                    // 1. 更新位置 (Leaflet 会自动应用 smooth-transition 类带来的 CSS 过渡)
                     if (marker.getLatLng().distanceTo(newLatLng) > 1) {
                          marker.setLatLng(newLatLng);
                     }
                     
-                    // 3. 更新 Popup (可选)
-                    marker.setPopupContent(`<strong>${v.line.name}</strong><br>Richtung: ${v.direction || 'Unbekannt'}`);
+                    marker.setPopupContent(popupContent);
 
                 } else {
-                    // 创建新 Marker
-                    // 移除箭头 HTML 结构，只保留圆圈
                     const html = `
                       <div class="vehicle-marker-wrapper">
                         <div class="vehicle-marker ${productClass}">
@@ -1063,16 +1142,21 @@
                     `;
 
                     const icon = L.divIcon({
-                        className: 'smooth-transition', // 关键：应用位置过渡
+                        className: 'smooth-transition',
                         html: html,
                         iconSize: [36, 36],
                         iconAnchor: [18, 18],
                         popupAnchor: [0, -18]
                     });
 
+                    // 3. 应用样式
                     const marker = L.marker([v.location.latitude, v.location.longitude], { icon: icon })
                      .addTo(map)
-                     .bindPopup(`<strong>${v.line.name}</strong><br>Richtung: ${v.direction || 'Unbekannt'}`);
+                     .bindPopup(popupContent, {
+                        className: 'vehicle-popup', // 应用自定义样式类
+                        offset: [0, -10], 
+                        closeButton: false // 隐藏关闭按钮
+                     });
 
                     vehicleMarkers[tripId] = marker;
                 }
@@ -1095,13 +1179,12 @@
             fetchRadar(); 
             radarInterval = setInterval(fetchRadar, 10000); 
         };
-        // --- Radar Logic End ---
 
         const departures = computed(() => {
           return departuresRaw.value
             .filter(d => {
               const p = d.line.product;
-              return (p === 'regional' || p === 'express') ? activeFilters.value.includes('regional') : activeFilters.value.includes(p);
+              return activeFilters.value.includes(p);
             })
             .filter(d => {
                const time = d.when || d.plannedWhen;
@@ -1148,7 +1231,7 @@
           locateMe, formatTime, formatAbsTime, getDelayClass, isDeparted, getProductClass: (p) => `product-${p}`,
           onDurationChange: () => fetchDepartures(currentStation.value.id), expandedTripId, toggleTrip, isTripLoading,
           currentTripStopovers, visibleStopovers, stopoverLimit,
-          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites, isRadarActive, radarError
+          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites, isRadarActive, radarError, cleanName
         };
       }
     }).mount("#app");

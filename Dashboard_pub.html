@@ -61,6 +61,51 @@
       z-index: 1;
     }
 
+    /* 地图上的 Tooltip 自定义样式 - 站点 */
+    .station-tooltip {
+      background-color: rgba(30, 30, 30, 0.9);
+      border: 1px solid var(--bvg-yellow);
+      color: #fff;
+      font-weight: bold;
+      border-radius: 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      font-size: 0.9rem;
+      padding: 4px 8px;
+    }
+    .leaflet-tooltip-top:before {
+      border-top-color: rgba(30, 30, 30, 0.9);
+    }
+
+    /* 地图上的车辆图标样式 */
+    .vehicle-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      border: 1px solid white;
+      transition: all 0.3s ease;
+    }
+    
+    /* 车辆类型颜色 */
+    .marker-bus { background-color: #A5027D; }
+    .marker-tram { background-color: #CC0000; }
+    .marker-subway { background-color: #0063A5; border-radius: 2px; }
+    .marker-suburban { background-color: #008D4F; border-radius: 50%; }
+    .marker-regional { background-color: var(--db-red); }
+    .marker-default { background-color: #555; }
+
+    /* 车辆上的小箭头指示方向 (可选) */
+    .vehicle-arrow {
+      position: absolute;
+      top: -8px;
+      font-size: 10px;
+      color: var(--bvg-yellow);
+    }
+
     /* 右上角浮岛菜单 */
     .top-right-menu {
       position: absolute;
@@ -97,6 +142,14 @@
       color: var(--bvg-yellow);
       transform: scale(1.05);
     }
+    
+    .radar-status {
+      font-size: 0.7rem;
+      color: var(--bvg-yellow);
+      margin-left: 8px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
     /* 1. 时间显示区域 */
     .section-time {
@@ -300,23 +353,20 @@
       opacity: 0.65;
     }
     
-    /* 仅对目的地和线路徽章使用删除线 */
     .bus-card.cancelled .dest-text,
     .bus-card.cancelled .line-badge {
       text-decoration: line-through;
       color: #aaa;
     }
 
-    /* 时间区域特殊处理：红色警示字，无删除线 */
     .cancel-text {
       color: #ff5555;
       font-weight: bold;
-      font-size: 0.95rem; /* 稍微缩小以防溢出 */
+      font-size: 0.95rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-    /* 如果取消，左边框也变灰，或者保留颜色但变暗 */
     .bus-card.cancelled {
       border-left-color: #555 !important;
     }
@@ -331,10 +381,9 @@
       cursor: pointer;
       display: flex;
       justify-content: space-between;
-      align-items: center; /* 垂直对齐 */
+      align-items: center;
     }
 
-    /* 文本截断关键：flex:1 + min-width:0 */
     .card-info-left {
       flex: 1;
       min-width: 0;
@@ -346,7 +395,7 @@
     .card-time-right {
       flex-shrink: 0;
       text-align: right;
-      min-width: 85px; /* 固定宽度保证对齐 */
+      min-width: 85px;
     }
 
     .bus-card.departed {
@@ -354,14 +403,12 @@
       filter: grayscale(1);
     }
 
-    /* 交通工具色彩 */
     .product-bus { border-left-color: #A5027D; }
     .product-tram { border-left-color: #CC0000; }
     .product-subway { border-left-color: #006747; }
     .product-suburban { border-left-color: #008D4F; }
     .product-regional { border-left-color: var(--db-red); }
 
-    /* 呼吸灯效果 */
     @keyframes breathe-green {
       0% { box-shadow: 0 0 0 0 rgba(77, 255, 77, 0.6); }
       70% { box-shadow: 0 0 0 5px rgba(77, 255, 77, 0); }
@@ -379,8 +426,6 @@
     .status-orange { background-color: #ffaa00; }
     .status-red { background-color: #ff3333; }
     .status-static { background-color: #888; }
-    
-    /* 灰色状态灯 */
     .status-cancel { background-color: #777; border: 1px solid #555; } 
 
     .line-badge {
@@ -408,7 +453,7 @@
       color: #eee;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis; /* 长名称自动省略号 */
+      text-overflow: ellipsis;
     }
 
     .time-large {
@@ -423,7 +468,6 @@
       text-align: right;
     }
 
-    /* 经停站样式 */
     .stopover-container {
       background-color: rgba(0, 0, 0, 0.2);
       padding: 10px 15px;
@@ -444,7 +488,7 @@
       min-width: 0;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis; /* 列表内长名称也支持省略号 */
+      text-overflow: ellipsis;
     }
 
     .weiter-btn { width: 100%; background: none; border: 1px dashed #555; color: #888; font-size: 0.75rem; padding: 4px; margin-top: 8px; border-radius: 4px; }
@@ -594,6 +638,7 @@
         <button class="menu-btn" title="Nachtmodus"><i class="fas fa-moon"></i></button>
         <button class="menu-btn" title="Barrierefreiheit"><i class="fas fa-universal-access"></i></button>
         <button class="menu-btn" title="Sprache"><i class="fas fa-globe"></i></button>
+        <span v-if="isRadarActive" class="radar-status" title="Live Radar aktiv"><i class="fas fa-wifi"></i> LIVE</span>
       </div>
     </div>
   </div>
@@ -604,7 +649,7 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script>
-    const { createApp, ref, onMounted, computed, watch } = Vue;
+    const { createApp, ref, onMounted, computed, watch, onUnmounted } = Vue;
 
     createApp({
       setup() {
@@ -612,8 +657,8 @@
         const now = ref(new Date());
         const searchQuery = ref("");
         const searchResults = ref([]);
-        const starredStations = ref([]); // 收藏列表
-        const isShowingFavorites = ref(false); // 状态：是否正在展示收藏夹
+        const starredStations = ref([]); 
+        const isShowingFavorites = ref(false); 
         
         const currentStation = ref(null);
         const departuresRaw = ref([]);
@@ -625,15 +670,20 @@
         const currentTripStopovers = ref([]);
         const isTripLoading = ref(false);
         const stopoverLimit = ref(5);
+        const isRadarActive = ref(false);
 
-        let map, stationMarker;
+        let map, stationMarker, stationCircle;
+        let vehicleLayer; // 存储车辆图标的图层
+        let radarInterval; // 存储定时器
+
         const API_BASE = "https://v6.bvg.transport.rest";
 
         onMounted(() => {
           // 初始化地图
           map = L.map("map").setView([52.5200, 13.4050], 13);
           L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png").addTo(map);
-          
+          vehicleLayer = L.layerGroup().addTo(map);
+
           // 时钟
           setInterval(() => { now.value = new Date(); currentTime.value = now.value.toLocaleTimeString("de-DE"); }, 1000);
 
@@ -644,6 +694,10 @@
           }
         });
 
+        onUnmounted(() => {
+          if (radarInterval) clearInterval(radarInterval);
+        });
+
         // 收藏逻辑
         const isStarred = (id) => starredStations.value.some(s => s.id === id);
         
@@ -651,11 +705,10 @@
           if (isStarred(station.id)) {
             starredStations.value = starredStations.value.filter(s => s.id !== station.id);
           } else {
-            // 保存必要信息
             starredStations.value.push({
               id: station.id,
               name: station.name,
-              location: station.location, // 确保有位置信息以便点击时移动地图
+              location: station.location, 
               type: station.type
             });
           }
@@ -665,21 +718,19 @@
         const showFavorites = () => {
           if (!searchQuery.value && starredStations.value.length > 0) {
             isShowingFavorites.value = true;
-            searchResults.value = []; // 清空之前的搜索结果，确保显示逻辑由 displayResults 控制
+            searchResults.value = [];
           }
         };
 
-        // 计算属性：决定下拉框显示什么
         const displayResults = computed(() => {
           if (searchQuery.value && searchResults.value.length > 0) {
-            return searchResults.value; // 搜索时显示搜索结果
+            return searchResults.value; 
           } else if (!searchQuery.value && starredStations.value.length > 0) {
-            return starredStations.value; // 未输入时显示收藏
+            return starredStations.value; 
           }
           return [];
         });
 
-        // 监听 searchQuery 变化，如果清空了，自动切回收藏夹
         watch(searchQuery, (newVal) => {
           if (!newVal) {
             isShowingFavorites.value = true;
@@ -692,7 +743,6 @@
           if (expandedTripId.value === dep.tripId) { expandedTripId.value = null; return; }
           expandedTripId.value = dep.tripId;
           
-          // 如果已取消，不需要请求详情
           if (dep.cancelled) return;
 
           stopoverLimit.value = 5;
@@ -701,16 +751,11 @@
             const res = await axios.get(`${API_BASE}/trips/${encodeURIComponent(dep.tripId)}`, { params: { stopovers: true } });
             const allStops = res.data.trip.stopovers;
             
-            // 修复逻辑：使用时间比对而不是索引切片
-            // 基准时间：当前站点出发时间
             const departureTime = new Date(dep.when || dep.plannedWhen);
 
             currentTripStopovers.value = allStops.filter(stop => {
-               // 获取站点的时间（优先使用到达时间，如果是始发站可能只有出发时间）
                const sTime = stop.arrival || stop.plannedArrival || stop.departure || stop.plannedDeparture;
                if (!sTime) return false;
-               
-               // 只保留时间晚于当前出发时间的站点
                return new Date(sTime) > departureTime;
             });
             
@@ -745,14 +790,40 @@
 
         const selectStation = (station) => {
           currentStation.value = station;
-          searchResults.value = []; // 清空搜索结果
-          // 注意：如果想让用户选中后还能看到列表，可注释掉上面这行，但通常选中即关闭
-          
+          searchResults.value = []; 
           searchQuery.value = station.name;
+
+          if (radarInterval) clearInterval(radarInterval); // 切换站点时清除旧定时器
+          vehicleLayer.clearLayers(); // 清除旧车辆
+          isRadarActive.value = false;
+
           if (station.location) {
-            map.setView([station.location.latitude, station.location.longitude], 16);
+            const lat = station.location.latitude;
+            const lon = station.location.longitude;
+
             if (stationMarker) map.removeLayer(stationMarker);
-            stationMarker = L.marker([station.location.latitude, station.location.longitude]).addTo(map);
+            if (stationCircle) map.removeLayer(stationCircle);
+
+            map.setView([lat, lon], 13); 
+
+            stationMarker = L.marker([lat, lon])
+              .addTo(map)
+              .bindTooltip(station.name, { 
+                permanent: true,       
+                direction: 'top',      
+                offset: [0, -25],      
+                className: 'station-tooltip' 
+              })
+              .openTooltip();
+
+            stationCircle = L.circle([lat, lon], {
+              color: '#F0E400',       
+              fillColor: '#F0E400',   
+              fillOpacity: 0.08,      
+              radius: 3000,           
+              weight: 2,              
+              dashArray: '5, 10'      
+            }).addTo(map);
           }
           fetchDepartures(station.id);
         };
@@ -760,10 +831,114 @@
         const fetchDepartures = async (id) => {
           loading.value = true;
           try {
-            const res = await axios.get(`${API_BASE}/stops/${id}/departures`, { params: { duration: duration.value, results: 40 } });
+            // 增加结果数量至 200，以确保能够匹配更多雷达返回的车辆
+            const res = await axios.get(`${API_BASE}/stops/${id}/departures`, { params: { duration: duration.value, results: 200 } });
             departuresRaw.value = res.data.departures || [];
+            
+            // 成功获取时刻表后，启动雷达
+            startRadarLoop();
+            
           } catch (e) { departuresRaw.value = []; } finally { loading.value = false; }
         };
+
+        // --- Radar Logic Start ---
+        
+        // 计算包围盒
+        const getBoundingBox = (lat, lon, radiusKm) => {
+            const latDelta = radiusKm / 111; 
+            const lonDelta = radiusKm / (111 * Math.cos(lat * (Math.PI / 180)));
+            return {
+                north: lat + latDelta,
+                south: lat - latDelta,
+                east: lon + lonDelta,
+                west: lon - lonDelta
+            };
+        };
+
+        const fetchRadar = async () => {
+            if (!currentStation.value || !currentStation.value.location) return;
+            
+            const { latitude, longitude } = currentStation.value.location;
+            const bbox = getBoundingBox(latitude, longitude, 3.0); // 缩小半径至 3.0km
+
+            try {
+                // 调用 Radar API
+                const res = await axios.get(`${API_BASE}/radar`, {
+                    params: {
+                        north: bbox.north,
+                        west: bbox.west,
+                        south: bbox.south,
+                        east: bbox.east,
+                        results: 256, // 最大结果数
+                        duration: 60,
+                        frames: 3
+                    }
+                });
+                
+                // FIX: Check if array or extract movements
+                const allVehicles = Array.isArray(res.data) ? res.data : (res.data.movements || []);
+                
+                if (!Array.isArray(allVehicles)) {
+                    // console.warn("Radar response is not an array", res.data);
+                    return; 
+                }
+                
+                // 核心过滤逻辑：只显示在当前站点出发列表中的 TripID
+                // 1. 提取所有已知的 tripIds
+                const validTripIds = new Set(departuresRaw.value.map(d => d.tripId));
+                
+                // 2. 过滤
+                const relevantVehicles = allVehicles.filter(v => {
+                    // 必须在时刻表里
+                    if (!validTripIds.has(v.tripId)) return false;
+                    
+                    // 必须是 Bus (新增过滤)
+                    if (v.line && v.line.product !== 'bus') return false;
+
+                    return true;
+                });
+
+                // 3. 更新地图标记
+                updateVehicleMarkers(relevantVehicles);
+                isRadarActive.value = true;
+
+            } catch (e) {
+                console.error("Radar fetch failed", e);
+                isRadarActive.value = false;
+            }
+        };
+
+        const updateVehicleMarkers = (vehicles) => {
+            vehicleLayer.clearLayers(); // 清除上一帧
+
+            vehicles.forEach(v => {
+                if (!v.location || !v.line) return;
+
+                const productClass = `marker-${v.line.product || 'default'}`;
+                const label = v.line.name || '?';
+                
+                // 创建自定义图标
+                const icon = L.divIcon({
+                    className: '', // 清除默认样式，完全自定义
+                    html: `<div class="vehicle-marker ${productClass}" style="width: 30px; height: 20px;">
+                             ${label}
+                           </div>`,
+                    iconSize: [30, 20],
+                    iconAnchor: [15, 10]
+                });
+
+                L.marker([v.location.latitude, v.location.longitude], { icon: icon })
+                 .addTo(vehicleLayer)
+                 .bindPopup(`<strong>${v.line.name}</strong><br>Richtung: ${v.direction || 'Unbekannt'}`);
+            });
+        };
+
+        const startRadarLoop = () => {
+            if (radarInterval) clearInterval(radarInterval);
+            fetchRadar(); // 立即执行一次
+            radarInterval = setInterval(fetchRadar, 10000); // 每10秒刷新一次
+        };
+        // --- Radar Logic End ---
 
         const departures = computed(() => {
           return departuresRaw.value
@@ -771,8 +946,6 @@
               const p = d.line.product;
               return (p === 'regional' || p === 'express') ? activeFilters.value.includes('regional') : activeFilters.value.includes(p);
             })
-            // 注意：取消的班次可能没有 'when' 字段，只有 'plannedWhen'。我们需要保留它们以便显示取消状态。
-            // 如果 cancelled 为 true，我们通常认为它仍然是“未来”的某个时刻被取消的，或者根据 plannedWhen 判断
             .filter(d => {
                const time = d.when || d.plannedWhen;
                return (new Date(time) - now.value) >= -30000;
@@ -797,11 +970,14 @@
           else activeFilters.value.push(t);
         };
         
-        // 修改清除搜索逻辑
         const clearSearch = () => {
           searchQuery.value = "";
           searchResults.value = [];
-          isShowingFavorites.value = true; // 清除时回到收藏夹视图
+          isShowingFavorites.value = true;
+          // 清除雷达
+          if (radarInterval) clearInterval(radarInterval);
+          vehicleLayer.clearLayers();
+          isRadarActive.value = false;
         };
 
         return {
@@ -810,8 +986,7 @@
           locateMe, formatTime, formatAbsTime, getDelayClass, isDeparted, getProductClass: (p) => `product-${p}`,
           onDurationChange: () => fetchDepartures(currentStation.value.id), expandedTripId, toggleTrip, isTripLoading,
           currentTripStopovers, visibleStopovers, stopoverLimit,
-          // 新增返回
-          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites
+          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites, isRadarActive
         };
       }
     }).mount("#app");

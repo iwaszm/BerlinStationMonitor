@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Abfahrtsmonitor Berlin</title>
+  <title>Abfahrtsmonitor Berlin (Radar Unified)</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Font Awesome -->
@@ -63,7 +63,7 @@
 
     /* --- 平滑动画关键 CSS --- */
     .smooth-transition {
-      transition: transform 10s linear; /* 10秒线性移动 */
+      transition: transform 10s linear; /* 匹配刷新频率 */
     }
     .no-transition {
       transition: none !important;
@@ -84,21 +84,21 @@
       border-top-color: rgba(30, 30, 30, 0.9);
     }
 
-    /* --- 车辆图标新样式 (圆形 + 指针) --- */
-    /* 容器加大，防止旋转时箭头被裁剪 */
+    /* --- 车辆图标样式 (统一圆形) --- */
+    
     .vehicle-marker-wrapper {
       position: relative;
-      width: 50px; 
-      height: 50px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* 车辆标签样式 - 圆形 */
+    /* 圆圈和文字 */
     .vehicle-marker {
       position: relative;
-      z-index: 20; /* 文字圆圈在最上层 */
+      z-index: 10;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -108,39 +108,18 @@
       border-radius: 50%;
       box-shadow: 0 2px 5px rgba(0,0,0,0.6);
       border: 2px solid white;
-      width: 30px; 
-      height: 30px;
-      background-color: #555; /* 默认底色，会被JS覆盖 */
-    }
-
-    /* 车辆方向箭头容器 - 绝对定位，旋转中心在正中间 */
-    .vehicle-heading {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10; /* 在圆圈下面 */
-      display: flex;
-      justify-content: center;
-      /* 默认不旋转，由内联样式控制 transform */
-      pointer-events: none;
-    }
-
-    /* 实际的箭头图标 */
-    .heading-arrow {
-      color: var(--bvg-yellow); 
-      font-size: 24px; /* 加大图标 */
-      margin-top: -6px; /* 向上推，使其从圆圈顶部伸出 */
-      filter: drop-shadow(0 0 2px rgba(0,0,0,0.9)); /* 强烈阴影，确保在地图上可见 */
+      width: 32px; 
+      height: 32px;
+      background-color: #555;
     }
     
-    /* 车辆类型颜色 */
+    /* 车辆类型颜色 & 形状统一 */
     .marker-bus { background-color: #A5027D; }
     .marker-tram { background-color: #CC0000; }
-    /* 地图上不显示其他类型，但保留样式以防万一 */
-    .marker-default { background-color: #555; }
-
+    .marker-subway { background-color: #0063A5; border-radius: 50%; } /* 强制改为圆形 */
+    .marker-suburban { background-color: #008D4F; border-radius: 50%; }
+    .marker-regional { background-color: var(--db-red); }
+    
     /* 右上角浮岛菜单 */
     .top-right-menu {
       position: absolute;
@@ -178,7 +157,7 @@
       transform: scale(1.05);
     }
     
-    /* --- Radar Status Styles --- */
+    /* Radar Status Styles */
     .radar-status-wrapper {
       display: flex;
       align-items: center;
@@ -759,7 +738,6 @@
         const isRadarActive = ref(false);
         const radarError = ref(false);
 
-        // 新增：保存最新的雷达数据，以便在过滤器变化时立即重绘
         const lastRadarData = ref([]);
 
         let map, stationMarker, stationCircle;
@@ -978,7 +956,7 @@
             if (!currentStation.value || !currentStation.value.location) return;
             
             const { latitude, longitude } = currentStation.value.location;
-            const bbox = getBoundingBox(latitude, longitude, 2.0);
+            const bbox = getBoundingBox(latitude, longitude, 2.0); // 2km 半径
 
             try {
                 const res = await axios.get(`${API_BASE}/radar`, {
@@ -987,7 +965,7 @@
                         west: bbox.west,
                         south: bbox.south,
                         east: bbox.east,
-                        results: 256,
+                        results: 256, // API上限
                         duration: 60,
                         frames: 3,
                         polylines: true 
@@ -997,9 +975,7 @@
                 const allVehicles = Array.isArray(res.data) ? res.data : (res.data.movements || []);
                 if (!Array.isArray(allVehicles)) return; 
                 
-                // 保存原始雷达数据
                 lastRadarData.value = allVehicles;
-
                 updateVehicleMarkers(allVehicles);
                 isRadarActive.value = true;
                 radarError.value = false;
@@ -1017,17 +993,17 @@
             // TripID 验证：必须在出发列表中
             const validTripIds = new Set(departuresRaw.value.map(d => d.tripId));
             
-            // 过滤函数
-            const isMapRelevant = (prod) => ['bus', 'tram'].includes(prod);
+            // 过滤函数: 现在包含 bus, tram, suburban (S-Bahn), subway (U-Bahn)
+            const isMapRelevant = (prod) => ['bus', 'tram', 'suburban', 'subway'].includes(prod);
             const isProductActive = (prod) => activeFilters.value.includes(prod);
 
             vehicles.forEach(v => {
                 if (!v.location || !v.line) return;
                 
-                // 1. 严格过滤：地图只显示 Bus 和 Tram
+                // 1. 严格过滤：地图只显示特定类型 (现已扩展)
                 if (!isMapRelevant(v.line.product)) return;
 
-                // 2. 交互过滤：Sidebar 上的 Bus/Tram 开关控制显示
+                // 2. 交互过滤：必须按钮开启
                 if (!isProductActive(v.line.product)) return;
                 
                 // 3. 关联过滤：必须是本站相关的车辆
@@ -1041,41 +1017,15 @@
                 const label = v.line.name || '?';
                 const color = productColors[prod] || productColors.default;
                 
-                // 计算 Heading (使用用户提供的逻辑)
-                let angleDeg = 0;
                 let polylinePoints = [];
-                let hasValidHeading = false;
                 
                 if (v.frames && Array.isArray(v.frames)) {
                     const validFrames = v.frames.filter(f => 
                         f && typeof f.latitude === 'number' && typeof f.longitude === 'number'
                     );
                     polylinePoints = validFrames.map(f => [f.latitude, f.longitude]);
-
-                    if (validFrames.length > 0) {
-                        const frame = validFrames[0];
-                        if (frame.origin && frame.origin.location && frame.destination && frame.destination.location) {
-                            const o = frame.origin.location;
-                            const d = frame.destination.location;
-                            const deltaLat = d.latitude - o.latitude;
-                            const deltaLon = d.longitude - o.longitude;
-                            const angleRad = Math.atan2(deltaLon, deltaLat);
-                            angleDeg = angleRad * 180 / Math.PI;
-                            hasValidHeading = true;
-                        } 
-                        else if (validFrames.length >= 2) {
-                            const last = validFrames[validFrames.length - 1];
-                            const prev = validFrames[validFrames.length - 2];
-                            const deltaLat = last.latitude - prev.latitude;
-                            const deltaLon = last.longitude - prev.longitude;
-                            const angleRad = Math.atan2(deltaLon, deltaLat);
-                            angleDeg = angleRad * 180 / Math.PI;
-                            hasValidHeading = true;
-                        }
-                    }
                 }
 
-                // Trails
                 if (vehicleTrails[tripId]) {
                     map.removeLayer(vehicleTrails[tripId]);
                 }
@@ -1088,56 +1038,46 @@
                     }).addTo(map);
                 }
 
-                // Markers
-                const arrowStyle = hasValidHeading ? `transform: rotate(${angleDeg}deg);` : 'display: none;';
-                
-                const html = `
-                  <div class="vehicle-marker-wrapper">
-                    <div class="vehicle-heading" style="${arrowStyle}">
-                        <i class="fas fa-caret-up heading-arrow"></i>
-                    </div>
-                    <div class="vehicle-marker ${productClass}">
-                        ${label}
-                    </div>
-                  </div>
-                `;
-                
-                const icon = L.divIcon({
-                    className: '', 
-                    html: html,
-                    iconSize: [50, 50], // 容器加大到 50x50
-                    iconAnchor: [25, 25],
-                    popupAnchor: [0, -25]
-                });
-
+                // 只有当 Marker 不存在时才创建 HTML 字符串
                 if (vehicleMarkers[tripId]) {
                     const marker = vehicleMarkers[tripId];
                     const newLatLng = L.latLng(v.location.latitude, v.location.longitude);
                     
+                    // 1. 更新位置 (Leaflet 会自动应用 smooth-transition 类带来的 CSS 过渡)
                     if (marker.getLatLng().distanceTo(newLatLng) > 1) {
                          marker.setLatLng(newLatLng);
-                         marker.setIcon(icon); 
-                         marker.setPopupContent(`<strong>${v.line.name}</strong><br>Richtung: ${v.direction || 'Unbekannt'}`);
                     }
+                    
+                    // 3. 更新 Popup (可选)
+                    marker.setPopupContent(`<strong>${v.line.name}</strong><br>Richtung: ${v.direction || 'Unbekannt'}`);
+
                 } else {
+                    // 创建新 Marker
+                    // 移除箭头 HTML 结构，只保留圆圈
+                    const html = `
+                      <div class="vehicle-marker-wrapper">
+                        <div class="vehicle-marker ${productClass}">
+                            ${label}
+                        </div>
+                      </div>
+                    `;
+
+                    const icon = L.divIcon({
+                        className: 'smooth-transition', // 关键：应用位置过渡
+                        html: html,
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18],
+                        popupAnchor: [0, -18]
+                    });
+
                     const marker = L.marker([v.location.latitude, v.location.longitude], { icon: icon })
                      .addTo(map)
                      .bindPopup(`<strong>${v.line.name}</strong><br>Richtung: ${v.direction || 'Unbekannt'}`);
-                    
-                    const smoothIcon = L.divIcon({
-                        className: 'smooth-transition',
-                        html: html,
-                        iconSize: [50, 50],
-                        iconAnchor: [25, 25],
-                        popupAnchor: [0, -25]
-                    });
-                    marker.setIcon(smoothIcon);
 
                     vehicleMarkers[tripId] = marker;
                 }
             });
 
-            // 清理已消失 (或被过滤掉) 的车辆
             for (let id in vehicleMarkers) {
                 if (!activeIds.has(id)) {
                     map.removeLayer(vehicleMarkers[id]);

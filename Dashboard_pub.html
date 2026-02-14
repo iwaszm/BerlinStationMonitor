@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Abfahrtsmonitor Berlin (Styled Popup)</title>
+  <title>Abfahrtsmonitor Berlin (Final Layout)</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Font Awesome -->
@@ -12,14 +12,59 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
+      /* 核心品牌色 - 保持不变 */
       --bvg-yellow: #F0E400;
-      --bvg-bg: #222222;
-      --bvg-sidebar-bg: #2b2b2b;
-      --bvg-card-bg: #383838;
-      --bvg-text: #ffffff;
       --db-red: #EC0016;
-      --ice-white: #F0F0F0;
       --ubahn-blue: #0063A5; 
+
+      /* 默认黑暗模式变量 */
+      --bg-body: #222222;
+      --bg-sidebar: #2b2b2b;
+      --bg-section: #1a1a1a;
+      --bg-card: #383838;
+      --bg-input: #1a1a1a;
+      --bg-dropdown: #333333;
+      --bg-tooltip: rgba(30, 30, 30, 0.95);
+      
+      --text-main: #ffffff;
+      --text-muted: #aaaaaa;
+      --text-sub: #dddddd;
+      
+      --border-color: #444444;
+      --border-light: rgba(255, 255, 255, 0.15);
+      --hover-bg: #444444;
+      
+      --ice-bg: #ffffff;
+      --ice-text: #333333;
+      --ice-border: #999999;
+
+      --shadow-soft: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    /* 光明模式变量覆盖 - 作用于 body.light-mode */
+    body.light-mode {
+      --bg-body: #e0e0e0;
+      --bg-sidebar: #ffffff;
+      --bg-section: #f8f9fa;
+      --bg-card: #ffffff;
+      --bg-input: #f1f3f5;
+      --bg-dropdown: #ffffff;
+      /* Tooltip 保持深色以保证在地图上的高对比度 */
+      --bg-tooltip: rgba(30, 30, 30, 0.95);
+      
+      --text-main: #212529;
+      --text-muted: #6c757d;
+      --text-sub: #495057;
+      
+      --border-color: #dee2e6;
+      --border-light: rgba(0, 0, 0, 0.1);
+      --hover-bg: #f1f1f1;
+      
+      --ice-bg: #f8f9fa;
+      --ice-text: #212529;
+      --ice-border: #dee2e6;
+
+      --shadow-soft: 0 4px 12px rgba(0,0,0,0.1);
     }
 
     body {
@@ -27,9 +72,10 @@
       width: 100vw;
       overflow: hidden;
       margin: 0;
-      background-color: var(--bvg-bg);
-      color: var(--bvg-text);
+      background-color: var(--bg-body);
+      color: var(--text-main);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     #app {
@@ -43,11 +89,12 @@
       width: 380px;
       min-width: 320px;
       height: 100%;
-      background-color: var(--bvg-sidebar-bg);
+      background-color: var(--bg-sidebar);
       display: flex;
       flex-direction: column;
-      border-right: 1px solid #444;
+      border-right: 1px solid var(--border-color);
       z-index: 1000;
+      transition: background-color 0.3s ease;
     }
 
     /* 右侧地图 */
@@ -61,6 +108,7 @@
       height: 100%;
       width: 100%;
       z-index: 1;
+      background-color: var(--bg-body); 
     }
 
     /* --- 平滑动画关键 CSS --- */
@@ -78,18 +126,19 @@
       color: #fff;
       font-weight: bold;
       border-radius: 4px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
       font-size: 0.9rem;
       padding: 4px 8px;
     }
     .leaflet-tooltip-top:before {
       border-top-color: rgba(30, 30, 30, 0.95);
     }
+    
 
-    /* --- 1. 新增：车辆 Popup 自定义样式 (复用站点风格) --- */
+    /* --- 车辆 Popup 自定义样式 --- */
     .vehicle-popup .leaflet-popup-content-wrapper {
-      background-color: rgba(30, 30, 30, 0.95); /* 深色背景 */
-      border: 1px solid var(--bvg-yellow);       /* 黄色边框 */
+      background-color: rgba(30, 30, 30, 0.95); 
+      border: 1px solid var(--bvg-yellow);
       border-radius: 4px;
       padding: 0;
       box-shadow: 0 4px 12px rgba(0,0,0,0.6);
@@ -102,7 +151,7 @@
       font-size: 0.9rem;
       line-height: 1.4;
       text-align: center;
-      white-space: nowrap; /* 保持在一行 */
+      white-space: nowrap; 
     }
 
     .vehicle-popup .leaflet-popup-tip {
@@ -114,7 +163,7 @@
     }
 
     .vehicle-popup a.leaflet-popup-close-button {
-      display: none; /* 隐藏关闭按钮，看起来更简洁 */
+      display: none; 
     }
 
     /* 站点定位图标 */
@@ -148,7 +197,7 @@
       font-weight: 800;
       font-size: 0.75rem;
       border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.6);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
       border: 2px solid white;
       width: 32px; 
       height: 32px;
@@ -163,20 +212,44 @@
     .marker-regional { background-color: var(--db-red); }
     .marker-express { background-color: #fff; color: #333; border-color: #999; }
 
-    /* 右上角浮岛菜单 */
-    .top-right-menu {
+    /* ----------------------------------------------------------- */
+    /* 浮岛菜单通用样式 (右上角菜单 & 左下角缩放) */
+    /* ----------------------------------------------------------- */
+    .floating-menu {
       position: absolute;
-      top: 20px;
-      right: 20px;
       z-index: 2000;
       display: flex;
       gap: 4px;
-      background-color: rgba(30, 30, 30, 0.85);
+      background-color: rgba(30, 30, 30, 0.85); /* 默认深色半透明 */
       backdrop-filter: blur(10px);
-      padding: 6px 8px;
+      padding: 6px;
       border-radius: 50px;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      box-shadow: var(--shadow-soft);
+      transition: all 0.3s;
+    }
+
+    /* 右上角菜单 */
+    .top-right-menu {
+      top: 20px;
+      right: 20px;
+      flex-direction: row;
+      padding: 6px 8px;
+    }
+
+    /* 1. 左下角缩放菜单 */
+    .bottom-left-zoom {
+      bottom: 20px;
+      left: 20px;
+      flex-direction: column; /* 垂直排列 */
+      padding: 6px;
+    }
+
+    /* 光明模式下的浮岛菜单样式 */
+    body.light-mode .floating-menu {
+       background-color: rgba(255, 255, 255, 0.9);
+       border: 1px solid rgba(0,0,0,0.1);
+       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .menu-btn {
@@ -193,11 +266,17 @@
       transition: all 0.2s ease;
       font-size: 1.1rem;
     }
+    
+    body.light-mode .menu-btn { color: #555; }
 
     .menu-btn:hover {
       background-color: rgba(255, 255, 255, 0.15);
       color: var(--bvg-yellow);
       transform: scale(1.05);
+    }
+    body.light-mode .menu-btn:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #d4c800;
     }
     
     /* Radar Status Styles */
@@ -210,7 +289,7 @@
 
     .radar-status-icon {
       font-size: 0.8rem;
-      color: #555;
+      color: var(--text-muted);
       transition: all 0.3s ease;
       position: relative;
     }
@@ -218,6 +297,9 @@
     .radar-status-icon.active {
       color: var(--bvg-yellow);
       animation: pulse 2s infinite;
+    }
+    body.light-mode .radar-status-icon.active {
+       color: #d4c800; 
     }
 
     .radar-status-icon.error {
@@ -258,11 +340,12 @@
     .section-time {
       padding: 15px;
       text-align: center;
-      background-color: #1a1a1a;
-      border-bottom: 1px solid #444;
+      background-color: var(--bg-section);
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: center;
       align-items: center;
+      transition: background-color 0.3s;
     }
 
     .clock-display {
@@ -272,12 +355,13 @@
       color: var(--bvg-yellow);
       letter-spacing: 2px;
     }
+    body.light-mode .clock-display { color: #d4c800; }
 
     /* 2. 搜索与过滤区域 */
     .section-search {
       padding: 15px;
-      border-bottom: 1px solid #444;
-      background-color: var(--bvg-sidebar-bg);
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--bg-sidebar);
       position: relative;
     }
 
@@ -289,19 +373,20 @@
     }
 
     .form-control-dark {
-      background-color: #1a1a1a;
-      border: 1px solid #555;
-      color: #fff;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
       padding: 10px 15px;
       padding-right: 80px;
       border-radius: 6px;
       width: 100%;
+      transition: all 0.3s;
     }
 
     .form-control-dark:focus {
-      background-color: #1a1a1a;
+      background-color: var(--bg-input);
       border-color: var(--bvg-yellow);
-      color: #fff;
+      color: var(--text-main);
       box-shadow: 0 0 0 0.2rem rgba(240, 228, 0, 0.25);
     }
 
@@ -311,13 +396,13 @@
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: #888;
+      color: var(--text-muted);
       cursor: pointer;
       padding: 5px;
       transition: color 0.2s;
     }
     
-    .input-action-btn:hover { color: #fff; }
+    .input-action-btn:hover { color: var(--text-main); }
 
     .clear-btn { right: 45px; }
     .location-btn { right: 10px; }
@@ -351,6 +436,7 @@
       transition: all 0.2s ease;
       background-color: #444;
     }
+    body.light-mode .type-btn { background-color: #e0e0e0; color: #555; }
 
     .type-btn:hover {
       transform: scale(1.05);
@@ -360,7 +446,13 @@
     .type-btn.active {
       opacity: 1;
       transform: scale(1.0);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      color: #fff; 
+    }
+    
+    /* 2. 光明模式下，激活的按钮（除了 Fern）强制白色文字 */
+    body.light-mode .type-btn.active:not(.btn-fern) {
+        color: #ffffff !important;
     }
 
     .type-btn.active.btn-s { background-color: #008D4F; }
@@ -368,12 +460,16 @@
     .type-btn.active.btn-tram { background-color: #CC0000; }
     .type-btn.active.btn-bus { background-color: #A5027D; }
     .type-btn.active.btn-re { background-color: #EC0016; } 
-    .type-btn.active.btn-fern { background-color: #F0F0F0; color: #333; } 
+    .type-btn.active.btn-fern { 
+        background-color: var(--ice-bg); 
+        color: var(--ice-text); 
+        border: 1px solid var(--ice-border);
+    } 
 
     .duration-select {
-      background-color: #1a1a1a;
-      border: 1px solid #555;
-      color: #fff;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
       border-radius: 4px;
       padding: 5px 8px;
       font-size: 0.85rem;
@@ -387,13 +483,13 @@
       top: 100%;
       left: 15px; 
       right: 15px;
-      background-color: #333;
-      border: 1px solid #555;
+      background-color: var(--bg-dropdown);
+      border: 1px solid var(--border-color);
       border-top: none;
       z-index: 2000;
       max-height: 300px;
       overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow-soft);
       border-radius: 0 0 6px 6px;
     }
 
@@ -403,15 +499,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #444;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
     }
 
-    .search-item:hover { background-color: #444; }
+    .search-item:hover { background-color: var(--hover-bg); }
 
     .star-btn {
       background: none;
       border: none;
-      color: #666;
+      color: var(--text-muted);
       font-size: 1.1rem;
       padding: 5px;
       cursor: pointer;
@@ -419,12 +516,13 @@
     }
     .star-btn:hover { transform: scale(1.2); }
     .star-btn.starred { color: var(--bvg-yellow); }
+    body.light-mode .star-btn.starred { color: #d4c800; }
     
     .fav-header {
       padding: 8px 15px;
       font-size: 0.75rem;
-      color: #888;
-      background-color: #2a2a2a;
+      color: var(--text-muted);
+      background-color: var(--bg-section);
       text-transform: uppercase;
       letter-spacing: 1px;
     }
@@ -437,17 +535,18 @@
     }
 
     .bus-card {
-      background-color: var(--bvg-card-bg);
+      background-color: var(--bg-card);
       margin-bottom: 10px;
       border-radius: 6px;
       padding: 0;
       transition: all 0.2s ease;
       border-left: 4px solid #666;
       overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
     .bus-card:hover {
-      background-color: #444;
+      background-color: var(--hover-bg);
     }
 
     .bus-card.cancelled {
@@ -457,7 +556,7 @@
     .bus-card.cancelled .dest-text,
     .bus-card.cancelled .line-badge {
       text-decoration: line-through;
-      color: #aaa;
+      color: var(--text-muted);
     }
 
     .cancel-text {
@@ -469,12 +568,12 @@
     }
 
     .bus-card.cancelled {
-      border-left-color: #555 !important;
+      border-left-color: var(--text-muted) !important;
     }
     
     .bus-card.cancelled .line-badge {
-      background-color: #555 !important;
-      color: #bbb !important;
+      background-color: var(--text-muted) !important;
+      color: #fff !important;
     }
 
     /* 布局调整：修复对齐 */
@@ -510,7 +609,7 @@
     .product-subway { border-left-color: var(--ubahn-blue); } 
     .product-suburban { border-left-color: #008D4F; }
     .product-regional { border-left-color: var(--db-red); }
-    .product-express { border-left-color: #FFFFFF; } 
+    .product-express { border-left-color: #cccccc; }
 
     @keyframes breathe-green {
       0% { box-shadow: 0 0 0 0 rgba(77, 255, 77, 0.6); }
@@ -543,6 +642,7 @@
       display: inline-block;
       flex-shrink: 0;
       margin-right: 8px;
+      border: 1px solid rgba(0,0,0,0.1); /* Subtle border for light mode */
     }
     
     .product-subway .line-badge { background-color: var(--ubahn-blue); color: white; }
@@ -550,26 +650,28 @@
     .product-tram .line-badge { background-color: #CC0000; color: white; }
     .product-bus .line-badge { background-color: #A5027D; color: white; }
     .product-regional .line-badge { background-color: var(--db-red); color: white; }
-    .product-express .line-badge { background-color: #FFFFFF; color: #333; border: 1px solid #ccc; }
+    .product-express .line-badge { background-color: var(--ice-bg); color: var(--ice-text); border: 1px solid var(--ice-border); }
 
     .dest-text {
       font-size: 0.95rem;
-      color: #eee;
+      color: var(--text-main); /* Changed to variable */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: color 0.3s;
     }
+    body.light-mode .dest-text { font-weight: 600; }
 
     .time-large {
       font-size: 1.1rem;
       font-weight: bold;
-      color: #fff;
+      color: var(--text-main); /* Changed to variable */
       line-height: 1.2;
     }
 
     .time-sub {
       font-size: 0.75rem;
-      color: #ddd; 
+      color: var(--text-sub); /* Changed to variable */
       text-align: right;
       margin-top: 4px;
     }
@@ -579,17 +681,22 @@
       padding: 10px 15px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
+    body.light-mode .stopover-container {
+      background-color: rgba(0, 0, 0, 0.03);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
     .stopover-item {
       display: flex;
       align-items: center;
       padding: 4px 0;
       min-width: 0;
     }
-    .stopover-time { width: 45px; font-size: 0.8rem; color: #aaa; flex-shrink: 0; }
-    .stopover-node { width: 8px; height: 8px; border-radius: 50%; background-color: #555; margin: 0 10px; flex-shrink: 0; }
+    .stopover-time { width: 45px; font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0; }
+    .stopover-node { width: 8px; height: 8px; border-radius: 50%; background-color: #aaa; margin: 0 10px; flex-shrink: 0; }
     .stopover-name {
       font-size: 0.85rem;
-      color: #ddd;
+      color: var(--text-sub);
       flex: 1;
       min-width: 0;
       white-space: nowrap;
@@ -597,8 +704,8 @@
       text-overflow: ellipsis;
     }
 
-    .weiter-btn { width: 100%; background: none; border: 1px dashed #555; color: #888; font-size: 0.75rem; padding: 4px; margin-top: 8px; border-radius: 4px; }
-    .weiter-btn:hover { background-color: rgba(255, 255, 255, 0.05); color: #fff; }
+    .weiter-btn { width: 100%; background: none; border: 1px dashed var(--border-color); color: var(--text-muted); font-size: 0.75rem; padding: 4px; margin-top: 8px; border-radius: 4px; }
+    .weiter-btn:hover { background-color: var(--hover-bg); color: var(--text-main); }
 
     @media (max-width: 768px) {
       #app { flex-direction: column; }
@@ -670,7 +777,7 @@
             :key="station.id"
             @click="selectStation(station)"
           >
-            <div><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ cleanName(station.name) }}</div>
+            <div><i class="fas fa-map-marker-alt me-2" style="opacity: 0.6"></i>{{ cleanName(station.name) }}</div>
             <button 
               class="star-btn" 
               :class="{ 'starred': isStarred(station.id) }" 
@@ -687,7 +794,7 @@
       <div class="section-info">
         <div v-if="loading" class="text-center py-4">
           <div class="spinner-border text-warning" role="status"></div>
-          <div class="mt-2 small text-muted">Lade Abfahrten...</div>
+          <div class="mt-2 small" style="color: var(--text-muted)">Lade Abfahrten...</div>
         </div>
 
         <div
@@ -744,11 +851,22 @@
     <!-- 右侧地图 -->
     <div class="map-container">
       <div id="map"></div>
-      <div class="top-right-menu">
-        <button class="menu-btn" title="Nachtmodus"><i class="fas fa-moon"></i></button>
+      
+      <!-- 浮岛：右上角菜单 -->
+      <div class="floating-menu top-right-menu">
+        <button class="menu-btn" @click="toggleTheme" :title="isDarkMode ? 'Helles Design' : 'Dunkles Design'">
+          <i class="fas" :class="isDarkMode ? 'fa-moon' : 'fa-sun'"></i>
+        </button>
         <button class="menu-btn" title="Barrierefreiheit"><i class="fas fa-universal-access"></i></button>
         <button class="menu-btn" title="Sprache"><i class="fas fa-globe"></i></button>
       </div>
+
+      <!-- 1. 浮岛：左下角缩放控件 (新建) -->
+      <div class="floating-menu bottom-left-zoom">
+        <button class="menu-btn" @click="zoomIn" title="Vergrößern"><i class="fas fa-plus"></i></button>
+        <button class="menu-btn" @click="zoomOut" title="Verkleinern"><i class="fas fa-minus"></i></button>
+      </div>
+
     </div>
   </div>
 
@@ -768,12 +886,14 @@
         const searchResults = ref([]);
         const starredStations = ref([]); 
         const isShowingFavorites = ref(false); 
+        const isDarkMode = ref(true); 
         
         const currentStation = ref(null);
         const departuresRaw = ref([]);
         const loading = ref(false);
         const activeFilters = ref(['suburban', 'subway', 'tram', 'bus', 'regional', 'express']);
-        const duration = ref(60);
+        // 3. 默认时间改为 30 分钟
+        const duration = ref(30);
         
         const expandedTripId = ref(null);
         const currentTripStopovers = ref([]);
@@ -784,7 +904,7 @@
 
         const lastRadarData = ref([]);
 
-        let map, stationMarker, stationCircle;
+        let map, stationMarker, stationCircle, baseLayer;
         let vehicleLayer; 
         let vehicleMarkers = {}; 
         let vehicleTrails = {}; 
@@ -797,7 +917,7 @@
         const productColors = {
           bus: '#A5027D',
           tram: '#CC0000',
-          subway: '#0063A5', // Update default color ref
+          subway: '#0063A5', 
           suburban: '#008D4F',
           regional: '#EC0016',
           express: '#FFFFFF', 
@@ -806,9 +926,35 @@
 
         const API_BASE = "https://v6.bvg.transport.rest";
 
+        const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+        const LIGHT_TILES = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+
+        const toggleTheme = () => {
+          isDarkMode.value = !isDarkMode.value;
+        };
+        
+        // Map Zoom Functions
+        const zoomIn = () => { if (map) map.zoomIn(); };
+        const zoomOut = () => { if (map) map.zoomOut(); };
+
+        watch(isDarkMode, (newVal) => {
+          if (newVal) {
+             document.body.classList.remove('light-mode');
+             if (baseLayer) baseLayer.setUrl(DARK_TILES);
+          } else {
+             document.body.classList.add('light-mode');
+             if (baseLayer) baseLayer.setUrl(LIGHT_TILES);
+          }
+        });
+
         onMounted(() => {
-          map = L.map("map").setView([52.5200, 13.4050], 13);
-          L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png").addTo(map);
+          // Disable default zoom control
+          map = L.map("map", { zoomControl: false }).setView([52.5200, 13.4050], 13);
+          
+          baseLayer = L.tileLayer(isDarkMode.value ? DARK_TILES : LIGHT_TILES, {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+          }).addTo(map);
+
           vehicleLayer = L.layerGroup().addTo(map);
 
           map.on('zoomstart', () => {
@@ -837,7 +983,6 @@
           if (radarInterval) clearInterval(radarInterval);
         });
 
-        // 3. Helper Function to remove (Berlin)
         const cleanName = (name) => {
             if (!name) return "";
             return name.replace(/\s*\(Berlin\)\s*/gi, "").replace(/,\s*Berlin\s*/gi, "");
@@ -961,7 +1106,7 @@
         const selectStation = (station) => {
           currentStation.value = station;
           searchResults.value = []; 
-          searchQuery.value = cleanName(station.name); // Clean input on select
+          searchQuery.value = cleanName(station.name); 
 
           if (radarInterval) clearInterval(radarInterval);
           
@@ -983,7 +1128,6 @@
 
             map.setView([lat, lon], 14); 
 
-            // 2. 修改：使用自定义 CSS 图标
             const stationIcon = L.divIcon({
               className: 'station-pos-marker', 
               iconSize: [20, 20],
@@ -993,10 +1137,10 @@
 
             stationMarker = L.marker([lat, lon], { icon: stationIcon })
               .addTo(map)
-              .bindTooltip(cleanName(station.name), { // Clean tooltip
+              .bindTooltip(cleanName(station.name), { 
                 permanent: true,       
                 direction: 'top',      
-                offset: [0, -14],  // 2. 修改：调整 offset，让文字更近 (原 -25)    
+                offset: [0, -14],  
                 className: 'station-tooltip' 
               })
               .openTooltip();
@@ -1119,7 +1263,6 @@
                     }).addTo(map);
                 }
 
-                // 2. 更新内容：线路 + 终点站
                 const popupContent = `${v.line.name} ${cleanName(v.direction)}`;
 
                 if (vehicleMarkers[tripId]) {
@@ -1149,13 +1292,12 @@
                         popupAnchor: [0, -18]
                     });
 
-                    // 3. 应用样式
                     const marker = L.marker([v.location.latitude, v.location.longitude], { icon: icon })
                      .addTo(map)
                      .bindPopup(popupContent, {
-                        className: 'vehicle-popup', // 应用自定义样式类
+                        className: 'vehicle-popup', 
                         offset: [0, -10], 
-                        closeButton: false // 隐藏关闭按钮
+                        closeButton: false 
                      });
 
                     vehicleMarkers[tripId] = marker;
@@ -1231,7 +1373,8 @@
           locateMe, formatTime, formatAbsTime, getDelayClass, isDeparted, getProductClass: (p) => `product-${p}`,
           onDurationChange: () => fetchDepartures(currentStation.value.id), expandedTripId, toggleTrip, isTripLoading,
           currentTripStopovers, visibleStopovers, stopoverLimit,
-          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites, isRadarActive, radarError, cleanName
+          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites, isRadarActive, radarError, cleanName,
+          isDarkMode, toggleTheme, zoomIn, zoomOut
         };
       }
     }).mount("#app");

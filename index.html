@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin (Final)</title>
+  <title>Abfahrtsmonitor Berlin (Mobile Optimized)</title>
   
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,16 +18,16 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
-      /* 核心品牌色 */
+      /* Core Brand Colors */
       --bvg-yellow: #F0E400;
       --db-red: #EC0016;
       --ubahn-blue: #0063A5; 
 
-      /* 字体定义 */
+      /* Font Definitions */
       --font-main: 'Inter', sans-serif;
       --font-numbers: 'Inter', sans-serif; 
 
-      /* 黑暗模式 */
+      /* Dark Mode Variables */
       --bg-body: #222222;
       --bg-sidebar: #2b2b2b;
       --bg-section: #1a1a1a;
@@ -52,7 +52,7 @@
       --shadow-soft: 0 4px 12px rgba(0,0,0,0.5);
     }
 
-    /* 光明模式 */
+    /* Light Mode Variables */
     body.light-mode {
       --bg-body: #e0e0e0;
       --bg-sidebar: #ffffff;
@@ -101,7 +101,7 @@
       position: relative; 
     }
 
-    /* 左侧边栏 */
+    /* Left Sidebar - PC Defaults */
     .sidebar {
       width: 380px;
       min-width: 320px;
@@ -111,25 +111,91 @@
       flex-direction: column;
       border-right: 1px solid var(--border-color);
       z-index: 1000;
-      /* 关键：增加宽度的过渡动画 */
       transition: background-color 0.3s ease, width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       overflow: hidden; 
     }
 
-    /* 全屏模式：覆盖地图 */
+    /* Full Screen Mode PC: Overlays Map */
     .sidebar.full-mode {
         width: 100% !important;
         border-right: none;
     }
 
-    /* 右侧地图容器 */
+    /* Right Map Container - PC Defaults */
     .map-container {
       flex-grow: 1;
       height: 100%;
       position: relative;
-      /* 关键：允许被 flexbox 压缩到 0 */
       min-width: 0; 
       transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    /* --- MOBILE OPTIMIZATIONS (Bottom Sheet Mode) --- */
+    @media (max-width: 767px) {
+        #app {
+            flex-direction: column;
+        }
+
+        /* Map always fills the screen in background */
+        .map-container {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1; /* Behind sidebar */
+        }
+
+        /* Sidebar becomes a bottom sheet */
+        .sidebar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100% !important; /* Fix: Top right to edge */
+            height: auto !important; /* Height depends on content/state */
+            max-height: 85vh; /* Never fully cover map */
+            border-right: none;
+            border-top: 1px solid var(--border-color);
+            z-index: 2000; /* Above map */
+            border-radius: 16px 16px 0 0; /* Rounded top corners */
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Mobile State: Full (Tall Sheet) */
+        .sidebar.mobile-full {
+            height: 85vh !important;
+        }
+        
+        /* Ensure list takes available space in full mode */
+        .sidebar.mobile-full .section-info {
+            flex-grow: 1;
+            height: auto !important;
+        }
+
+        /* Mobile State: Half (Medium Sheet) */
+        .section-info.state-half {
+            height: 35vh !important; /* Use VH for better mobile feel */
+        }
+
+        /* Mobile State: Collapsed (Small Sheet - Just Header & Footer) */
+        .section-info.state-collapsed {
+            height: 0 !important;
+            padding: 0 10px !important;
+            border: none;
+        }
+
+        /* Adjust Zoom Controls position for mobile */
+        .top-right-zoom {
+            top: 10px;
+            right: 10px;
+        }
+        
+        /* Ensure settings modal fits mobile */
+        .settings-modal {
+            width: 92%;
+            max-height: 75vh;
+        }
     }
 
     #map {
@@ -151,17 +217,17 @@
 
     /* Default RSS Icon (Inactive/Offline) */
     .rss-icon {
-        color: #888; /* 默认灰色 */
+        color: #888; /* Default Grey */
         transition: color 0.3s;
     }
     
-    /* Active RSS Icon (只有当父容器有 .radar-active 时才激活) */
+    /* Active RSS Icon (Only active when parent has .radar-active) */
     .radar-active .rss-icon {
         animation: pulse-yellow 2s infinite ease-in-out;
         color: var(--bvg-yellow); 
     }
 
-    /* 地图 Tooltip & Popup */
+    /* Map Tooltip & Popup */
     .station-tooltip {
       background-color: rgba(30, 30, 30, 0.95);
       border: 1px solid var(--bvg-yellow);
@@ -202,10 +268,10 @@
       gap: 6px;
     }
 
-    /* Popup 中的车号 */
+    /* Vehicle Number in Popup */
     .vehicle-popup-badge {
         font-family: var(--font-numbers);
-        font-feature-settings: "tnum"; /* 等宽数字 */
+        font-feature-settings: "tnum"; /* Tabular figures */
         font-weight: bold;
     }
 
@@ -218,7 +284,7 @@
     }
     .vehicle-popup a.leaflet-popup-close-button { display: none; }
 
-    /* 图标样式 */
+    /* Icon Styling */
     .station-pos-marker {
       background-color: var(--bvg-yellow);
       border: 3px solid #ffffff;
@@ -239,9 +305,9 @@
       justify-content: center;
       color: white;
       
-      /* 车号图标 */
+      /* Vehicle Number Icon */
       font-family: var(--font-numbers);
-      font-feature-settings: "tnum"; /* 等宽数字 */
+      font-feature-settings: "tnum"; /* Tabular figures */
       font-weight: bold;
       
       font-size: 11px; 
@@ -296,7 +362,7 @@
     .menu-btn:hover { background-color: rgba(255, 255, 255, 0.15); color: var(--bvg-yellow); transform: scale(1.05); }
     body.light-mode .menu-btn:hover { background-color: rgba(0, 0, 0, 0.05); color: #d4c800; }
     
-    /* 搜索与过滤区域 */
+    /* Search and Filter Section */
     .section-search {
       padding: 12px 15px;
       border-bottom: 1px solid var(--border-color);
@@ -366,7 +432,7 @@
     }
     .settings-btn:hover { background-color: var(--hover-bg); color: var(--text-main); }
 
-    /* Filter 按钮 */
+    /* Filter Buttons */
     .type-btn {
       width: 36px;  
       height: 36px; 
@@ -447,7 +513,7 @@
     
     .fav-header { padding: 8px 15px; font-size: 11px; color: var(--text-muted); background-color: var(--bg-section); text-transform: uppercase; letter-spacing: 1px; }
 
-    /* 3. 信息列表区域 (Info States) */
+    /* 3. Info List Area (Info States) */
     .section-info {
       flex-grow: 1; 
       overflow-y: auto;
@@ -523,7 +589,7 @@
       padding: 1px 5px;
       border-radius: 3px;
       
-      /* 车号：使用等宽数字 */
+      /* Vehicle Number: Use tabular nums */
       font-family: var(--font-numbers);
       font-feature-settings: "tnum"; 
       letter-spacing: -0.5px; 
@@ -547,7 +613,7 @@
     .dest-text { font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.3s; }
     body.light-mode .dest-text { font-weight: 600; }
     
-    /* 大时间显示：使用等宽数字 */
+    /* Large time display: Use tabular nums */
     .time-large { 
         font-family: var(--font-numbers);
         font-feature-settings: "tnum"; 
@@ -558,7 +624,7 @@
         line-height: 1.2; 
     }
     
-    /* 小时间显示：使用等宽数字 */
+    /* Small time display: Use tabular nums */
     .time-sub { 
         font-family: var(--font-numbers);
         font-feature-settings: "tnum"; 
@@ -572,7 +638,7 @@
     body.light-mode .stopover-container { background-color: rgba(0, 0, 0, 0.03); border-top: 1px solid rgba(0, 0, 0, 0.05); }
     .stopover-item { display: flex; align-items: center; padding: 3px 0; min-width: 0; }
     
-    /* 经停站时间：使用等宽数字 */
+    /* Stopover time: Use tabular nums */
     .stopover-time { 
         font-family: var(--font-numbers);
         font-feature-settings: "tnum"; 
@@ -587,7 +653,7 @@
     .weiter-btn { width: 100%; background: none; border: 1px dashed var(--border-color); color: var(--text-muted); font-size: 11px; padding: 4px; margin-top: 8px; border-radius: 4px; }
     .weiter-btn:hover { background-color: var(--hover-bg); color: var(--text-main); }
 
-    /* 4. 底部折叠控制条 */
+    /* 4. Bottom Collapse Toggle Bar */
     .sidebar-footer-toggle {
         height: 28px; 
         background-color: var(--bg-toggle);
@@ -701,28 +767,28 @@
     <div class="settings-modal-overlay" v-if="showSettings" @click.self="showSettings = false">
         <div class="settings-modal">
             <div class="settings-header">
-                <span>Einstellungen</span>
+                <span>{{ t.settings }}</span>
                 <button class="settings-close" @click="showSettings = false"><i class="fas fa-times"></i></button>
             </div>
             <div class="settings-content">
                 <!-- Section 0: Global Actions & Time -->
                 <div class="settings-section">
-                    <div class="settings-section-title">Anzeige & Sprache</div>
+                    <div class="settings-section-title">{{ t.displayLang }}</div>
                     <div class="settings-actions-row">
                          <button class="settings-action-btn" @click="toggleTheme">
                             <i class="fas" :class="isDarkMode ? 'fa-moon' : 'fa-sun'"></i>
-                            {{ isDarkMode ? 'Dunkel' : 'Hell' }}
+                            {{ isDarkMode ? t.dark : t.light }}
                          </button>
-                         <!-- Karte Button Removed -->
-                         <button class="settings-action-btn">
-                            <i class="fas fa-globe"></i> Deutsch
+                         <!-- Language Toggle Button -->
+                         <button class="settings-action-btn" @click="toggleLang">
+                            <i class="fas fa-globe"></i> {{ currentLang === 'de' ? 'Deutsch' : 'English' }}
                          </button>
                     </div>
                     
                     <!-- Time Filter (Slider) -->
                     <div class="mt-3">
                         <div class="settings-section-title d-flex justify-content-between">
-                            <span>Zeitraum</span>
+                            <span>{{ t.timeSpan }}</span>
                             <span style="color: var(--text-main)">{{ duration }} Min</span>
                         </div>
                         <input type="range" v-model.number="duration" min="5" max="120" step="5" @change="onDurationChange">
@@ -732,10 +798,9 @@
                 <!-- Section 1: Manage Stations (2 Slots) -->
                 <div class="settings-section">
                     <div class="settings-section-title d-flex justify-content-between align-items-center">
-                        <!-- Renamed to Beobachtete Stationen -->
-                        <span>Beobachtete Stationen</span>
+                        <span>{{ t.watchedStations }}</span>
                         <!-- New Reset Button for Stations -->
-                        <button class="reset-icon-btn" @click="resetStations" v-if="station1 || station2" title="Stationen zurücksetzen">
+                        <button class="reset-icon-btn" @click="resetStations" v-if="station1 || station2" :title="t.reset">
                             <i class="fas fa-undo-alt"></i>
                         </button>
                     </div>
@@ -750,7 +815,7 @@
                             <input 
                                 class="form-control-dark" 
                                 type="text" 
-                                placeholder="Haltestelle suchen..." 
+                                :placeholder="t.searchPlaceholder" 
                                 v-model="s1Query" 
                                 @input="onS1Input"
                             >
@@ -772,7 +837,7 @@
                             <input 
                                 class="form-control-dark" 
                                 type="text" 
-                                placeholder="Haltestelle hinzufügen..." 
+                                :placeholder="t.addPlaceholder" 
                                 v-model="s2Query" 
                                 @input="onS2Input"
                             >
@@ -788,15 +853,14 @@
                 <!-- Section 2: Line Filter -->
                 <div class="settings-section">
                     <div class="settings-section-title d-flex justify-content-between align-items-center">
-                        <!-- Renamed to Beobachtete Linien -->
-                        <span>Beobachtete Linien</span>
+                        <span>{{ t.watchedLines }}</span>
                         <!-- Modified Reset Button (Icon) -->
-                        <button class="reset-icon-btn" @click="resetLineFilters" v-if="excludedLines.size > 0" title="Filter zurücksetzen">
+                        <button class="reset-icon-btn" @click="resetLineFilters" v-if="excludedLines.size > 0" :title="t.reset">
                             <i class="fas fa-undo-alt"></i>
                         </button>
                     </div>
                     <div class="search-input-wrapper">
-                         <input class="form-control-dark" type="text" placeholder="Filter Lines (e.g. M41)..." v-model="lineFilterSearch">
+                         <input class="form-control-dark" type="text" :placeholder="t.filterLinesPlaceholder" v-model="lineFilterSearch">
                     </div>
                     <div class="line-filter-list">
                         <div 
@@ -807,18 +871,24 @@
                           @click="toggleLineExclusion(lineName)"
                         >
                              {{ lineName }}
-                             <!-- Eye Icon Removed -->
                         </div>
                     </div>
                     <div v-if="filteredLineList.length === 0" class="text-muted small text-center mt-2">
-                        Keine passenden Linien gefunden.
+                        {{ t.noLinesFound }}
                     </div>
+                </div>
+
+                <!-- New: Settings Footer (Light Grey) -->
+                <div class="mt-4 text-center" style="font-size: 10px; line-height: 1.4; border-top: 1px solid var(--border-color); padding-top: 10px; color: #aaaaaa;">
+                    <div>{{ t.dataSource }}: <a href="https://v6.bvg.transport.rest" target="_blank" style="color: inherit; text-decoration: underline;">v6.bvg.transport.rest</a></div>
+                    <div>{{ t.disclaimer }}</div>
+                    <div><a href="https://github.com/iwaszm/BerlinStationMonitor" target="_blank" style="color: inherit; text-decoration: underline;">GitHub Repo</a></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 左侧 Sidebar -->
+    <!-- Left Sidebar -->
     <div class="sidebar" :class="[sidebarMobileClass, { 'full-mode': !showMap }]">
       
       <div class="section-search">
@@ -827,7 +897,7 @@
               <input
                 class="form-control-dark"
                 type="text"
-                placeholder="Haltestelle suchen..."
+                :placeholder="t.searchPlaceholder"
                 v-model="searchQuery"
                 @input="onSearchInput"
                 @focus="showFavorites"
@@ -848,14 +918,14 @@
             <button class="type-btn btn-fern" :class="{ active: isTypeActive('express') }" @click="toggleType('express')">Fern</button>
           </div>
 
-          <button class="settings-btn" @click="showSettings = true" title="Mehr Einstellungen">
+          <button class="settings-btn" @click="showSettings = true" :title="t.settings">
               <i class="fas fa-sliders-h"></i>
           </button>
         </div>
 
         <div class="search-dropdown" v-if="displayResults.length > 0">
           <div v-if="isShowingFavorites" class="fav-header">
-            <i class="fas fa-star me-2"></i>Favoriten
+            <i class="fas fa-star me-2"></i>{{ t.favorites }}
           </div>
           <div
             class="search-item"
@@ -868,7 +938,7 @@
               class="star-btn" 
               :class="{ 'starred': isStarred(station.id) }" 
               @click.stop="toggleStar(station)"
-              title="Als Favorit speichern"
+              :title="t.favorites"
             >
               <i class="fas" :class="isStarred(station.id) ? 'fa-star' : 'fa-star'"></i>
             </button>
@@ -876,15 +946,15 @@
         </div>
       </div>
 
-      <!-- 3. 信息列表 (Dynamic Info State) -->
+      <!-- 3. Info List (Dynamic Info State) -->
       <div class="section-info" :class="infoStateClass">
         <div v-if="loading" class="text-center py-4">
           <div class="spinner-border text-warning" role="status"></div>
-          <div class="mt-2 small" style="color: var(--text-muted)">Lade Abfahrten...</div>
+          <div class="mt-2 small" style="color: var(--text-muted)">{{ t.loading }}</div>
         </div>
 
         <div v-else-if="departures.length === 0 && !loading && watchedStations.length > 0" class="text-center py-4 text-muted">
-           <small>Keine Abfahrten in den nächsten {{duration}} Min.</small>
+           <small>{{ t.noDepartures.replace('{t}', duration) }}</small>
         </div>
 
         <div
@@ -911,7 +981,7 @@
 
             <div class="card-time-right">
               <div class="time-large" :class="{ 'cancel-text': dep.cancelled }">
-                {{ dep.cancelled ? 'fällt aus' : formatTime(dep.when || dep.plannedWhen) }}
+                {{ dep.cancelled ? t.cancelled : formatTime(dep.when || dep.plannedWhen) }}
               </div>
               <div class="time-sub">
                 <span>
@@ -924,7 +994,7 @@
 
           <div v-if="expandedTripId === dep.tripId" class="stopover-container">
              <div v-if="dep.cancelled" class="text-center text-danger py-2">
-                 <i class="fas fa-ban me-2"></i>Diese Fahrt fällt leider aus.
+                 <i class="fas fa-ban me-2"></i>{{ t.cancelledMsg }}
              </div>
              <div v-else-if="isTripLoading" class="text-center py-2">
                 <div class="spinner-border spinner-border-sm text-secondary"></div>
@@ -935,27 +1005,27 @@
                    <div class="stopover-node"></div>
                    <div class="stopover-name">{{ cleanName(stop.stop.name) }}</div>
                 </div>
-                <button v-if="currentTripStopovers.length > stopoverLimit" class="weiter-btn" @click.stop="stopoverLimit += 5">Weiter...</button>
+                <button v-if="currentTripStopovers.length > stopoverLimit" class="weiter-btn" @click.stop="stopoverLimit += 5">{{ t.loadMore }}</button>
              </div>
           </div>
         </div>
       </div>
 
-      <!-- 3. 底部控制条 (3-State Toggle) -->
+      <!-- 3. Bottom Toggle Bar (3-State Toggle) -->
       <div class="sidebar-footer-toggle" @click="toggleInfoState" title="Ansicht ändern">
-          <!-- 图标随状态变化 -->
+          <!-- Icon changes with state -->
           <i class="fas" :class="toggleIcon"></i>
       </div>
     </div>
 
-    <!-- 右侧地图 -->
+    <!-- Right Map -->
     <div class="map-container" :class="{ 'radar-active': isRadarActive }">
       <div id="map"></div>
       
-      <!-- 缩放控件移到右上角 -->
+      <!-- Zoom controls moved to top right -->
       <div class="floating-menu top-right-zoom">
-        <button class="menu-btn" @click="zoomIn" title="Vergrößern"><i class="fas fa-plus"></i></button>
-        <button class="menu-btn" @click="zoomOut" title="Verkleinern"><i class="fas fa-minus"></i></button>
+        <button class="menu-btn" @click="zoomIn" :title="t.zoomIn"><i class="fas fa-plus"></i></button>
+        <button class="menu-btn" @click="zoomOut" :title="t.zoomOut"><i class="fas fa-minus"></i></button>
       </div>
 
     </div>
@@ -969,11 +1039,75 @@
   <script>
     const { createApp, ref, onMounted, computed, watch, onUnmounted, nextTick } = Vue;
 
+    // Translation Dictionary
+    const translations = {
+        de: {
+            settings: "Einstellungen",
+            displayLang: "Anzeige & Sprache",
+            dark: "Dunkel",
+            light: "Hell",
+            timeSpan: "Zeitraum",
+            watchedStations: "Beobachtete Stationen",
+            watchedLines: "Beobachtete Linien",
+            reset: "Zurücksetzen",
+            searchPlaceholder: "Haltestelle suchen...",
+            addPlaceholder: "Haltestelle hinzufügen...",
+            filterLinesPlaceholder: "Linien filtern (z.B. M41)...",
+            noLinesFound: "Keine passenden Linien gefunden.",
+            dataSource: "Datenquelle",
+            disclaimer: "Alle Angaben ohne Gewähr.",
+            favorites: "Favoriten",
+            loading: "Lade Abfahrten...",
+            noDepartures: "Keine Abfahrten in den nächsten {t} Min.",
+            cancelled: "fällt aus",
+            cancelledMsg: "Diese Fahrt fällt leider aus.",
+            now: "Sofort",
+            inMin: "In {t} Min",
+            loadMore: "Weiter...",
+            zoomIn: "Vergrößern",
+            zoomOut: "Verkleinern"
+        },
+        en: {
+            settings: "Settings",
+            displayLang: "Display & Language",
+            dark: "Dark",
+            light: "Light",
+            timeSpan: "Time Span",
+            watchedStations: "Watched Stations",
+            watchedLines: "Watched Lines",
+            reset: "Reset",
+            searchPlaceholder: "Search station...",
+            addPlaceholder: "Add station...",
+            filterLinesPlaceholder: "Filter lines (e.g. M41)...",
+            noLinesFound: "No matching lines found.",
+            dataSource: "Data Source",
+            disclaimer: "Information provided without guarantee.",
+            favorites: "Favorites",
+            loading: "Loading departures...",
+            noDepartures: "No departures in the next {t} min.",
+            cancelled: "cancelled",
+            cancelledMsg: "This trip is cancelled.",
+            now: "Now",
+            inMin: "In {t} min",
+            loadMore: "Load more...",
+            zoomIn: "Zoom In",
+            zoomOut: "Zoom Out"
+        }
+    };
+
     createApp({
       setup() {
         const currentTime = ref("");
         const now = ref(new Date());
         
+        // Language State
+        const currentLang = ref('de');
+        const t = computed(() => translations[currentLang.value]);
+
+        const toggleLang = () => {
+            currentLang.value = currentLang.value === 'de' ? 'en' : 'de';
+        };
+
         // Main Sidebar Search
         const searchQuery = ref("");
         const searchResults = ref([]);
@@ -1620,7 +1754,7 @@
         const formatTime = (iso) => {
           const diff = (new Date(iso) - now.value) / 60000;
           if (diff <= 0) return "";
-          return diff < 1 ? "Sofort" : `In ${Math.round(diff)} Min`;
+          return diff < 1 ? t.value.now : t.value.inMin.replace('{t}', Math.round(diff));
         };
         const formatAbsTime = (iso) => iso ? new Date(iso).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "";
         const isTypeActive = (t) => activeFilters.value.includes(t);
@@ -1668,7 +1802,9 @@
           lineFilterSearch, filteredLineList, toggleLineExclusion, excludedLines, resetLineFilters,
           // Slots
           station1, station2, s1Query, s2Query, s1Results, s2Results, onS1Input, onS2Input,
-          showMap, toggleMap, resetStations
+          showMap, toggleMap, resetStations,
+          // Language
+          t, currentLang, toggleLang
         };
       }
     }).mount("#app");

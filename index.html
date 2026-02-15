@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Abfahrtsmonitor Berlin (Final Polish)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Abfahrtsmonitor Berlin (Viewport Fix)</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Font Awesome -->
@@ -68,21 +68,26 @@
       --shadow-soft: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    body {
-      height: 100dvh; 
-      width: 100vw;
-      overflow: hidden;
+    /* 关键修复 1：移动端视口锁定 */
+    html, body {
+      position: fixed; /* 强制固定，防止 iOS Safari 回弹和地址栏遮挡 */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* 禁止 body 滚动，滚动在内部容器处理 */
       margin: 0;
       background-color: var(--bg-body);
       color: var(--text-main);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       transition: background-color 0.3s ease, color 0.3s ease;
+      overscroll-behavior: none;
     }
 
     #app {
       display: flex;
-      height: 100dvh; 
       width: 100%;
+      height: 100%; /* 继承 fixed body 的高度 */
       position: relative; 
     }
 
@@ -132,7 +137,6 @@
       gap: 8px; 
     }
     
-    /* 修复：设置Tooltip下方三角的颜色为黄色，使其可见并与边框融合 */
     .leaflet-tooltip-top:before { 
         border-top-color: var(--bvg-yellow); 
         opacity: 1;
@@ -260,16 +264,13 @@
       position: relative; 
     }
 
-    /* Bahnschrift Font */
     .header-center-display {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      
       font-family: 'Bahnschrift', 'DIN', 'Roboto Condensed', 'Arial Narrow', sans-serif;
       font-weight: 400; 
       font-size: 1.2rem; 
-      
       cursor: pointer;
       user-select: none;
       color: var(--bvg-yellow);
@@ -348,14 +349,15 @@
     .filter-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .filter-group { display: flex; gap: 4px; }
 
+    /* 关键修复 2：Filter 按钮比例优化 */
     .type-btn {
-      width: 32px; 
-      height: 32px;
+      width: 36px;  /* 增大宽度 */
+      height: 36px; /* 增大高度 */
       border: none;
       border-radius: 4px;
       color: #fff;
-      font-weight: bold;
-      font-size: 0.8rem;
+      font-weight: 700; /* 加粗 */
+      font-size: 15px;  /* 增大字体，与按钮大小匹配 */
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -363,6 +365,7 @@
       opacity: 0.3;
       transition: all 0.2s ease;
       background-color: #444;
+      line-height: 1; /* 确保文字垂直居中 */
     }
     body.light-mode .type-btn { background-color: #e0e0e0; color: #555; }
     .type-btn:hover { transform: scale(1.05); opacity: 0.7; }
@@ -385,7 +388,7 @@
       font-size: 0.85rem;
       cursor: pointer;
       outline: none;
-      height: 32px;
+      height: 36px; /* 匹配 Filter 按钮高度 */
     }
 
     .search-dropdown {
@@ -412,21 +415,21 @@
 
     /* 3. 信息列表区域 (Info States) */
     .section-info {
-      flex-grow: 1; /* 默认占据剩余空间 */
+      flex-grow: 1; 
       overflow-y: auto;
       padding: 10px;
       overflow-x: hidden; 
       background-color: var(--bg-sidebar); 
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      
-      /* 关键修复：确保子元素最小高度为0，防止 Flex 溢出 */
       min-height: 0;
+      
+      /* 移动端滚动体验优化 */
+      -webkit-overflow-scrolling: touch; 
     }
 
     /* 状态 1: Full (默认) */
     .section-info.state-full {
         flex-grow: 1;
-        /* 关键修复：在全屏且 flex-grow:1 的情况下，设置 height: 0 强制让 Flexbox 计算实际可用高度，从而触发滚动 */
         height: 0; 
     }
 
@@ -522,7 +525,7 @@
 
     /* 4. 底部折叠控制条 */
     .sidebar-footer-toggle {
-        height: 24px;
+        height: 28px; /* 稍微增高一点 */
         background-color: var(--bg-toggle);
         border-top: 1px solid var(--border-color);
         display: flex;
@@ -531,10 +534,13 @@
         cursor: pointer;
         color: var(--text-muted);
         transition: background-color 0.2s, color 0.2s;
-        /* 关键：防止Flex压缩，确保高度固定 */
         flex-shrink: 0; 
         font-size: 0.8rem;
         z-index: 1002;
+        
+        /* 关键修复：适配 iPhone X+ 等设备底部的安全区域 */
+        padding-bottom: env(safe-area-inset-bottom);
+        box-sizing: content-box; /* 确保 padding 不吃掉 height */
     }
     .sidebar-footer-toggle:hover { background-color: var(--hover-bg); color: var(--bvg-yellow); }
     body.light-mode .sidebar-footer-toggle:hover { color: #d4c800; }
@@ -544,7 +550,7 @@
 
     /* Mobile 专用样式修改 (Layered Logic) */
     @media (max-width: 768px) {
-      #app { display: block; position: relative; height: 100dvh; }
+      /* body和html已设置为fixed，这里不需要额外height */
       
       /* 地图层 (Layer 2) - 永远全屏垫底 */
       .map-container { 
@@ -562,7 +568,8 @@
         top: 0;
         left: 0;
         width: 100%; 
-        max-height: 100dvh; 
+        /* 确保侧边栏高度不超过视口，多余内容内部滚动 */
+        max-height: 100%; 
         z-index: 1000;
         transition: height 0.3s ease;
         box-shadow: 0 5px 15px rgba(0,0,0,0.5);
@@ -570,7 +577,7 @@
 
       /* 状态 1 Full: Sidebar 占满整个屏幕 */
       .sidebar.mobile-full {
-          height: 100dvh; /* 强制全屏高度 */
+          height: 100%; /* 继承 fixed body 的 100% */
           background-color: var(--bg-sidebar);
       }
 

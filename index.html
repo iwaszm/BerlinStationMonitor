@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin (Viewport Fix)</title>
+  <title>Abfahrtsmonitor Berlin (All Inter)</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Font Awesome -->
@@ -16,6 +22,11 @@
       --bvg-yellow: #F0E400;
       --db-red: #EC0016;
       --ubahn-blue: #0063A5; 
+
+      /* 字体定义 - 全局主字体 Inter */
+      --font-main: 'Inter', sans-serif;
+      /* 数字字体也改为 Inter */
+      --font-numbers: 'Inter', sans-serif; 
 
       /* 默认黑暗模式变量 */
       --bg-body: #222222;
@@ -70,24 +81,30 @@
 
     /* 关键修复 1：移动端视口锁定 */
     html, body {
-      position: fixed; /* 强制固定，防止 iOS Safari 回弹和地址栏遮挡 */
+      position: fixed; /* 强制固定 */
       top: 0;
       left: 0;
       width: 100%;
-      height: 90%;
-      overflow: hidden; /* 禁止 body 滚动，滚动在内部容器处理 */
+      height: 100%;
+      overflow: hidden; 
       margin: 0;
       background-color: var(--bg-body);
       color: var(--text-main);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      
+      /* 全局使用 Inter */
+      font-family: var(--font-main); 
+      
       transition: background-color 0.3s ease, color 0.3s ease;
       overscroll-behavior: none;
+      
+      /* 字体大小调整 */
+      font-size: 12px;
     }
 
     #app {
       display: flex;
       width: 100%;
-      height: 100%; /* 继承 fixed body 的高度 */
+      height: 100%; 
       position: relative; 
     }
 
@@ -130,7 +147,7 @@
       font-weight: bold;
       border-radius: 4px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-      font-size: 0.9rem;
+      font-size: 12px; 
       padding: 4px 8px;
       display: flex;
       align-items: center;
@@ -142,7 +159,7 @@
         opacity: 1;
     }
     
-    .map-radar-icon { font-size: 0.85rem; transition: color 0.3s ease; }
+    .map-radar-icon { font-size: 11px; transition: color 0.3s ease; }
     .map-radar-icon.active { color: var(--bvg-yellow); animation: pulse 2s infinite; }
     .map-radar-icon.error { color: #ff4444; }
     .map-radar-icon.inactive { color: #666; }
@@ -159,13 +176,20 @@
     .vehicle-popup .leaflet-popup-content {
       margin: 6px 10px;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 12px; 
       line-height: 1.4;
       text-align: center;
       white-space: nowrap; 
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    /* Popup 中的车号 */
+    .vehicle-popup-badge {
+        font-family: var(--font-numbers);
+        font-feature-settings: "tnum"; /* 等宽数字 */
+        font-weight: bold;
     }
 
     .vehicle-popup .leaflet-popup-tip {
@@ -197,8 +221,13 @@
       align-items: center;
       justify-content: center;
       color: white;
-      font-weight: 800;
-      font-size: 0.75rem;
+      
+      /* 车号图标 */
+      font-family: var(--font-numbers);
+      font-feature-settings: "tnum"; /* 等宽数字 */
+      font-weight: bold;
+      
+      font-size: 11px; 
       border-radius: 50%;
       box-shadow: 0 2px 5px rgba(0,0,0,0.4);
       border: 2px solid white;
@@ -209,7 +238,7 @@
     
     .marker-bus { background-color: #A5027D; }
     .marker-tram { background-color: #CC0000; }
-    .marker-subway { background-color: var(--ubahn-blue); }
+    .marker-subway { background-color: var(--ubahn-blue); } 
     .marker-suburban { background-color: #008D4F; }
     .marker-regional { background-color: var(--db-red); }
     .marker-express { background-color: #fff; color: #333; border-color: #999; }
@@ -244,7 +273,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
-      font-size: 1.1rem;
+      font-size: 14px;
     }
     body.light-mode .menu-btn { color: #555; }
     .menu-btn:hover { background-color: rgba(255, 255, 255, 0.15); color: var(--bvg-yellow); transform: scale(1.05); }
@@ -268,9 +297,11 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      font-family: 'Bahnschrift', 'DIN', 'Roboto Condensed', 'Arial Narrow', sans-serif;
-      font-weight: 400; 
-      font-size: 1.2rem; 
+      
+      font-family: var(--font-main);
+      font-weight: 700; 
+      
+      font-size: 16px; 
       cursor: pointer;
       user-select: none;
       color: var(--bvg-yellow);
@@ -284,11 +315,13 @@
     body.light-mode .header-center-display { color: #d4c800; }
     .header-center-display:active { transform: translateX(-50%) scale(0.95); }
 
+    /* 顶部时间显示 */
     .header-center-display.is-time {
-        font-family: 'Courier New', monospace;
+        font-family: var(--font-numbers);
+        font-feature-settings: "tnum"; /* 等宽数字 */
         letter-spacing: 1px;
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 15px;
     }
 
     .header-actions { display: flex; gap: 2px; z-index: 11; }
@@ -304,7 +337,7 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.2s;
-        font-size: 0.85rem; 
+        font-size: 12px; 
     }
     .header-btn:hover { background-color: var(--hover-bg); color: var(--text-main); }
 
@@ -327,7 +360,7 @@
       padding-right: 45px; 
       border-radius: 6px;
       width: 100%;
-      font-size: 0.95rem;
+      font-size: 13px; 
       transition: all 0.3s;
     }
     .form-control-dark:focus { border-color: var(--bvg-yellow); box-shadow: 0 0 0 0.2rem rgba(240, 228, 0, 0.25); }
@@ -349,15 +382,15 @@
     .filter-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .filter-group { display: flex; gap: 4px; }
 
-    /* 关键修复 2：Filter 按钮比例优化 */
+    /* Filter 按钮 */
     .type-btn {
-      width: 36px;  /* 增大宽度 */
-      height: 36px; /* 增大高度 */
+      width: 36px;  
+      height: 36px; 
       border: none;
       border-radius: 4px;
       color: #fff;
-      font-weight: 700; /* 加粗 */
-      font-size: 12px;  /* 增大字体，与按钮大小匹配 */
+      font-weight: 700; 
+      font-size: 13px;  
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -365,7 +398,7 @@
       opacity: 0.3;
       transition: all 0.2s ease;
       background-color: #444;
-      line-height: 1; /* 确保文字垂直居中 */
+      line-height: 1; 
     }
     body.light-mode .type-btn { background-color: #e0e0e0; color: #555; }
     .type-btn:hover { transform: scale(1.05); opacity: 0.7; }
@@ -385,10 +418,14 @@
       color: var(--text-main);
       border-radius: 4px;
       padding: 4px 6px;
-      font-size: 0.85rem;
+      font-size: 12px; 
       cursor: pointer;
       outline: none;
-      height: 36px; /* 匹配 Filter 按钮高度 */
+      height: 36px; 
+      
+      /* 下拉框中的数字 */
+      font-family: var(--font-numbers);
+      font-feature-settings: "tnum"; 
     }
 
     .search-dropdown {
@@ -405,13 +442,13 @@
       box-shadow: var(--shadow-soft);
       border-radius: 0 0 6px 6px;
     }
-    .search-item { padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+    .search-item { padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); color: var(--text-main); font-size: 13px; }
     .search-item:hover { background-color: var(--hover-bg); }
-    .star-btn { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; padding: 5px; cursor: pointer; }
+    .star-btn { background: none; border: none; color: var(--text-muted); font-size: 14px; padding: 5px; cursor: pointer; }
     .star-btn.starred { color: var(--bvg-yellow); }
     body.light-mode .star-btn.starred { color: #d4c800; }
     
-    .fav-header { padding: 8px 15px; font-size: 0.75rem; color: var(--text-muted); background-color: var(--bg-section); text-transform: uppercase; letter-spacing: 1px; }
+    .fav-header { padding: 8px 15px; font-size: 11px; color: var(--text-muted); background-color: var(--bg-section); text-transform: uppercase; letter-spacing: 1px; }
 
     /* 3. 信息列表区域 (Info States) */
     .section-info {
@@ -422,25 +459,20 @@
       background-color: var(--bg-sidebar); 
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       min-height: 0;
-      
-      /* 移动端滚动体验优化 */
       -webkit-overflow-scrolling: touch; 
     }
 
-    /* 状态 1: Full (默认) */
     .section-info.state-full {
         flex-grow: 1;
         height: 0; 
     }
 
-    /* 状态 2: Half (约3个看板) */
     .section-info.state-half {
         flex-grow: 0;
         height: 190px; 
         min-height: 190px;
     }
 
-    /* 状态 3: Collapsed (全收) */
     .section-info.state-collapsed {
         flex-grow: 0;
         height: 0;
@@ -464,7 +496,7 @@
     .bus-card.cancelled { opacity: 0.65; border-left-color: var(--text-muted) !important; }
     .bus-card.cancelled .dest-text, .bus-card.cancelled .line-badge { text-decoration: line-through; color: var(--text-muted); }
     .bus-card.cancelled .line-badge { background-color: var(--text-muted) !important; color: #fff !important; }
-    .cancel-text { color: #ff5555; font-weight: bold; font-size: 0.9rem; text-transform: none; letter-spacing: 0.5px; }
+    .cancel-text { color: #ff5555; font-weight: bold; font-size: 13px; text-transform: none; letter-spacing: 0.5px; }
 
     .card-header { padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
     .card-info-left { flex: 1; min-width: 0; display: flex; flex-direction: column; margin-right: 10px; }
@@ -493,7 +525,13 @@
       font-weight: 800;
       padding: 1px 5px;
       border-radius: 3px;
-      font-size: 0.85rem;
+      
+      /* 车号：使用等宽数字 */
+      font-family: var(--font-numbers);
+      font-feature-settings: "tnum"; 
+      letter-spacing: -0.5px; 
+      
+      font-size: 11px; 
       min-width: 42px;
       text-align: center;
       display: inline-block;
@@ -509,23 +547,52 @@
     .product-regional .line-badge { background-color: var(--db-red); color: white; }
     .product-express .line-badge { background-color: var(--ice-bg); color: var(--ice-text); border: 1px solid var(--ice-border); }
 
-    .dest-text { font-size: 0.9rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.3s; }
+    .dest-text { font-size: 13px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.3s; }
     body.light-mode .dest-text { font-weight: 600; }
-    .time-large { font-size: 1.05rem; font-weight: bold; color: var(--text-main); line-height: 1.2; }
-    .time-sub { font-size: 0.7rem; color: var(--text-sub); text-align: right; margin-top: 2px; }
+    
+    /* 大时间显示：使用等宽数字 */
+    .time-large { 
+        font-family: var(--font-numbers);
+        font-feature-settings: "tnum"; 
+        letter-spacing: -0.5px;
+        font-size: 14px; 
+        font-weight: bold; 
+        color: var(--text-main); 
+        line-height: 1.2; 
+    }
+    
+    /* 小时间显示：使用等宽数字 */
+    .time-sub { 
+        font-family: var(--font-numbers);
+        font-feature-settings: "tnum"; 
+        font-size: 11px; 
+        color: var(--text-sub); 
+        text-align: right; 
+        margin-top: 2px; 
+    }
 
     .stopover-container { background-color: rgba(0, 0, 0, 0.2); padding: 8px 12px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
     body.light-mode .stopover-container { background-color: rgba(0, 0, 0, 0.03); border-top: 1px solid rgba(0, 0, 0, 0.05); }
     .stopover-item { display: flex; align-items: center; padding: 3px 0; min-width: 0; }
-    .stopover-time { width: 45px; font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; }
+    
+    /* 经停站时间：使用等宽数字 */
+    .stopover-time { 
+        font-family: var(--font-numbers);
+        font-feature-settings: "tnum"; 
+        width: 45px; 
+        font-size: 11px; 
+        color: var(--text-muted); 
+        flex-shrink: 0; 
+    }
+    
     .stopover-node { width: 6px; height: 6px; border-radius: 50%; background-color: #aaa; margin: 0 10px; flex-shrink: 0; }
-    .stopover-name { font-size: 0.8rem; color: var(--text-sub); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .weiter-btn { width: 100%; background: none; border: 1px dashed var(--border-color); color: var(--text-muted); font-size: 0.75rem; padding: 4px; margin-top: 8px; border-radius: 4px; }
+    .stopover-name { font-size: 12px; color: var(--text-sub); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .weiter-btn { width: 100%; background: none; border: 1px dashed var(--border-color); color: var(--text-muted); font-size: 11px; padding: 4px; margin-top: 8px; border-radius: 4px; }
     .weiter-btn:hover { background-color: var(--hover-bg); color: var(--text-main); }
 
     /* 4. 底部折叠控制条 */
     .sidebar-footer-toggle {
-        height: 28px; /* 稍微增高一点 */
+        height: 28px; 
         background-color: var(--bg-toggle);
         border-top: 1px solid var(--border-color);
         display: flex;
@@ -535,12 +602,10 @@
         color: var(--text-muted);
         transition: background-color 0.2s, color 0.2s;
         flex-shrink: 0; 
-        font-size: 0.8rem;
+        font-size: 12px;
         z-index: 1002;
-        
-        /* 关键修复：适配 iPhone X+ 等设备底部的安全区域 */
         padding-bottom: env(safe-area-inset-bottom);
-        box-sizing: content-box; /* 确保 padding 不吃掉 height */
+        box-sizing: content-box; 
     }
     .sidebar-footer-toggle:hover { background-color: var(--hover-bg); color: var(--bvg-yellow); }
     body.light-mode .sidebar-footer-toggle:hover { color: #d4c800; }
@@ -568,7 +633,6 @@
         top: 0;
         left: 0;
         width: 100%; 
-        /* 确保侧边栏高度不超过视口，多余内容内部滚动 */
         max-height: 100%; 
         z-index: 1000;
         transition: height 0.3s ease;
@@ -577,7 +641,7 @@
 
       /* 状态 1 Full: Sidebar 占满整个屏幕 */
       .sidebar.mobile-full {
-          height: 100%; /* 继承 fixed body 的 100% */
+          height: 100%; 
           background-color: var(--bg-sidebar);
       }
 
@@ -965,15 +1029,19 @@
           }
         });
 
-        watch(activeFilters, () => {
-            if (lastRadarData.value.length > 0) {
-                updateVehicleMarkers(lastRadarData.value);
-            }
-        }, { deep: true });
+        const focusVehicle = (tripId) => {
+             const marker = vehicleMarkers[tripId];
+             if (marker) {
+                 map.setView(marker.getLatLng(), 16);
+                 marker.openPopup();
+             }
+        };
 
         const toggleTrip = async (dep) => {
           if (expandedTripId.value === dep.tripId) { expandedTripId.value = null; return; }
           expandedTripId.value = dep.tripId;
+          
+          focusVehicle(dep.tripId);
           
           if (dep.cancelled) return;
 
@@ -1151,18 +1219,18 @@
 
         const updateVehicleMarkers = (vehicles) => {
             const activeIds = new Set();
+            const validTripIds = new Set(departures.value.map(d => d.tripId));
             
-            const validTripIds = new Set(departuresRaw.value.map(d => d.tripId));
-            
-            const isMapRelevant = (prod) => ['bus', 'tram', 'suburban', 'subway'].includes(prod);
-            const isProductActive = (prod) => activeFilters.value.includes(prod);
+            // 地图显示白名单： explicitly include regional/ferry but exclude express (Fern)
+            const isMapRelevant = (prod) => ['bus', 'tram', 'suburban', 'subway', 'regional', 'ferry'].includes(prod);
 
             vehicles.forEach(v => {
                 if (!v.location || !v.line) return;
                 
-                if (!isMapRelevant(v.line.product)) return;
-                if (!isProductActive(v.line.product)) return;
                 if (!validTripIds.has(v.tripId)) return;
+
+                // 显式过滤：如果不是地图相关类型（例如是express），则不显示
+                if (!isMapRelevant(v.line.product)) return;
 
                 const tripId = v.tripId;
                 activeIds.add(tripId);
@@ -1193,9 +1261,9 @@
                     }).addTo(map);
                 }
 
-                // 样式升级：为车号添加带背景色的 span
+                // Popup badge content now uses a class for font styling
                 const badgeStyle = `background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; display: inline-block; line-height: 1.2; font-weight: 800;`;
-                const popupContent = `<div style="display: flex; align-items: center; gap: 8px;"><span style="${badgeStyle}">${v.line.name}</span> <span>${cleanName(v.direction)}</span></div>`;
+                const popupContent = `<div style="display: flex; align-items: center; gap: 8px;"><span class="vehicle-popup-badge" style="${badgeStyle}">${v.line.name}</span> <span>${cleanName(v.direction)}</span></div>`;
 
                 if (vehicleMarkers[tripId]) {
                     const marker = vehicleMarkers[tripId];
@@ -1228,7 +1296,7 @@
                      .addTo(map)
                      .bindPopup(popupContent, {
                         className: 'vehicle-popup', 
-                        offset: [0, -2], /* 将距离改为 -2, 让标签更近 */
+                        offset: [0, -2], 
                         closeButton: false 
                      });
 
@@ -1266,6 +1334,25 @@
             })
             .sort((a, b) => new Date(a.when || a.plannedWhen) - new Date(b.when || b.plannedWhen));
         });
+
+        watch(departures, (newDeps) => {
+            const currentTripIds = new Set(newDeps.map(d => d.tripId));
+            
+            for (let id in vehicleMarkers) {
+                if (!currentTripIds.has(id)) {
+                    map.removeLayer(vehicleMarkers[id]);
+                    delete vehicleMarkers[id];
+                    if (vehicleTrails[id]) {
+                        map.removeLayer(vehicleTrails[id]);
+                        delete vehicleTrails[id];
+                    }
+                }
+            }
+            
+            if (lastRadarData.value.length > 0) {
+                 updateVehicleMarkers(lastRadarData.value);
+            }
+        }, { deep: true });
 
         const isDeparted = (dep) => (new Date(dep.when || dep.plannedWhen) - now.value) <= 0;
         const getDelayClass = (d) => {

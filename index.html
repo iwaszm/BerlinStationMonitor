@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin (Slider)</title>
+  <title>Abfahrtsmonitor Berlin (Final)</title>
   
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,12 +23,11 @@
       --db-red: #EC0016;
       --ubahn-blue: #0063A5; 
 
-      /* 字体定义 - 全局主字体 Inter */
+      /* 字体定义 */
       --font-main: 'Inter', sans-serif;
-      /* 数字字体也改为 Inter */
       --font-numbers: 'Inter', sans-serif; 
 
-      /* 默认黑暗模式变量 */
+      /* 黑暗模式 */
       --bg-body: #222222;
       --bg-sidebar: #2b2b2b;
       --bg-section: #1a1a1a;
@@ -44,7 +43,6 @@
       --text-sub: #dddddd;
       
       --border-color: #444444;
-      --border-light: rgba(255, 255, 255, 0.15);
       --hover-bg: #444444;
       
       --ice-bg: #ffffff;
@@ -54,7 +52,7 @@
       --shadow-soft: 0 4px 12px rgba(0,0,0,0.5);
     }
 
-    /* 光明模式变量覆盖 */
+    /* 光明模式 */
     body.light-mode {
       --bg-body: #e0e0e0;
       --bg-sidebar: #ffffff;
@@ -71,7 +69,6 @@
       --text-sub: #495057;
       
       --border-color: #dee2e6;
-      --border-light: rgba(0, 0, 0, 0.1);
       --hover-bg: #f1f1f1;
       
       --ice-bg: #f8f9fa;
@@ -81,9 +78,8 @@
       --shadow-soft: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* 关键修复 1：移动端视口锁定 */
     html, body {
-      position: fixed; /* 强制固定 */
+      position: fixed;
       top: 0;
       left: 0;
       width: 100%;
@@ -92,14 +88,9 @@
       margin: 0;
       background-color: var(--bg-body);
       color: var(--text-main);
-      
-      /* 全局使用 Inter */
       font-family: var(--font-main); 
-      
       transition: background-color 0.3s ease, color 0.3s ease;
       overscroll-behavior: none;
-      
-      /* 字体大小调整 */
       font-size: 12px;
     }
 
@@ -120,15 +111,25 @@
       flex-direction: column;
       border-right: 1px solid var(--border-color);
       z-index: 1000;
-      transition: background-color 0.3s ease, height 0.3s ease;
+      /* 关键：增加宽度的过渡动画 */
+      transition: background-color 0.3s ease, width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       overflow: hidden; 
     }
 
-    /* 右侧地图 */
+    /* 全屏模式：覆盖地图 */
+    .sidebar.full-mode {
+        width: 100% !important;
+        border-right: none;
+    }
+
+    /* 右侧地图容器 */
     .map-container {
       flex-grow: 1;
       height: 100%;
       position: relative;
+      /* 关键：允许被 flexbox 压缩到 0 */
+      min-width: 0; 
+      transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     #map {
@@ -140,6 +141,25 @@
 
     .smooth-transition { transition: transform 10s linear; }
     .no-transition { transition: none !important; }
+
+    /* RSS Icon Animation */
+    @keyframes pulse-yellow {
+      0% { color: #888; transform: scale(1); text-shadow: none; }
+      50% { color: var(--bvg-yellow); transform: scale(1.1); text-shadow: 0 0 5px var(--bvg-yellow); }
+      100% { color: #888; transform: scale(1); text-shadow: none; }
+    }
+
+    /* Default RSS Icon (Inactive/Offline) */
+    .rss-icon {
+        color: #888; /* 默认灰色 */
+        transition: color 0.3s;
+    }
+    
+    /* Active RSS Icon (只有当父容器有 .radar-active 时才激活) */
+    .radar-active .rss-icon {
+        animation: pulse-yellow 2s infinite ease-in-out;
+        color: var(--bvg-yellow); 
+    }
 
     /* 地图 Tooltip & Popup */
     .station-tooltip {
@@ -153,7 +173,7 @@
       padding: 4px 8px;
       display: flex;
       align-items: center;
-      gap: 8px; 
+      gap: 6px; 
     }
     
     .leaflet-tooltip-top:before { 
@@ -161,11 +181,6 @@
         opacity: 1;
     }
     
-    .map-radar-icon { font-size: 11px; transition: color 0.3s ease; }
-    .map-radar-icon.active { color: var(--bvg-yellow); animation: pulse 2s infinite; }
-    .map-radar-icon.error { color: #ff4444; }
-    .map-radar-icon.inactive { color: #666; }
-
     .vehicle-popup .leaflet-popup-content-wrapper {
       background-color: rgba(30, 30, 30, 0.95); 
       border: 1px solid var(--bvg-yellow);
@@ -653,8 +668,29 @@
     .line-toggle i { font-size: 10px; }
 
     /* Fix station name color in dashboard */
-    .station-info-label { color: var(--text-main) !important; font-weight: 600; }
+    /* 修改：移除了 font-weight: 600 */
+    .station-info-label { color: var(--text-main) !important; font-weight: 400; }
     .station-pill-static { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background-color: var(--bg-input); border-radius: 6px; border: 1px solid var(--border-color); height: 36px; }
+
+    /* 新增 Reset Icon Button 样式 */
+    .reset-icon-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 12px;
+        padding: 4px;
+        cursor: pointer;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .reset-icon-btn:hover {
+        color: var(--bvg-yellow);
+    }
+    body.light-mode .reset-icon-btn:hover {
+        color: #d4c800;
+    }
 
   </style>
 </head>
@@ -676,6 +712,7 @@
                             <i class="fas" :class="isDarkMode ? 'fa-moon' : 'fa-sun'"></i>
                             {{ isDarkMode ? 'Dunkel' : 'Hell' }}
                          </button>
+                         <!-- Karte Button Removed -->
                          <button class="settings-action-btn">
                             <i class="fas fa-globe"></i> Deutsch
                          </button>
@@ -693,7 +730,13 @@
 
                 <!-- Section 1: Manage Stations (2 Slots) -->
                 <div class="settings-section">
-                    <div class="settings-section-title">Stationen verwalten</div>
+                    <div class="settings-section-title d-flex justify-content-between align-items-center">
+                        <span>Stationen verwalten</span>
+                        <!-- New Reset Button for Stations -->
+                        <button class="reset-icon-btn" @click="resetStations" v-if="station1 || station2" title="Stationen zurücksetzen">
+                            <i class="fas fa-undo-alt"></i>
+                        </button>
+                    </div>
                     
                     <!-- Slot 1 -->
                     <div class="mb-2">
@@ -705,7 +748,7 @@
                             <input 
                                 class="form-control-dark" 
                                 type="text" 
-                                placeholder="Station 1..." 
+                                placeholder="Haltestelle suchen..." 
                                 v-model="s1Query" 
                                 @input="onS1Input"
                             >
@@ -727,7 +770,7 @@
                             <input 
                                 class="form-control-dark" 
                                 type="text" 
-                                placeholder="Station 2..." 
+                                placeholder="Haltestelle hinzufügen..." 
                                 v-model="s2Query" 
                                 @input="onS2Input"
                             >
@@ -744,8 +787,10 @@
                 <div class="settings-section">
                     <div class="settings-section-title d-flex justify-content-between align-items-center">
                         <span>Linienfilter</span>
-                        <!-- New Reset Button -->
-                        <button class="btn btn-sm btn-outline-secondary" style="font-size: 10px; padding: 2px 6px;" @click="resetLineFilters" v-if="excludedLines.size > 0">Reset</button>
+                        <!-- Modified Reset Button (Icon) -->
+                        <button class="reset-icon-btn" @click="resetLineFilters" v-if="excludedLines.size > 0" title="Filter zurücksetzen">
+                            <i class="fas fa-undo-alt"></i>
+                        </button>
                     </div>
                     <div class="search-input-wrapper">
                          <input class="form-control-dark" type="text" placeholder="Filter Lines (e.g. M41)..." v-model="lineFilterSearch">
@@ -759,7 +804,7 @@
                           @click="toggleLineExclusion(lineName)"
                         >
                              {{ lineName }}
-                             <i class="fas" :class="excludedLines.has(lineName) ? 'fa-eye-slash' : 'fa-eye'"></i>
+                             <!-- Eye Icon Removed -->
                         </div>
                     </div>
                     <div v-if="filteredLineList.length === 0" class="text-muted small text-center mt-2">
@@ -771,7 +816,7 @@
     </div>
 
     <!-- 左侧 Sidebar -->
-    <div class="sidebar" :class="sidebarMobileClass">
+    <div class="sidebar" :class="[sidebarMobileClass, { 'full-mode': !showMap }]">
       
       <div class="section-search">
         <div class="main-search-row">
@@ -857,7 +902,7 @@
               </div>
               <!-- Optional: Show origin station if multiple stations are watched -->
               <div v-if="watchedStations.length > 1" class="station-info-label" style="font-size: 10px; margin-top: 2px;">
-                 <i class="fas fa-map-pin me-1"></i>{{ cleanName(dep.stationName) }}
+                 <i class="fas fa-arrow-right me-1"></i>{{ cleanName(dep.stationName) }}
               </div>
             </div>
 
@@ -901,7 +946,7 @@
     </div>
 
     <!-- 右侧地图 -->
-    <div class="map-container">
+    <div class="map-container" :class="{ 'radar-active': isRadarActive }">
       <div id="map"></div>
       
       <!-- 缩放控件移到右上角 -->
@@ -919,7 +964,7 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script>
-    const { createApp, ref, onMounted, computed, watch, onUnmounted } = Vue;
+    const { createApp, ref, onMounted, computed, watch, onUnmounted, nextTick } = Vue;
 
     createApp({
       setup() {
@@ -938,6 +983,8 @@
         const s1Results = ref([]);
         const s2Results = ref([]);
         
+        const showMap = ref(true);
+
         // Computed watchedStations from the two slots
         const watchedStations = computed(() => {
             const list = [];
@@ -945,6 +992,16 @@
             if (station2.value) list.push(station2.value);
             return list;
         });
+
+        // Sync searchQuery with watchedStations for display
+        watch(watchedStations, (newVal) => {
+            if (newVal.length === 0) {
+            } else if (newVal.length === 1) {
+                searchQuery.value = cleanName(newVal[0].name);
+            } else if (newVal.length === 2) {
+                searchQuery.value = cleanName(newVal[0].name) + " + " + cleanName(newVal[1].name);
+            }
+        }, { deep: true });
 
         const starredStations = ref([]); 
         const isShowingFavorites = ref(false); 
@@ -1004,6 +1061,25 @@
         const toggleTheme = () => {
           isDarkMode.value = !isDarkMode.value;
         };
+
+        const toggleMap = () => {
+            if (showMap.value) {
+                // If currently showing, we want to hide it
+                showMap.value = false;
+                // Don't remove map instance, just visual hide via CSS class on parent
+                if (map) {
+                     map.invalidateSize();
+                }
+            } else {
+                // If currently hidden, show it
+                showMap.value = true;
+                nextTick(() => {
+                    if (map) {
+                         map.invalidateSize();
+                    }
+                });
+            }
+        };
         
         const toggleInfoState = () => {
             if (infoState.value === 2) { infoState.value = 0; } 
@@ -1045,6 +1121,7 @@
         // -------------------------
 
         onMounted(() => {
+          if (!document.getElementById("map")) return;
           map = L.map("map", { zoomControl: false }).setView([52.5200, 13.4050], 13);
           
           baseLayer = L.tileLayer(isDarkMode.value ? DARK_TILES : LIGHT_TILES, {
@@ -1161,7 +1238,6 @@
           station1.value = station;
           station2.value = null;
           
-          searchQuery.value = cleanName(station.name); 
           searchResults.value = [];
           
           if (infoState.value === 0) { infoState.value = 2; }
@@ -1191,7 +1267,17 @@
             fetchDepartures();
         };
 
+        const resetStations = () => {
+            station1.value = null;
+            station2.value = null;
+            s1Results.value = [];
+            s2Results.value = [];
+            updateMapForStations();
+            fetchDepartures();
+        };
+
         const updateMapForStations = () => {
+            if (!map) return;
             stationMarkers.forEach(m => map.removeLayer(m));
             stationCircles.forEach(c => map.removeLayer(c));
             stationMarkers = [];
@@ -1216,7 +1302,7 @@
 
                     const marker = L.marker([lat, lon], { icon: stationIcon })
                         .addTo(map)
-                        .bindTooltip(`<div>${cleanName(station.name)}</div>`, {
+                        .bindTooltip(`<div><i class="fas fa-rss me-1 rss-icon"></i>${cleanName(station.name)}</div>`, {
                             permanent: true, direction: 'top', offset: [0, -14], className: 'station-tooltip' 
                         });
                     
@@ -1248,6 +1334,7 @@
         };
         
         const focusVehicle = (tripId) => {
+             if (!map) return;
              const marker = vehicleMarkers[tripId];
              if (marker) {
                  map.setView(marker.getLatLng(), 16);
@@ -1259,7 +1346,7 @@
           if (expandedTripId.value === dep.tripId) { expandedTripId.value = null; return; }
           expandedTripId.value = dep.tripId;
           
-          focusVehicle(dep.tripId);
+          if(showMap.value) focusVehicle(dep.tripId);
           
           if (dep.cancelled) return;
 
@@ -1347,7 +1434,7 @@
                 radarError.value = false;
                 if (!Array.isArray(allVehicles)) return; 
                 lastRadarData.value = allVehicles;
-                updateVehicleMarkers(allVehicles);
+                if (showMap.value) updateVehicleMarkers(allVehicles);
             } catch (e) {
                 if (axios.isCancel(e)) return; 
                 console.warn("Radar skipped"); 
@@ -1357,6 +1444,7 @@
         };
 
         const updateVehicleMarkers = (vehicles) => {
+            if (!map) return;
             const activeIds = new Set();
             const validTripIds = new Set(departures.value.map(d => d.tripId));
             const isMapRelevant = (prod) => ['bus', 'tram', 'suburban', 'subway', 'regional', 'ferry'].includes(prod);
@@ -1441,6 +1529,7 @@
         });
 
         watch(departures, (newDeps) => {
+            if (!map) return;
             const currentTripIds = new Set(newDeps.map(d => d.tripId));
             for (let id in vehicleMarkers) {
                 if (!currentTripIds.has(id)) {
@@ -1448,7 +1537,7 @@
                     if (vehicleTrails[id]) { map.removeLayer(vehicleTrails[id]); delete vehicleTrails[id]; }
                 }
             }
-            if (lastRadarData.value.length > 0) { updateVehicleMarkers(lastRadarData.value); }
+            if (lastRadarData.value.length > 0 && showMap.value) { updateVehicleMarkers(lastRadarData.value); }
         }, { deep: true });
 
         // -------------------------
@@ -1521,16 +1610,18 @@
           station1.value = null;
           station2.value = null;
           
-          for (let id in vehicleMarkers) { map.removeLayer(vehicleMarkers[id]); }
-          for (let id in vehicleTrails) { map.removeLayer(vehicleTrails[id]); }
-          vehicleMarkers = {};
-          vehicleTrails = {};
-          lastRadarData.value = [];
-          
-          stationMarkers.forEach(m => map.removeLayer(m));
-          stationMarkers = [];
-          stationCircles.forEach(c => map.removeLayer(c));
-          stationCircles = [];
+          if (map) {
+              for (let id in vehicleMarkers) { map.removeLayer(vehicleMarkers[id]); }
+              for (let id in vehicleTrails) { map.removeLayer(vehicleTrails[id]); }
+              vehicleMarkers = {};
+              vehicleTrails = {};
+              lastRadarData.value = [];
+              
+              stationMarkers.forEach(m => map.removeLayer(m));
+              stationMarkers = [];
+              stationCircles.forEach(c => map.removeLayer(c));
+              stationCircles = [];
+          }
 
           isRadarActive.value = false;
         };
@@ -1548,7 +1639,8 @@
           showSettings, setStation, clearStation, watchedStations,
           lineFilterSearch, filteredLineList, toggleLineExclusion, excludedLines, resetLineFilters,
           // Slots
-          station1, station2, s1Query, s2Query, s1Results, s2Results, onS1Input, onS2Input
+          station1, station2, s1Query, s2Query, s1Results, s2Results, onS1Input, onS2Input,
+          showMap, toggleMap, resetStations
         };
       }
     }).mount("#app");

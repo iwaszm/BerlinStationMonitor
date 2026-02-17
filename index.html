@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin</title>
+  <title>Abfahrtsmonitor Berlin (Silky Route Connected)</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1389,10 +1389,30 @@
         };
 
         const toggleTrip = async (dep) => {
-          if (expandedTripId.value === dep.tripId) { expandedTripId.value = null; return; }
+          if (expandedTripId.value === dep.tripId) { 
+              expandedTripId.value = null; 
+              if (routeLayer) routeLayer.clearLayers(); // NEW: Clear route on collapse
+              return; 
+          }
           expandedTripId.value = dep.tripId;
           
-          if(showMap.value) focusVehicle(dep.tripId);
+          if(showMap.value) {
+             let p = dep.line.product;
+             if(p === 'nationalExpress' || p === 'national') p = 'express';
+             if(p === 'regionalExp') p = 'regional';
+             const color = productColors[p] || productColors.default;
+             
+             // Check if vehicle is on map
+             const hasVehicle = vehicleMarkers[dep.tripId];
+             
+             if (hasVehicle) {
+                 focusVehicle(dep.tripId);
+                 showVehicleRoute(dep.tripId, color, false); // Don't refit if we have vehicle focus
+             } else {
+                 showVehicleRoute(dep.tripId, color, true); // Fit to route if vehicle missing
+             }
+          }
+
           if (dep.cancelled) return;
 
           stopoverLimit.value = 5;
@@ -1411,7 +1431,7 @@
         };
 
         // --- New Feature: Show Vehicle Route on Map ---
-        const showVehicleRoute = async (tripId, color) => {
+        const showVehicleRoute = async (tripId, color, fitToPolyline = false) => {
             if (!routeLayer) return;
             routeLayer.clearLayers();
             
@@ -1424,7 +1444,6 @@
                 const trip = res.data.trip;
 
                 // 1. Force Extract Polyline Coordinates (FORCE CONNECTION)
-                // Regardless of whether it's Points or LineString, we extract coords and draw ONE line.
                 let lineCoords = [];
 
                 if (trip.polyline) {
@@ -1432,9 +1451,6 @@
                     L.geoJSON(trip.polyline, {
                         onEachFeature: function (feature, layer) {
                             if (feature.geometry.type === 'LineString') {
-                                // Leaflet GeoJSON expects [lng, lat] but we need [lat, lng] for L.polyline
-                                // Wait, L.geoJSON handles projection automatically.
-                                // We want to extract latLngs from the created layer.
                                 if (layer.getLatLngs) {
                                     const latlngs = layer.getLatLngs();
                                     latlngs.forEach(ll => lineCoords.push(ll));
@@ -1457,7 +1473,7 @@
 
                 // DRAW THE LINE (On Lower Pane)
                 if (lineCoords.length > 1) {
-                    L.polyline(lineCoords, { 
+                    const poly = L.polyline(lineCoords, { 
                         color: color, 
                         opacity: 0.8, 
                         weight: 5, 
@@ -1466,6 +1482,11 @@
                         className: 'no-transition',
                         pane: 'customRouteLinePane' // <--- LOWER Z-INDEX
                     }).addTo(routeLayer);
+                    
+                    // NEW: Fit bounds if requested (e.g. vehicle not visible)
+                    if (fitToPolyline && map) {
+                        map.fitBounds(poly.getBounds(), { padding: [40, 40] });
+                    }
                 }
 
                 // 2. Draw Stops (On Higher Pane)
@@ -1636,7 +1657,11 @@
                     if (marker.getLatLng().distanceTo(newLatLng) > 1) { marker.setLatLng(newLatLng); }
                     marker.setPopupContent(popupContent);
                     // Update click listener just in case
-                    marker.off('click').on('click', () => showVehicleRoute(tripId, color));
+                    marker.off('click').on('click', (e) => {
+                        L.DomEvent.stopPropagation(e); // Stop propagation so map click doesn't clear route
+                        showVehicleRoute(tripId, color);
+                        marker.openPopup(); // Force popup open
+                    });
                 } else {
                     const html = `<div class="vehicle-marker-wrapper"><div class="vehicle-marker ${productClass}">${label}</div></div>`;
                     const icon = L.divIcon({ className: 'smooth-transition', html: html, iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -18] });
@@ -1645,7 +1670,11 @@
                      .bindPopup(popupContent, { className: 'vehicle-popup', offset: [0, -2], closeButton: false });
                     
                     // BIND CLICK EVENT FOR ROUTE
-                    marker.on('click', () => showVehicleRoute(tripId, color));
+                    marker.on('click', (e) => {
+                        L.DomEvent.stopPropagation(e); // Stop propagation
+                        showVehicleRoute(tripId, color);
+                        marker.openPopup(); // Force popup open
+                    });
 
                     vehicleMarkers[tripId] = marker;
                 }

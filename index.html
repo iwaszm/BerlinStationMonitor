@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin (LED & UX Update)</title>
+  <title>Abfahrtsmonitor Berlin</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -474,7 +474,7 @@
     .vehicle-popup a.leaflet-popup-close-button { display: none; }
     .station-pos-marker { background-color: var(--bvg-yellow); border: 3px solid #ffffff; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 0 15px rgba(240, 228, 0, 0.8); box-sizing: border-box; }
     .vehicle-marker-wrapper { position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
-    .vehicle-marker { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Roboto Mono', monospace; font-feature-settings: "tnum"; font-weight: bold; font-size: 11px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.4); border: 2px solid white; width: 32px; height: 32px; background-color: #555; }
+    .vehicle-marker { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Roboto Mono', monospace; font-feature-settings: "tnum"; font-weight: bold; font-size: 11px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.4); border: 2px solid white; width: 32px; height: 32px; background-color: #555; cursor: pointer !important; pointer-events: auto; }
     .marker-bus { background-color: #A5027D; } .marker-tram { background-color: #CC0000; } .marker-subway { background-color: var(--ubahn-blue); } .marker-suburban { background-color: #008D4F; } .marker-regional { background-color: var(--db-red); } .marker-express { background-color: #fff; color: #333; border-color: #999; }
     .floating-menu { position: absolute; z-index: 2000; display: flex; gap: 4px; background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(10px); padding: 6px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: var(--shadow-soft); transition: all 0.3s; }
     .top-right-zoom { top: 20px; right: 20px; flex-direction: column; padding: 6px; }
@@ -513,6 +513,20 @@
     /* LED Mode Second Row Info (Platform & Station Name) */
     .led-mode .card-sub-info { font-family: 'VT323', monospace !important; color: #cc8800 !important; font-size: 15px !important; text-transform: uppercase; letter-spacing: 0.5px; }
 
+    /* New Route Stop Label */
+    .route-stop-label {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 10px;
+        font-weight: bold;
+        color: var(--text-main);
+        text-shadow: 0 0 3px var(--bg-body); /* Outline effect */
+        padding: 0;
+        z-index: 1000 !important;
+    }
+    
     /* API Source Badge - REMOVED VISIBILITY FOR CLEANER LOOK */
     .api-source-badge { display: none; } 
     
@@ -674,7 +688,7 @@
       <div class="sidebar-header">
           <div class="current-time">
               {{ currentTime }}
-              <i v-if="networkError" class="fas fa-rss ms-2 blink-error" title="Netzwerkfehler / Switching API..."></i>
+              <i v-if="networkError" class="fas fa-rss ms-2 blink-error" title="Netzwerkfehler"></i>
           </div>
       </div>
 
@@ -764,8 +778,6 @@
                  <span v-if="isRail(dep.line.product) && (dep.platform || dep.plannedPlatform)">
                      Gl. {{ dep.platform || dep.plannedPlatform }}
                  </span>
-                 
-                 <!-- Note: Removed the +5 delay text as requested -->
               </div>
             </div>
 
@@ -829,6 +841,15 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script>
+    // --- iOS 12 / iPhone 6 Polyfill Check ---
+    if (typeof ResizeObserver === 'undefined') {
+        window.ResizeObserver = class ResizeObserver {
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        };
+    }
+
     const { createApp, ref, onMounted, computed, watch, onUnmounted, nextTick } = Vue;
 
     const translations = {
@@ -920,25 +941,13 @@
         const dragStartHeight = ref(0);
         const sidebarRef = ref(null);
 
-        // --- API Failover Logic ---
+        // --- API Failover Logic REMOVED (Only BVG) ---
         const apiEndpoints = [
-            { name: 'BVG', url: 'https://v6.bvg.transport.rest' },
-            { name: 'DB', url: 'https://v6.db.transport.rest' } // Robust fallback
+            { name: 'BVG', url: 'https://v6.bvg.transport.rest' }
         ];
         const currentApiIndex = ref(0);
         const apiBase = computed(() => apiEndpoints[currentApiIndex.value].url);
         const currentApiName = computed(() => apiEndpoints[currentApiIndex.value].name);
-
-        const switchApi = () => {
-            if (currentApiIndex.value < apiEndpoints.length - 1) {
-                currentApiIndex.value++;
-                console.log(`Switching API to ${currentApiName.value} (${apiBase.value})`);
-                networkError.value = false;
-                if (watchedStations.value.length > 0) {
-                    fetchDepartures();
-                }
-            }
-        };
 
         axios.interceptors.response.use(
             response => {
@@ -948,9 +957,6 @@
             error => {
                 if (error.message === 'Network Error' || error.code === 'ERR_NETWORK' || (error.response && error.response.status >= 500)) {
                     networkError.value = true;
-                    if (currentApiIndex.value === 0) {
-                        switchApi();
-                    }
                 }
                 return Promise.reject(error);
             }
@@ -1011,6 +1017,7 @@
         const lastRadarData = ref([]);
 
         let map, baseLayer;
+        let routeLayer; // Layer for drawing vehicle routes
         let stationMarkers = [];
         let stationCircles = [];
         let vehicleMarkers = {}; 
@@ -1141,6 +1148,22 @@
           baseLayer = L.tileLayer(isDarkMode.value ? DARK_TILES : LIGHT_TILES, {
             attribution: '&copy; OpenStreetMap &copy; CARTO'
           }).addTo(map);
+
+          // Create panes for layering
+          // Lines go in custom pane
+          map.createPane('customRouteLinePane');
+          map.getPane('customRouteLinePane').style.zIndex = 450;
+          
+          // Stops go in higher pane
+          map.createPane('customRouteStopsPane');
+          map.getPane('customRouteStopsPane').style.zIndex = 500;
+
+          routeLayer = L.layerGroup().addTo(map);
+
+          // Clear route when clicking on map background
+          map.on('click', () => {
+              if (routeLayer) routeLayer.clearLayers();
+          });
 
           map.on('zoomstart', () => {
               document.querySelectorAll('.leaflet-marker-icon').forEach(el => { el.classList.add('no-transition'); });
@@ -1349,6 +1372,7 @@
             
             for (let id in vehicleMarkers) { map.removeLayer(vehicleMarkers[id]); }
             for (let id in vehicleTrails) { map.removeLayer(vehicleTrails[id]); }
+            if (routeLayer) routeLayer.clearLayers();
             vehicleMarkers = {};
             vehicleTrails = {};
             lastRadarData.value = [];
@@ -1384,6 +1408,94 @@
                return new Date(sTime) > departureTime;
             });
           } catch (e) { console.error(e); } finally { isTripLoading.value = false; }
+        };
+
+        // --- New Feature: Show Vehicle Route on Map ---
+        const showVehicleRoute = async (tripId, color) => {
+            if (!routeLayer) return;
+            routeLayer.clearLayers();
+            
+            try {
+                // Fetch trip details with polyline
+                const res = await axios.get(`${apiBase.value}/trips/${encodeURIComponent(tripId)}`, {
+                    params: { polyline: true, stopovers: true }
+                });
+
+                const trip = res.data.trip;
+
+                // 1. Force Extract Polyline Coordinates (FORCE CONNECTION)
+                // Regardless of whether it's Points or LineString, we extract coords and draw ONE line.
+                let lineCoords = [];
+
+                if (trip.polyline) {
+                    // Use Leaflet's GeoJSON utility to parse, then extract coords
+                    L.geoJSON(trip.polyline, {
+                        onEachFeature: function (feature, layer) {
+                            if (feature.geometry.type === 'LineString') {
+                                // Leaflet GeoJSON expects [lng, lat] but we need [lat, lng] for L.polyline
+                                // Wait, L.geoJSON handles projection automatically.
+                                // We want to extract latLngs from the created layer.
+                                if (layer.getLatLngs) {
+                                    const latlngs = layer.getLatLngs();
+                                    latlngs.forEach(ll => lineCoords.push(ll));
+                                }
+                            } else if (feature.geometry.type === 'Point') {
+                                if (layer.getLatLng) {
+                                    lineCoords.push(layer.getLatLng());
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // If GeoJSON didn't give us a line (e.g. malformed or missing), fallback to stops
+                if (lineCoords.length < 2 && trip.stopovers) {
+                     lineCoords = trip.stopovers
+                        .filter(s => s.stop && s.stop.location)
+                        .map(s => L.latLng(s.stop.location.latitude, s.stop.location.longitude));
+                }
+
+                // DRAW THE LINE (On Lower Pane)
+                if (lineCoords.length > 1) {
+                    L.polyline(lineCoords, { 
+                        color: color, 
+                        opacity: 0.8, 
+                        weight: 5, 
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                        className: 'no-transition',
+                        pane: 'customRouteLinePane' // <--- LOWER Z-INDEX
+                    }).addTo(routeLayer);
+                }
+
+                // 2. Draw Stops (On Higher Pane)
+                if (trip.stopovers) {
+                    trip.stopovers.forEach(stop => {
+                        if (!stop.stop || !stop.stop.location) return;
+                        const lat = stop.stop.location.latitude;
+                        const lon = stop.stop.location.longitude;
+
+                        L.circleMarker([lat, lon], {
+                            radius: 4,
+                            color: color,
+                            fillColor: isDarkMode.value ? '#222' : '#fff', 
+                            fillOpacity: 1,
+                            weight: 2,
+                            className: 'no-transition',
+                            pane: 'customRouteStopsPane' // <--- HIGHER Z-INDEX
+                        }).bindTooltip(cleanName(stop.stop.name), { 
+                            permanent: true, 
+                            direction: 'auto', 
+                            className: 'route-stop-label',
+                            offset: [5, 0],
+                            pane: 'customRouteStopsPane' // Ensure label is also on top
+                        }).addTo(routeLayer);
+                    });
+                }
+
+            } catch(e) {
+                console.warn("Failed to load vehicle route", e);
+            }
         };
 
         const visibleStopovers = computed(() => currentTripStopovers.value.slice(0, stopoverLimit.value));
@@ -1523,12 +1635,18 @@
                     const newLatLng = L.latLng(v.location.latitude, v.location.longitude);
                     if (marker.getLatLng().distanceTo(newLatLng) > 1) { marker.setLatLng(newLatLng); }
                     marker.setPopupContent(popupContent);
+                    // Update click listener just in case
+                    marker.off('click').on('click', () => showVehicleRoute(tripId, color));
                 } else {
                     const html = `<div class="vehicle-marker-wrapper"><div class="vehicle-marker ${productClass}">${label}</div></div>`;
                     const icon = L.divIcon({ className: 'smooth-transition', html: html, iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -18] });
                     const marker = L.marker([v.location.latitude, v.location.longitude], { icon: icon })
                      .addTo(map)
                      .bindPopup(popupContent, { className: 'vehicle-popup', offset: [0, -2], closeButton: false });
+                    
+                    // BIND CLICK EVENT FOR ROUTE
+                    marker.on('click', () => showVehicleRoute(tripId, color));
+
                     vehicleMarkers[tripId] = marker;
                 }
             });
@@ -1664,6 +1782,7 @@
           if (map) {
               for (let id in vehicleMarkers) { map.removeLayer(vehicleMarkers[id]); }
               for (let id in vehicleTrails) { map.removeLayer(vehicleTrails[id]); }
+              if (routeLayer) routeLayer.clearLayers();
               vehicleMarkers = {};
               vehicleTrails = {};
               lastRadarData.value = [];

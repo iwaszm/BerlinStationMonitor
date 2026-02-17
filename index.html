@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin (Status Dot Update)</title>
+  <title>Abfahrtsmonitor Berlin (LED & UX Update)</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -318,11 +318,15 @@
     .product-regional { border-left-color: var(--db-red); }
     .product-express { border-left-color: #cccccc; }
 
+    /* Animations for Status Dots */
     @keyframes breathe-green { 0% { box-shadow: 0 0 0 0 rgba(77, 255, 77, 0.6); } 70% { box-shadow: 0 0 0 5px rgba(77, 255, 77, 0); } 100% { box-shadow: 0 0 0 0 rgba(77, 255, 77, 0); } }
+    @keyframes breathe-orange { 0% { box-shadow: 0 0 0 0 rgba(255, 170, 0, 0.6); } 70% { box-shadow: 0 0 0 5px rgba(255, 170, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 170, 0, 0); } }
+    @keyframes breathe-red { 0% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0.6); } 70% { box-shadow: 0 0 0 5px rgba(255, 51, 51, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); } }
+
     .status-dot { width: 6px; height: 6px; border-radius: 50%; margin-left: 8px; flex-shrink: 0; display: inline-block; }
     .status-green { background-color: #4dff4d; animation: breathe-green 2s infinite; }
-    .status-orange { background-color: #ffaa00; }
-    .status-red { background-color: #ff3333; }
+    .status-orange { background-color: #ffaa00; animation: breathe-orange 2s infinite; }
+    .status-red { background-color: #ff3333; animation: breathe-red 2s infinite; }
     .status-static { background-color: #888; }
     .status-cancel { background-color: #777; border: 1px solid #555; } 
 
@@ -500,9 +504,14 @@
     .led-mode .time-sub { font-family: 'VT323', monospace !important; color: #cc8800 !important; font-size: 16px !important; }
     .led-mode .station-info-label { font-family: 'VT323', monospace !important; color: #cc8800 !important; text-transform: uppercase; }
     .led-mode .status-green { background-color: #ffaa00; animation: none; box-shadow: none; }
+    .led-mode .status-orange { background-color: #ffaa00; animation: none; box-shadow: none; }
+    .led-mode .status-red { background-color: #ff3333; animation: none; box-shadow: none; }
     .led-mode .status-static { background-color: #555; }
     .led-mode .stopover-container { background-color: #111; border-top: 1px dashed #333; }
     .led-mode .stopover-time, .led-mode .stopover-name { font-family: 'VT323', monospace !important; color: #ffaa00 !important; font-size: 18px !important; text-transform: uppercase; }
+    
+    /* LED Mode Second Row Info (Platform & Station Name) */
+    .led-mode .card-sub-info { font-family: 'VT323', monospace !important; color: #cc8800 !important; font-size: 15px !important; text-transform: uppercase; letter-spacing: 0.5px; }
 
     /* API Source Badge - REMOVED VISIBILITY FOR CLEANER LOOK */
     .api-source-badge { display: none; } 
@@ -681,7 +690,7 @@
                 @input="onS1Input"
                 @focus="showFavorites"
               />
-              <button v-if="s1Query" @click="clearStation(1)" class="input-action-btn clear-btn">
+              <button v-if="s1Query" @click="resetStations()" class="input-action-btn clear-btn">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -744,7 +753,7 @@
               </div>
 
               <!-- Bottom Row: Updated Logic with No Wrap -->
-              <div class="d-flex align-items-center mt-1" style="font-size: 11px; color: var(--text-muted); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              <div class="d-flex align-items-center mt-1 card-sub-info" style="font-size: 11px; color: var(--text-muted); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                  
                  <!-- Multi Station Mode: Show Station Name -->
                  <span v-if="watchedStations.length > 1" class="me-2">
@@ -954,12 +963,17 @@
             return list;
         });
 
-        watch(station1, (newVal) => {
-             if (newVal) {
-                 s1Query.value = cleanName(newVal.name);
-             } else {
-                 s1Query.value = "";
-             }
+        // Combined watcher to handle dual station display in main search bar
+        watch([station1, station2], ([s1, s2]) => {
+            if (s1 && s2) {
+                // Show both names
+                s1Query.value = `${cleanName(s1.name)} + ${cleanName(s2.name)}`;
+            } else if (s1) {
+                // Standard behavior
+                s1Query.value = cleanName(s1.name);
+            } else {
+                s1Query.value = "";
+            }
         });
 
         const starredStations = ref([]); 
@@ -1217,6 +1231,11 @@
               return;
             }
 
+            // Prevent searching for combined station names
+            if (queryRef.value.includes(" + ")) {
+                return;
+            }
+
             const controller = new AbortController();
             abortRef.value = controller;
 
@@ -1244,7 +1263,7 @@
         const setStation = (slot, station) => {
             if (slot === 1) {
                 station1.value = station;
-                s1Query.value = cleanName(station.name);
+                // s1Query will be auto updated by the watcher
                 s1Results.value = [];
             } else {
                 station2.value = station;
@@ -1258,7 +1277,7 @@
         const clearStation = (slot) => {
             if (slot === 1) {
                 station1.value = null;
-                s1Query.value = "";
+                // s1Query will be auto updated by the watcher
                 s1Results.value = [];
             } else {
                 station2.value = null;
@@ -1272,7 +1291,7 @@
         const resetStations = () => {
             station1.value = null;
             station2.value = null;
-            s1Query.value = "";
+            // s1Query will be auto updated by the watcher
             s2Query.value = "";
             s1Results.value = [];
             s2Results.value = [];
@@ -1375,7 +1394,11 @@
               return;
           }
 
-          if (!silent) loading.value = true;
+          if (!silent) {
+              loading.value = true;
+              departuresRaw.value = []; // Reset on new search/station change
+          }
+
           try {
             const promises = watchedStations.value.map(station => 
                 axios.get(`${apiBase.value}/stops/${station.id}/departures`, { 

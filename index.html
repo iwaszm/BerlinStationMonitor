@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Abfahrtsmonitor Berlin</title>
+  <title>Abfahrtsmonitor Berlin (Silky Route Connected)</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -294,6 +294,22 @@
         min-height: 0; 
         touch-action: pan-y; 
         -webkit-overflow-scrolling: touch; 
+        position: relative;
+    }
+    .pull-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: -40px; /* Hidden initially */
+        color: var(--text-muted);
+        font-size: 18px;
+        pointer-events: none;
+        transition: opacity 0.3s;
     }
     .bus-card { background-color: var(--bg-card); margin-bottom: 8px; border-radius: 6px; padding: 0; transition: all 0.2s ease; border-left: 4px solid #666; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .bus-card:hover { background-color: var(--hover-bg); }
@@ -700,11 +716,11 @@
                 class="form-control-dark"
                 type="text"
                 :placeholder="t.searchPlaceholder"
-                v-model="s1Query"
-                @input="onS1Input"
+                v-model="mainSearchQuery"
+                @input="onMainInput"
                 @focus="showFavorites"
               />
-              <button v-if="s1Query" @click="resetStations()" class="input-action-btn clear-btn">
+              <button v-if="mainSearchQuery" @click="resetStations()" class="input-action-btn clear-btn">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -713,7 +729,7 @@
             </button>
         </div>
 
-        <!-- Sync results: Using s1Results for Main bar too -->
+        <!-- Search Results Dropdown -->
         <div class="search-dropdown" v-if="displayResults.length > 0">
           <div v-if="isShowingFavorites" class="fav-header">
             <i class="fas fa-star me-2"></i>{{ t.favorites }}
@@ -738,8 +754,20 @@
       </div>
 
       <!-- 3. Info List (Flexible) -->
-      <div class="section-info" :class="infoStateClass">
-        <div v-if="loading" class="text-center py-4">
+      <div 
+        class="section-info" 
+        :class="infoStateClass" 
+        ref="infoSectionRef"
+        @touchstart="onPullStart"
+        @touchmove="onPullMove"
+        @touchend="onPullEnd"
+      >
+        <!-- Pull To Refresh Indicator -->
+        <div class="pull-indicator" :style="{ opacity: pullOpacity, transform: `translateY(${pullTranslate}px)` }">
+            <i class="fas fa-sync-alt" :class="{ 'fa-spin': isRefreshing }"></i>
+        </div>
+
+        <div v-if="loading && !isRefreshing" class="text-center py-4">
           <div class="spinner-border text-warning" role="status"></div>
           <div class="mt-2 small" style="color: var(--text-muted)">{{ t.loading }}</div>
         </div>
@@ -919,6 +947,7 @@
             currentLang.value = currentLang.value === 'de' ? 'en' : 'de';
         };
 
+        const mainSearchQuery = ref(""); // New variable for Main Search Bar
         const searchQuery = ref(""); 
         const searchResults = ref([]); 
         
@@ -940,6 +969,15 @@
         const dragStartY = ref(0);
         const dragStartHeight = ref(0);
         const sidebarRef = ref(null);
+
+        // Pull To Refresh Variables
+        const infoSectionRef = ref(null);
+        const pullStartY = ref(0);
+        const pullDistance = ref(0);
+        const isRefreshing = ref(false);
+        const pullThreshold = 70; // px
+        const pullOpacity = computed(() => Math.min(pullDistance.value / pullThreshold, 1));
+        const pullTranslate = computed(() => Math.min(pullDistance.value, pullThreshold));
 
         // --- API Failover Logic REMOVED (Only BVG) ---
         const apiEndpoints = [
@@ -969,15 +1007,20 @@
             return list;
         });
 
-        // Combined watcher to handle dual station display in main search bar
+        // Combined watcher for Main Search Display vs Individual Settings Inputs
         watch([station1, station2], ([s1, s2]) => {
             if (s1 && s2) {
-                // Show both names
-                s1Query.value = `${cleanName(s1.name)} + ${cleanName(s2.name)}`;
+                // Main displays combined
+                mainSearchQuery.value = `${cleanName(s1.name)} + ${cleanName(s2.name)}`;
+                // Inner inputs stay individual
+                s1Query.value = cleanName(s1.name);
+                s2Query.value = cleanName(s2.name);
             } else if (s1) {
-                // Standard behavior
+                // Main displays single
+                mainSearchQuery.value = cleanName(s1.name);
                 s1Query.value = cleanName(s1.name);
             } else {
+                mainSearchQuery.value = "";
                 s1Query.value = "";
             }
         });
@@ -1012,7 +1055,7 @@
         const isRadarActive = ref(false);
         const radarError = ref(false);
 
-        const infoState = ref(1); // Default to Half on Mobile
+        const infoState = ref(2); // UPDATED: Default to Full (2)
 
         const lastRadarData = ref([]);
 
@@ -1122,6 +1165,42 @@
             return 'fa-chevron-down'; 
         });
 
+        // --- Pull To Refresh Logic ---
+        const onPullStart = (e) => {
+            if (infoState.value !== 2) return; // Only in Full Mode
+            if (infoSectionRef.value.scrollTop === 0) {
+                pullStartY.value = e.touches[0].clientY;
+            }
+        };
+
+        const onPullMove = (e) => {
+            if (infoState.value !== 2 || pullStartY.value === 0) return;
+            const currentY = e.touches[0].clientY;
+            const diff = currentY - pullStartY.value;
+            
+            if (infoSectionRef.value.scrollTop === 0 && diff > 0) {
+                if (e.cancelable) e.preventDefault(); // Stop native scroll if at top
+                pullDistance.value = diff * 0.5; // Resistance
+            } else {
+                pullDistance.value = 0;
+            }
+        };
+
+        const onPullEnd = () => {
+            if (pullDistance.value > pullThreshold) {
+                isRefreshing.value = true;
+                fetchDepartures(true).then(() => {
+                    setTimeout(() => {
+                        isRefreshing.value = false;
+                        pullDistance.value = 0;
+                    }, 500);
+                });
+            } else {
+                pullDistance.value = 0;
+            }
+            pullStartY.value = 0;
+        };
+
         const zoomIn = () => { if (map) map.zoomIn(); };
         const zoomOut = () => { if (map) map.zoomOut(); };
 
@@ -1217,19 +1296,20 @@
         };
 
         const showFavorites = () => {
-          if (!s1Query.value && starredStations.value.length > 0) {
+          if (!mainSearchQuery.value && starredStations.value.length > 0) {
             isShowingFavorites.value = true;
             s1Results.value = [];
           }
         };
 
         const displayResults = computed(() => {
-          if (s1Query.value && s1Results.value.length > 0) { return s1Results.value; } 
-          else if (!s1Query.value && starredStations.value.length > 0) { return starredStations.value; }
+          // Use mainSearchQuery for display logic in the main dropdown
+          if (mainSearchQuery.value && s1Results.value.length > 0) { return s1Results.value; } 
+          else if (!mainSearchQuery.value && starredStations.value.length > 0) { return starredStations.value; }
           return [];
         });
 
-        watch(s1Query, (newVal) => {
+        watch(mainSearchQuery, (newVal) => {
           if (!newVal) { isShowingFavorites.value = true; } 
           else { isShowingFavorites.value = false; }
         });
@@ -1237,6 +1317,15 @@
         const onSearchInput = () => {
         };
         
+        // Handling the Main Search Input (Outer)
+        const onMainInput = () => {
+            // When user types in main, we assume they are searching for a new station (Slot 1)
+            // This syncs the input to s1Query to trigger the existing search logic
+            s1Query.value = mainSearchQuery.value;
+            handleSearch(s1Query, s1Results, s1AbortController);
+        };
+
+        // Handling the Settings Search Input (Inner)
         const onS1Input = () => {
             handleSearch(s1Query, s1Results, s1AbortController);
         };
@@ -1276,9 +1365,11 @@
         };
 
         const selectStation = (station) => {
+          // When selecting from main search, we assume single station mode or resetting slot 1
           station1.value = station;
+          station2.value = null; // Clear second station
           s1Results.value = [];
-          if (infoState.value === 0) { infoState.value = 1; } // Go to Half on selection
+          // infoState.value = 1; // Removed this to respect user preference/default 2
           updateMapForStations();
           fetchDepartures();
         };
@@ -1286,11 +1377,9 @@
         const setStation = (slot, station) => {
             if (slot === 1) {
                 station1.value = station;
-                // s1Query will be auto updated by the watcher
                 s1Results.value = [];
             } else {
                 station2.value = station;
-                s2Query.value = cleanName(station.name);
                 s2Results.value = [];
             }
             updateMapForStations();
@@ -1300,7 +1389,6 @@
         const clearStation = (slot) => {
             if (slot === 1) {
                 station1.value = null;
-                // s1Query will be auto updated by the watcher
                 s1Results.value = [];
             } else {
                 station2.value = null;
@@ -1314,7 +1402,8 @@
         const resetStations = () => {
             station1.value = null;
             station2.value = null;
-            // s1Query will be auto updated by the watcher
+            mainSearchQuery.value = "";
+            s1Query.value = "";
             s2Query.value = "";
             s1Results.value = [];
             s2Results.value = [];
@@ -1391,7 +1480,7 @@
         const toggleTrip = async (dep) => {
           if (expandedTripId.value === dep.tripId) { 
               expandedTripId.value = null; 
-              if (routeLayer) routeLayer.clearLayers(); // NEW: Clear route on collapse
+              if (routeLayer) routeLayer.clearLayers(); // Clear route on collapse
               return; 
           }
           expandedTripId.value = dep.tripId;
@@ -1407,9 +1496,12 @@
              
              if (hasVehicle) {
                  focusVehicle(dep.tripId);
-                 showVehicleRoute(dep.tripId, color, false); // Don't refit if we have vehicle focus
+                 // If we focus on vehicle, we don't need to fit route
+                 showVehicleRoute(dep.tripId, color, false); 
              } else {
-                 showVehicleRoute(dep.tripId, color, true); // Fit to route if vehicle missing
+                 // UPDATED: If vehicle is missing, we show route BUT do NOT auto-zoom (false)
+                 // This keeps focus on the station as requested.
+                 showVehicleRoute(dep.tripId, color, false); 
              }
           }
 
@@ -1824,8 +1916,8 @@
         };
 
         return {
-          currentTime, searchQuery, searchResults, departures, loading, duration, 
-          isTypeActive, toggleType, selectStation, onSearchInput, clearSearch,
+          currentTime, mainSearchQuery, searchQuery, searchResults, departures, loading, duration, 
+          isTypeActive, toggleType, selectStation, onMainInput, onSearchInput, clearSearch,
           formatTime, formatAbsTime, getDelayClass, isDeparted, getProductClass,
           onDurationChange: () => fetchDepartures(), expandedTripId, toggleTrip, isTripLoading,
           currentTripStopovers, visibleStopovers, stopoverLimit,
@@ -1844,7 +1936,9 @@
           sidebarRef,
           isDragging, onDragStart, onDragMove, onDragEnd,
           currentApiName,
-          isRail // Export helper
+          isRail,
+          // Pull To Refresh
+          infoSectionRef, onPullStart, onPullMove, onPullEnd, pullOpacity, pullTranslate, isRefreshing
         };
       }
     }).mount("#app");

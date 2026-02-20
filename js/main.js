@@ -186,10 +186,9 @@ import { createUiHandlers } from './ui.js';
 
         // Arrow indicates the *next* toggle direction for the panel
         const toggleIcon = computed(() => {
-            // Toggle order: full(2) -> collapsed(0) -> half(1) -> full(2)
-            if (infoState.value === 2) return 'fa-chevron-down'; // will collapse
-            if (infoState.value === 0) return 'fa-chevron-up';   // will expand
-            return 'fa-chevron-up';                               // half -> full
+            // full -> collapse (up), collapsed/half -> expand (down)
+            if (infoState.value === 2) return 'fa-chevron-up';
+            return 'fa-chevron-down';
         });
 
         

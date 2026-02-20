@@ -150,8 +150,10 @@
             touch-action: none; 
         }
 
-        /* Collapsed height should reveal only the header + search (hide the dashboard section) */
-        .sidebar.mobile-collapsed { height: 110px !important; } 
+        /* Collapsed mode: show only header + search + handle (hide dashboard list) */
+        .sidebar.mobile-collapsed { height: auto !important; }
+        .sidebar.mobile-collapsed .section-info { display: none !important; }
+        .sidebar.mobile-collapsed .sidebar-footer-toggle { margin-top: 0 !important; }
         
         .sidebar.mobile-half { height: 50% !important; }
         .sidebar.mobile-full { 

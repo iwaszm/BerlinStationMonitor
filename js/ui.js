@@ -46,8 +46,8 @@ export function createUiHandlers({
     let newHeight = dragStartHeight.value + deltaY;
 
     const maxHeight = windowObj.innerHeight;
-    // Keep in sync with CSS (.sidebar.mobile-collapsed height)
-    const minHeight = 110;
+    // Minimum drag height (collapsed snap is handled by CSS)
+    const minHeight = 96;
 
     if (newHeight > maxHeight) newHeight = maxHeight;
     if (newHeight < minHeight) newHeight = minHeight;

@@ -935,6 +935,24 @@
         }
     };
 
+    // --- Shared constants (kept outside setup for clarity; no behavior change) ---
+    const API_ENDPOINTS = [
+        { name: "BVG", url: "https://v6.bvg.transport.rest" }
+    ];
+
+    const PRODUCT_COLORS = {
+      bus: "#A5027D",
+      tram: "#CC0000",
+      subway: "#0063A5",
+      suburban: "#008D4F",
+      regional: "#EC0016",
+      express: "#FFFFFF",
+      default: "#555"
+    };
+
+    const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+    const LIGHT_TILES = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+
     createApp({
       setup() {
         const currentTime = ref("");
@@ -980,9 +998,7 @@
         const pullTranslate = computed(() => Math.min(pullDistance.value, pullThreshold));
 
         // --- API Failover Logic REMOVED (Only BVG) ---
-        const apiEndpoints = [
-            { name: 'BVG', url: 'https://v6.bvg.transport.rest' }
-        ];
+        const apiEndpoints = API_ENDPOINTS;
         const currentApiIndex = ref(0);
         const apiBase = computed(() => apiEndpoints[currentApiIndex.value].url);
         const currentApiName = computed(() => apiEndpoints[currentApiIndex.value].name);
@@ -1073,18 +1089,7 @@
         const searchAbortController = ref(null);
         let radarAbortController = null;
 
-        const productColors = {
-          bus: '#A5027D',
-          tram: '#CC0000',
-          subway: '#0063A5', 
-          suburban: '#008D4F',
-          regional: '#EC0016',
-          express: '#FFFFFF', 
-          default: '#555'
-        };
-
-        const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-        const LIGHT_TILES = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+        const productColors = PRODUCT_COLORS;
 
         const setTheme = (theme) => {
             currentTheme.value = theme;

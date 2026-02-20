@@ -663,23 +663,6 @@ import { installAxiosInterceptors, createBvgApi } from './api.js';
 
         const visibleStopovers = computed(() => currentTripStopovers.value.slice(0, stopoverLimit.value));
 
-        const { fetchDepartures, fetchRadar } = createBvgApi({
-          axios,
-          apiBase,
-          duration,
-          watchedStations,
-          departuresRaw,
-          loading,
-          startRadarLoop,
-          getBoundingBox,
-          radarAbortControllerBox,
-          isRadarActive,
-          radarError,
-          lastRadarData,
-          showMap,
-          updateVehicleMarkers,
-        });
-
         const updateVehicleMarkers = (vehicles) => {
             if (!map) return;
             const activeIds = new Set();
@@ -762,6 +745,25 @@ import { installAxiosInterceptors, createBvgApi } from './api.js';
                 }
             }
         };
+
+
+
+        const { fetchDepartures, fetchRadar } = createBvgApi({
+          axios,
+          apiBase,
+          duration,
+          watchedStations,
+          departuresRaw,
+          loading,
+          startRadarLoop,
+          getBoundingBox,
+          radarAbortControllerBox,
+          isRadarActive,
+          radarError,
+          lastRadarData,
+          showMap,
+          updateVehicleMarkers,
+        });
 
         const startRadarLoop = () => {
             if (radarInterval) clearInterval(radarInterval);

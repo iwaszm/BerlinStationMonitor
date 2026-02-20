@@ -12,6 +12,20 @@ import { createStationHandlers } from './stations.js';
         };
     }
 
+    // Debug-friendly fatal error overlay (helps diagnose blank screen in production)
+    const showFatal = (err) => {
+        try {
+            const msg = (err && (err.stack || err.message)) ? (err.stack || err.message) : String(err);
+            const el = document.createElement('div');
+            el.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#111;color:#fff;padding:16px;overflow:auto;font-family:monospace;font-size:12px;';
+            el.innerHTML = '<b>App error</b><pre style="white-space:pre-wrap;">' + msg.replace(/</g,'&lt;') + '</pre>';
+            document.body.appendChild(el);
+        } catch (_) {}
+    };
+
+    window.addEventListener('error', (e) => showFatal(e.error || e.message));
+    window.addEventListener('unhandledrejection', (e) => showFatal(e.reason || e));
+
     const { createApp, ref, onMounted, computed, watch, onUnmounted, nextTick } = Vue;
 
     createApp({

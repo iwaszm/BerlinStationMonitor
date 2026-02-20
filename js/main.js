@@ -1,5 +1,6 @@
 import { translations, API_ENDPOINTS, PRODUCT_COLORS, DARK_TILES, LIGHT_TILES } from './constants.js';
 import { cleanName, getBoundingBox } from './utils.js';
+import { createUiHandlers } from './ui.js';
 
 // --- iOS 12 / iPhone 6 Polyfill Check ---
     if (typeof ResizeObserver === 'undefined') {
@@ -57,8 +58,6 @@ import { cleanName, getBoundingBox } from './utils.js';
         const pullDistance = ref(0);
         const isRefreshing = ref(false);
         const pullThreshold = 70; // px
-        const pullOpacity = computed(() => Math.min(pullDistance.value / pullThreshold, 1));
-        const pullTranslate = computed(() => Math.min(pullDistance.value, pullThreshold));
 
         
         // ==============================
@@ -172,64 +171,6 @@ import { cleanName, getBoundingBox } from './utils.js';
         const setTheme = (theme) => {
             currentTheme.value = theme;
         };
-        
-        const toggleMap = () => {
-            showMap.value = !showMap.value;
-            if (showMap.value) {
-                nextTick(() => {
-                    if (map) {
-                        map.invalidateSize();
-                    }
-                });
-            }
-        };
-
-        const toggleInfoState = (e) => {
-            if (isDragging.value) return; 
-            if (infoState.value === 2) { infoState.value = 0; } 
-            else if (infoState.value === 0) { infoState.value = 1; } 
-            else { infoState.value = 2; }
-        };
-        
-        const onDragStart = (e) => {
-            isDragging.value = true;
-            dragStartY.value = e.touches[0].clientY;
-            const rect = sidebarRef.value.getBoundingClientRect();
-            dragStartHeight.value = rect.height;
-        };
-        
-        const onDragMove = (e) => {
-            if (!isDragging.value) return;
-            const currentY = e.touches[0].clientY;
-            const deltaY = dragStartY.value - currentY; 
-            let newHeight = dragStartHeight.value + deltaY;
-
-            const maxHeight = window.innerHeight;
-            // FIX 1: Matches CSS rule for collapsed height (approx)
-            const minHeight = 130; 
-            
-            if (newHeight > maxHeight) newHeight = maxHeight;
-            if (newHeight < minHeight) newHeight = minHeight;
-
-            sidebarRef.value.style.height = `${newHeight}px`;
-        };
-        
-        const onDragEnd = (e) => {
-            isDragging.value = false;
-            const finalHeight = parseFloat(sidebarRef.value.style.height) || dragStartHeight.value;
-            sidebarRef.value.style.height = ''; 
-            
-            const windowH = window.innerHeight;
-            const ratio = finalHeight / windowH;
-
-            if (ratio < 0.35) {
-                infoState.value = 0; // Collapsed
-            } else if (ratio < 0.85) {
-                infoState.value = 1; // Half
-            } else {
-                infoState.value = 2; // Full
-            }
-        };
 
         const infoStateClass = computed(() => {
             if (infoState.value === 2) return 'state-full mobile-full'; 
@@ -252,45 +193,7 @@ import { cleanName, getBoundingBox } from './utils.js';
         // ==============================
         // UI: Drag + Pull-to-refresh
         // ==============================
-
         // --- Pull To Refresh Logic ---
-        const onPullStart = (e) => {
-            if (infoState.value !== 2) return; // Only in Full Mode
-            if (infoSectionRef.value.scrollTop === 0) {
-                pullStartY.value = e.touches[0].clientY;
-            }
-        };
-
-        const onPullMove = (e) => {
-            if (infoState.value !== 2 || pullStartY.value === 0) return;
-            const currentY = e.touches[0].clientY;
-            const diff = currentY - pullStartY.value;
-            
-            if (infoSectionRef.value.scrollTop === 0 && diff > 0) {
-                if (e.cancelable) e.preventDefault(); // Stop native scroll if at top
-                pullDistance.value = diff * 0.5; // Resistance
-            } else {
-                pullDistance.value = 0;
-            }
-        };
-
-        const onPullEnd = () => {
-            if (pullDistance.value > pullThreshold) {
-                isRefreshing.value = true;
-                fetchDepartures(true).then(() => {
-                    setTimeout(() => {
-                        isRefreshing.value = false;
-                        pullDistance.value = 0;
-                    }, 500);
-                });
-            } else {
-                pullDistance.value = 0;
-            }
-            pullStartY.value = 0;
-        };
-
-        const zoomIn = () => { if (map) map.zoomIn(); };
-        const zoomOut = () => { if (map) map.zoomOut(); };
 
         watch(isDarkMode, (newVal) => {
           if (newVal) {
@@ -743,6 +646,39 @@ import { cleanName, getBoundingBox } from './utils.js';
               if (!silent) loading.value = false; 
           }
         };
+
+        const ui = createUiHandlers({
+          computed,
+          nextTick,
+          windowObj: window,
+          sidebarRef,
+          infoSectionRef,
+          infoState,
+          isDragging,
+          dragStartY,
+          dragStartHeight,
+          pullStartY,
+          pullDistance,
+          isRefreshing,
+          pullThreshold,
+          fetchDepartures,
+          mapGet: () => map,
+        });
+
+        const pullOpacity = ui.pullOpacity;
+        const pullTranslate = ui.pullTranslate;
+        const toggleInfoState = ui.toggleInfoState;
+        const onDragStart = ui.onDragStart;
+        const onDragMove = ui.onDragMove;
+        const onDragEnd = ui.onDragEnd;
+        const onPullStart = ui.onPullStart;
+        const onPullMove = ui.onPullMove;
+        const onPullEnd = ui.onPullEnd;
+        const zoomIn = ui.zoomIn;
+        const zoomOut = ui.zoomOut;
+
+        const toggleMap = () => ui.toggleMap(showMap);
+
 
         const fetchRadar = async () => {
             if (watchedStations.value.length === 0) return;

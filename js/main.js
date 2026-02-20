@@ -1,7 +1,6 @@
 import { translations, API_ENDPOINTS, PRODUCT_COLORS, DARK_TILES, LIGHT_TILES } from './constants.js';
 import { cleanName, getBoundingBox } from './utils.js';
 import { installAxiosInterceptors, createBvgApi } from './api.js';
-import { initLeafletMap, setTileTheme } from './map-init.js';
 
 // --- iOS 12 / iPhone 6 Polyfill Check ---
     if (typeof ResizeObserver === 'undefined') {
@@ -261,7 +260,13 @@ import { initLeafletMap, setTileTheme } from './map-init.js';
         const zoomOut = () => { if (map) map.zoomOut(); };
 
         watch(isDarkMode, (newVal) => {
-          setTileTheme({ isDark: newVal, baseLayer, DARK_TILES, LIGHT_TILES });
+          if (newVal) {
+             document.body.classList.remove('light-mode');
+             if (baseLayer) baseLayer.setUrl(DARK_TILES);
+          } else {
+             document.body.classList.add('light-mode');
+             if (baseLayer) baseLayer.setUrl(LIGHT_TILES);
+          }
         });
 
         watch(infoState, () => {
@@ -271,20 +276,42 @@ import { initLeafletMap, setTileTheme } from './map-init.js';
         });
 
         onMounted(() => {
-          const mapEl = document.getElementById("map");
-          const appEl = document.getElementById('app');
-          if (!mapEl) return;
-          const inited = initLeafletMap({
-            L,
-            mapEl,
-            appEl,
-            isDark: isDarkMode.value,
-            DARK_TILES,
-            LIGHT_TILES,
+          if (!document.getElementById("map")) return;
+          map = L.map("map", { zoomControl: false }).setView([52.5200, 13.4050], 13);
+          
+          baseLayer = L.tileLayer(isDarkMode.value ? DARK_TILES : LIGHT_TILES, {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+          }).addTo(map);
+
+          // Create panes for layering
+          // Lines go in custom pane
+          map.createPane('customRouteLinePane');
+          map.getPane('customRouteLinePane').style.zIndex = 450;
+          
+          // Stops go in higher pane
+          map.createPane('customRouteStopsPane');
+          map.getPane('customRouteStopsPane').style.zIndex = 500;
+
+          routeLayer = L.layerGroup().addTo(map);
+
+          // Clear route when clicking on map background
+          map.on('click', () => {
+              if (routeLayer) routeLayer.clearLayers();
           });
-          map = inited.map;
-          baseLayer = inited.baseLayer;
-          routeLayer = inited.routeLayer;
+
+          map.on('zoomstart', () => {
+              document.querySelectorAll('.leaflet-marker-icon').forEach(el => { el.classList.add('no-transition'); });
+          });
+          map.on('zoomend', () => {
+              setTimeout(() => {
+                  document.querySelectorAll('.leaflet-marker-icon').forEach(el => { el.classList.remove('no-transition'); });
+              }, 100);
+          });
+          
+          const resizeObserver = new ResizeObserver(() => {
+             if(map) map.invalidateSize();
+          });
+          resizeObserver.observe(document.getElementById('app'));
 
           setInterval(() => { now.value = new Date(); currentTime.value = now.value.toLocaleTimeString("de-DE"); }, 1000);
           

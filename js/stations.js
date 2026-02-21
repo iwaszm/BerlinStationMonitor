@@ -67,7 +67,11 @@ export function createStationHandlers({
     }
   };
 
+  const isLocating = ref(false);
+
   const onMainBlur = () => {
+    // If a locate click is in progress, keep dropdown open long enough to show nearby results
+    if (isLocating.value) return;
     closeMainDropdownSoon();
   };
 
@@ -179,6 +183,7 @@ export function createStationHandlers({
 
   const onLocateClick = async () => {
     try {
+      isLocating.value = true;
       openMainDropdown();
 
       if (!('geolocation' in navigator)) {
@@ -196,21 +201,25 @@ export function createStationHandlers({
 
       const latitude = pos.coords.latitude;
       const longitude = pos.coords.longitude;
-      const accuracy = pos.coords.accuracy;
 
       if (typeof setUserLocation === 'function') {
-        setUserLocation({ latitude, longitude, accuracy });
+        setUserLocation({ latitude, longitude });
       }
 
       await fetchNearbyStations({ latitude, longitude });
 
-      // Show favorites header if we have any
+      // Ensure favorites header can appear when query is empty
       if (starredStations.value.length > 0) {
         isShowingFavorites.value = true;
       }
+
+      // Keep dropdown open a bit so results are visible
+      setTimeout(() => {
+        isLocating.value = false;
+      }, 600);
     } catch (e) {
-      // Permission denied, timeout, etc.
       console.warn('Geolocation failed', e);
+      isLocating.value = false;
     }
   };
 

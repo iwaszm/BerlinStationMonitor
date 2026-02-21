@@ -53,7 +53,7 @@ const server = http.createServer((req, res) => {
     // Static File Serving
     let filePath = '.' + req.url;
     if (filePath === './') {
-        filePath = './Dashboard.html';
+        filePath = './index.html';
     }
 
     const extname = String(path.extname(filePath)).toLowerCase();
@@ -80,6 +80,6 @@ const https = require('https');
 
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
-    console.log(`- Dashboard: http://localhost:${PORT}/Dashboard.html`);
+    console.log(`- Index: http://localhost:${PORT}/index.html`);
     console.log(`- API Proxy: http://localhost:${PORT}/api/...`);
 });

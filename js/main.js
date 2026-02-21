@@ -62,7 +62,7 @@ import { createStationHandlers } from './stations.js';
         const networkError = ref(false);
 
         // Mobile: allow hiding the top time bar to maximize dashboard space
-        const isTimebarHidden = ref(false);
+        const isTimebarHidden = ref(false); // default: time bar visible
         const toggleTimebar = () => { isTimebarHidden.value = !isTimebarHidden.value; }; 
         
         // Touch Gesture Variables

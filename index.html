@@ -631,8 +631,8 @@
                                 <span class="mosaic-led-icon" aria-hidden="true"></span>
                             </button>
                         </div>
-                        <button class="btn-independent" :class="{ active: isTimebarHidden }" @click="toggleTimebar" title="Time Bar">
-                            <i class="fas fa-clock"></i>
+                        <button class="btn-independent" :class="{ active: !isTimebarHidden }" @click="toggleTimebar" title="Time Bar">
+                            <i class="fas" :class="isTimebarHidden ? 'fa-clock-slash' : 'fa-clock'"></i>
                         </button>
                         <button class="btn-independent" @click="toggleLang" title="Sprache">
                             <span style="font-weight: 900; font-size: 11px;">{{ currentLang.toUpperCase() }}</span>

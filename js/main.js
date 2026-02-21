@@ -59,7 +59,11 @@ import { createStationHandlers } from './stations.js';
         const s2AbortController = ref(null);
         
         const showMap = ref(true);
-        const networkError = ref(false); 
+        const networkError = ref(false);
+
+        // Mobile: allow hiding the top time bar to maximize dashboard space
+        const isTimebarHidden = ref(false);
+        const toggleTimebar = () => { isTimebarHidden.value = !isTimebarHidden.value; }; 
         
         // Touch Gesture Variables
         const isDragging = ref(false);
@@ -928,6 +932,7 @@ import { createStationHandlers } from './stations.js';
           isLedMode, 
           currentTheme, setTheme, 
           networkError,
+          isTimebarHidden, toggleTimebar,
           isLargeFont, toggleFontSize,
           sidebarRef,
           isDragging, onDragStart, onDragMove, onDragEnd,

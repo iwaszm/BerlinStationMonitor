@@ -169,6 +169,9 @@
             margin-top: auto; 
             background-color: var(--bg-sidebar); 
         }
+
+        /* Mobile: hide the time bar when requested */
+        .sidebar-header.mobile-hidden { display: none !important; }
         
         .modal-filter-row { flex-wrap: nowrap !important; }
     }
@@ -605,8 +608,8 @@
                                 <i class="fas fa-digital-tachograph"></i>
                             </button>
                         </div>
-                        <button class="btn-independent" :class="{ active: isLargeFont }" @click="toggleFontSize" title="Schriftgröße">
-                            <i class="fas fa-text-height"></i>
+                        <button class="btn-independent" :class="{ active: isTimebarHidden }" @click="toggleTimebar" title="Time Bar">
+                            <i class="fas fa-clock"></i>
                         </button>
                         <button class="btn-independent" @click="toggleLang" title="Sprache">
                             <span style="font-weight: 900; font-size: 11px;">{{ currentLang.toUpperCase() }}</span>
@@ -732,7 +735,7 @@
     >
       
       <!-- 1. Header -->
-      <div class="sidebar-header">
+      <div class="sidebar-header" :class="{ 'mobile-hidden': isTimebarHidden }">
           <div class="current-time">
               {{ currentTime }}
               <i v-if="networkError" class="fas fa-rss ms-2 blink-error" title="Netzwerkfehler"></i>

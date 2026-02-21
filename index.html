@@ -170,8 +170,7 @@
             background-color: var(--bg-sidebar); 
         }
 
-        /* Mobile: hide the time bar when requested */
-        .sidebar-header.mobile-hidden { display: none !important; }
+        /* Mobile: time bar can be hidden via .sidebar-header.hidden (global rule below) */
         
         .modal-filter-row { flex-wrap: nowrap !important; }
     }
@@ -190,6 +189,8 @@
     .no-transition { transition: none !important; }
 
     /* Header Bar */
+    .sidebar-header.hidden { display: none !important; }
+
     .sidebar-header {
         padding: 8px 15px;
         background-color: var(--bg-section);
@@ -452,6 +453,28 @@
     .icon-btn:hover { color: var(--text-main); background-color: rgba(255,255,255,0.05); }
     .icon-btn.active { background-color: var(--bg-card); color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
     .icon-btn.active-led { background-color: #000; color: #ffaa00; border: 1px solid #ffaa00; text-shadow: 0 0 4px #ffaa00; }
+
+    /* Mosaic-style LED icon */
+    .mosaic-led-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      border-radius: 3px;
+      background:
+        linear-gradient(#ffaa00 0 0) 0 0/4px 4px,
+        linear-gradient(#ffaa00 0 0) 6px 0/4px 4px,
+        linear-gradient(#ffaa00 0 0) 12px 0/4px 4px,
+        linear-gradient(#ffaa00 0 0) 0 6px/4px 4px,
+        linear-gradient(#ffaa00 0 0) 6px 6px/4px 4px,
+        linear-gradient(#ffaa00 0 0) 12px 6px/4px 4px,
+        linear-gradient(#ffaa00 0 0) 0 12px/4px 4px,
+        linear-gradient(#ffaa00 0 0) 6px 12px/4px 4px,
+        linear-gradient(#ffaa00 0 0) 12px 12px/4px 4px;
+      background-repeat: no-repeat;
+      opacity: 0.85;
+    }
+
+    body.light-mode .mosaic-led-icon { opacity: 0.7; }
     
     .reset-icon-btn { background-color: transparent !important; background: transparent !important; border: none !important; color: var(--text-muted); font-size: 10px; padding: 0 4px; cursor: pointer; transition: color 0.2s; display: flex; align-items: center; justify-content: center; appearance: none; -webkit-appearance: none; }
     .reset-icon-btn:hover { color: var(--bvg-yellow); background: transparent !important; }
@@ -605,7 +628,7 @@
                                 <i class="fas fa-moon"></i>
                             </button>
                             <button class="icon-btn" :class="{ 'active active-led': currentTheme === 'led' }" @click="setTheme('led')" title="LED Mode">
-                                <i class="fas fa-digital-tachograph"></i>
+                                <span class="mosaic-led-icon" aria-hidden="true"></span>
                             </button>
                         </div>
                         <button class="btn-independent" :class="{ active: isTimebarHidden }" @click="toggleTimebar" title="Time Bar">
@@ -735,7 +758,7 @@
     >
       
       <!-- 1. Header -->
-      <div class="sidebar-header" :class="{ 'mobile-hidden': isTimebarHidden }">
+      <div class="sidebar-header" :class="{ 'hidden': isTimebarHidden }">
           <div class="current-time">
               {{ currentTime }}
               <i v-if="networkError" class="fas fa-rss ms-2 blink-error" title="Netzwerkfehler"></i>

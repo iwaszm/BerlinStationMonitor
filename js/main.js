@@ -587,12 +587,52 @@ import { createStationHandlers } from './stations.js';
           isShowingFavorites,
           updateMapForStations,
           fetchDepartures,
+          setUserLocation: ({ latitude, longitude, accuracy }) => {
+            try {
+              if (!map) return;
+
+              if (!window.__userLocationMarker) {
+                const icon = L.divIcon({
+                  className: 'user-location-marker',
+                  html: '<div style="width:12px;height:12px;border-radius:50%;background:#3b82f6;border:2px solid white;box-shadow:0 0 0 2px rgba(59,130,246,0.25);"></div>',
+                  iconSize: [12, 12],
+                  iconAnchor: [6, 6],
+                });
+                window.__userLocationMarker = L.marker([latitude, longitude], { icon }).addTo(map);
+              } else {
+                window.__userLocationMarker.setLatLng([latitude, longitude]);
+              }
+
+              if (accuracy && !window.__userLocationCircle) {
+                window.__userLocationCircle = L.circle([latitude, longitude], {
+                  radius: accuracy,
+                  color: '#3b82f6',
+                  fillColor: '#3b82f6',
+                  fillOpacity: 0.08,
+                  weight: 1,
+                }).addTo(map);
+              } else if (accuracy && window.__userLocationCircle) {
+                window.__userLocationCircle.setLatLng([latitude, longitude]);
+                window.__userLocationCircle.setRadius(accuracy);
+              }
+            } catch (e) {
+              console.warn('Failed to set user location on map', e);
+            }
+          },
         });
 
         const isStarred = stations.isStarred;
         const toggleStar = stations.toggleStar;
         const showFavorites = stations.showFavorites;
-        const displayResults = stations.displayResults;
+
+        const onMainFocus = stations.onMainFocus;
+        const onMainBlur = stations.onMainBlur;
+        const onLocateClick = stations.onLocateClick;
+
+        const isMainDropdownVisible = stations.isMainDropdownVisible;
+        const displaySearchResults = stations.displaySearchResults;
+        const displayFavoriteResults = stations.displayFavoriteResults;
+        const displayNearbyResults = stations.displayNearbyResults;
 
         const onMainInput = stations.onMainInput;
         const onS1Input = stations.onS1Input;
@@ -873,7 +913,11 @@ import { createStationHandlers } from './stations.js';
           formatTime, formatAbsTime, getDelayClass, isDeparted, getProductClass,
           onDurationChange: () => fetchDepartures(), expandedTripId, toggleTrip, isTripLoading,
           currentTripStopovers, visibleStopovers, stopoverLimit,
-          starredStations, isStarred, toggleStar, displayResults, isShowingFavorites, showFavorites, isRadarActive, radarError, cleanName,
+          starredStations, isStarred, toggleStar,
+          isShowingFavorites, showFavorites,
+          isMainDropdownVisible, displaySearchResults, displayFavoriteResults, displayNearbyResults,
+          onMainFocus, onMainBlur, onLocateClick,
+          isRadarActive, radarError, cleanName,
           isDarkMode, zoomIn, zoomOut,
           infoState, toggleInfoState, infoStateClass, sidebarMobileClass, toggleIcon,
           showSettings, setStation, clearStation, watchedStations,

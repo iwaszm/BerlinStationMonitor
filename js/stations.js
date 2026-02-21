@@ -1,5 +1,5 @@
-// Station search + favorites extracted from main.js
-// Keep behavior identical; only move code for readability.
+// Station search + favorites (+ nearby via geolocation) extracted from main.js
+// Keep behavior consistent with existing UX; minimize side effects.
 
 export function createStationHandlers({
   ref,
@@ -20,8 +20,29 @@ export function createStationHandlers({
   isShowingFavorites,
   updateMapForStations,
   fetchDepartures,
+  // optional: update map with user location
+  setUserLocation,
 }) {
+  // ------------------------------
+  // Dropdown visibility (main search)
+  // ------------------------------
+  const isMainDropdownOpen = ref(false);
+  const nearbyStations = ref([]);
+
+  const openMainDropdown = () => {
+    isMainDropdownOpen.value = true;
+  };
+
+  const closeMainDropdownSoon = () => {
+    // Delay so clicks on dropdown items can register
+    setTimeout(() => {
+      isMainDropdownOpen.value = false;
+    }, 180);
+  };
+
+  // ------------------------------
   // Favorites
+  // ------------------------------
   const isStarred = (id) => starredStations.value.some((s) => s.id === id);
 
   const toggleStar = (station) => {
@@ -38,26 +59,63 @@ export function createStationHandlers({
     localStorage.setItem('bvg_fav_stations', JSON.stringify(starredStations.value));
   };
 
-  const showFavorites = () => {
+  // Main search focus/blur
+  const onMainFocus = () => {
+    openMainDropdown();
     if (!mainSearchQuery.value && starredStations.value.length > 0) {
       isShowingFavorites.value = true;
-      s1Results.value = [];
     }
   };
 
-  const displayResults = computed(() => {
-    // Use mainSearchQuery for display logic in the main dropdown
+  const onMainBlur = () => {
+    closeMainDropdownSoon();
+  };
+
+  // For backward-compat: keep showFavorites used by template (now just opens dropdown)
+  const showFavorites = () => {
+    onMainFocus();
+  };
+
+  const displaySearchResults = computed(() => {
     if (mainSearchQuery.value && s1Results.value.length > 0) return s1Results.value;
-    if (!mainSearchQuery.value && starredStations.value.length > 0) return starredStations.value;
     return [];
   });
 
-  watch(mainSearchQuery, (newVal) => {
-    if (!newVal) isShowingFavorites.value = true;
-    else isShowingFavorites.value = false;
+  const displayFavoriteResults = computed(() => {
+    if (!mainSearchQuery.value && isMainDropdownOpen.value && starredStations.value.length > 0) {
+      return starredStations.value;
+    }
+    return [];
   });
 
-  // Search
+  const displayNearbyResults = computed(() => {
+    if (!mainSearchQuery.value && isMainDropdownOpen.value && nearbyStations.value.length > 0) {
+      return nearbyStations.value;
+    }
+    return [];
+  });
+
+  const isMainDropdownVisible = computed(() => {
+    return (
+      displaySearchResults.value.length > 0 ||
+      displayFavoriteResults.value.length > 0 ||
+      displayNearbyResults.value.length > 0
+    );
+  });
+
+  watch(mainSearchQuery, (newVal) => {
+    if (!newVal) {
+      isShowingFavorites.value = true;
+    } else {
+      isShowingFavorites.value = false;
+      // When typing, ensure dropdown stays open.
+      openMainDropdown();
+    }
+  });
+
+  // ------------------------------
+  // Search (BVG locations)
+  // ------------------------------
   let searchTimeout;
 
   const handleSearch = (queryRef, resultsRef, abortRef) => {
@@ -71,9 +129,7 @@ export function createStationHandlers({
       }
 
       // Prevent searching for combined station names
-      if (queryRef.value.includes(' + ')) {
-        return;
-      }
+      if (queryRef.value.includes(' + ')) return;
 
       const controller = new AbortController();
       abortRef.value = controller;
@@ -92,8 +148,6 @@ export function createStationHandlers({
   };
 
   const onMainInput = () => {
-    // When user types in main, we assume they are searching for a new station (Slot 1)
-    // This syncs the input to s1Query to trigger the existing search logic
     s1Query.value = mainSearchQuery.value;
     handleSearch(s1Query, s1Results, s1AbortController);
   };
@@ -106,13 +160,70 @@ export function createStationHandlers({
     handleSearch(s2Query, s2Results, s2AbortController);
   };
 
+  // ------------------------------
+  // Geolocation -> nearby stations
+  // ------------------------------
+  const fetchNearbyStations = async ({ latitude, longitude }) => {
+    const res = await axios.get(`${apiBase.value}/locations`, {
+      params: {
+        latitude,
+        longitude,
+        results: 10,
+        stops: true,
+      },
+    });
+    const stops = (res.data || []).filter((s) => s.type === 'stop');
+    nearbyStations.value = stops;
+  };
+
+  const onLocateClick = async () => {
+    try {
+      openMainDropdown();
+
+      if (!('geolocation' in navigator)) {
+        console.warn('Geolocation not available');
+        return;
+      }
+
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 30_000,
+        });
+      });
+
+      const latitude = pos.coords.latitude;
+      const longitude = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
+
+      if (typeof setUserLocation === 'function') {
+        setUserLocation({ latitude, longitude, accuracy });
+      }
+
+      await fetchNearbyStations({ latitude, longitude });
+
+      // Show favorites header if we have any
+      if (starredStations.value.length > 0) {
+        isShowingFavorites.value = true;
+      }
+    } catch (e) {
+      // Permission denied, timeout, etc.
+      console.warn('Geolocation failed', e);
+    }
+  };
+
+  // ------------------------------
+  // Station selection
+  // ------------------------------
   const selectStation = (station) => {
-    // When selecting from main search, we assume single station mode or resetting slot 1
     station1.value = station;
-    station2.value = null; // Clear second station
+    station2.value = null;
     s1Results.value = [];
     updateMapForStations();
     fetchDepartures();
+    // Close dropdown after selection
+    isMainDropdownOpen.value = false;
   };
 
   const setStation = (slot, station) => {
@@ -125,6 +236,7 @@ export function createStationHandlers({
     }
     updateMapForStations();
     fetchDepartures();
+    isMainDropdownOpen.value = false;
   };
 
   const clearStation = (slot) => {
@@ -157,13 +269,23 @@ export function createStationHandlers({
     isStarred,
     toggleStar,
     showFavorites,
-    displayResults,
+
+    // main dropdown
+    onMainFocus,
+    onMainBlur,
+    isMainDropdownVisible,
+    displaySearchResults,
+    displayFavoriteResults,
+    displayNearbyResults,
 
     // search
     handleSearch,
     onMainInput,
     onS1Input,
     onS2Input,
+
+    // locate
+    onLocateClick,
 
     // station selection
     selectStation,

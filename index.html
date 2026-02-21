@@ -220,6 +220,8 @@
     }
     
     .main-search-row { display: flex; align-items: center; gap: 8px; }
+
+    .user-location-marker { pointer-events: none; }
     .search-input-wrapper { position: relative; display: flex; align-items: center; flex-grow: 1; min-width: 0; }
 
     .form-control-dark {
@@ -234,6 +236,7 @@
       position: absolute; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 5px;
     }
     .input-action-btn:hover { color: var(--text-main); }
+    .locate-btn { right: 36px; }
     .clear-btn { right: 10px; } 
 
     .settings-btn {
@@ -298,6 +301,32 @@
         touch-action: pan-y; 
         -webkit-overflow-scrolling: touch; 
         position: relative;
+
+        /* Firefox scrollbar */
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+
+    /* WebKit scrollbar (Chrome/Edge/Safari) */
+    .section-info::-webkit-scrollbar,
+    .settings-content::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    .section-info::-webkit-scrollbar-track,
+    .settings-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .section-info::-webkit-scrollbar-thumb,
+    .settings-content::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 8px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+    .section-info::-webkit-scrollbar-thumb:hover,
+    .settings-content::-webkit-scrollbar-thumb:hover {
+        background-color: #666;
     }
     .pull-indicator {
         position: absolute;
@@ -720,8 +749,12 @@
                 :placeholder="t.searchPlaceholder"
                 v-model="mainSearchQuery"
                 @input="onMainInput"
-                @focus="showFavorites"
+                @focus="onMainFocus"
+                @blur="onMainBlur"
               />
+              <button @click.prevent="onLocateClick" class="input-action-btn locate-btn" title="Locate">
+                <i class="fas fa-location-crosshairs"></i>
+              </button>
               <button v-if="mainSearchQuery" @click="resetStations()" class="input-action-btn clear-btn">
                 <i class="fas fa-times"></i>
               </button>
@@ -732,26 +765,69 @@
         </div>
 
         <!-- Search Results Dropdown -->
-        <div class="search-dropdown" v-if="displayResults.length > 0">
-          <div v-if="isShowingFavorites" class="fav-header">
-            <i class="fas fa-star me-2"></i>{{ t.favorites }}
-          </div>
-          <div
-            class="search-item"
-            v-for="station in displayResults"
-            :key="station.id"
-            @click="selectStation(station)"
-          >
-            <div><i class="fas fa-map-marker-alt me-2" style="opacity: 0.6"></i>{{ cleanName(station.name) }}</div>
-            <button 
-              class="star-btn" 
-              :class="{ 'starred': isStarred(station.id) }" 
-              @click.stop="toggleStar(station)"
-              :title="t.favorites"
+        <div class="search-dropdown" v-if="isMainDropdownVisible">
+          <!-- Typed search results (takes precedence) -->
+          <template v-if="displaySearchResults.length > 0">
+            <div
+              class="search-item"
+              v-for="station in displaySearchResults"
+              :key="station.id"
+              @click="selectStation(station)"
             >
-              <i class="fas" :class="isStarred(station.id) ? 'fa-star' : 'fa-star'"></i>
-            </button>
-          </div>
+              <div><i class="fas fa-map-marker-alt me-2" style="opacity: 0.6"></i>{{ cleanName(station.name) }}</div>
+              <button 
+                class="star-btn" 
+                :class="{ 'starred': isStarred(station.id) }" 
+                @click.stop="toggleStar(station)"
+                :title="t.favorites"
+              >
+                <i class="fas fa-star"></i>
+              </button>
+            </div>
+          </template>
+
+          <!-- Favorites + Nearby when empty query -->
+          <template v-else>
+            <div v-if="displayFavoriteResults.length > 0" class="fav-header">
+              <i class="fas fa-star me-2"></i>{{ t.favorites }}
+            </div>
+            <div
+              class="search-item"
+              v-for="station in displayFavoriteResults"
+              :key="station.id"
+              @click="selectStation(station)"
+            >
+              <div><i class="fas fa-map-marker-alt me-2" style="opacity: 0.6"></i>{{ cleanName(station.name) }}</div>
+              <button 
+                class="star-btn" 
+                :class="{ 'starred': isStarred(station.id) }" 
+                @click.stop="toggleStar(station)"
+                :title="t.favorites"
+              >
+                <i class="fas fa-star"></i>
+              </button>
+            </div>
+
+            <div v-if="displayNearbyResults.length > 0" class="fav-header" style="margin-top:6px;">
+              <i class="fas fa-location-dot me-2"></i>Nearby
+            </div>
+            <div
+              class="search-item"
+              v-for="station in displayNearbyResults"
+              :key="station.id"
+              @click="selectStation(station)"
+            >
+              <div><i class="fas fa-map-marker-alt me-2" style="opacity: 0.6"></i>{{ cleanName(station.name) }}</div>
+              <button 
+                class="star-btn" 
+                :class="{ 'starred': isStarred(station.id) }" 
+                @click.stop="toggleStar(station)"
+                :title="t.favorites"
+              >
+                <i class="fas fa-star"></i>
+              </button>
+            </div>
+          </template>
         </div>
       </div>
 

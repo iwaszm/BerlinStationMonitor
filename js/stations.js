@@ -246,8 +246,15 @@ export function createStationHandlers({
 
   const clearStation = (slot) => {
     if (slot === 1) {
+      // Slot 2 only makes sense when slot 1 is set.
+      // Clearing slot 1 must also clear slot 2 and reset departures.
       station1.value = null;
+      station2.value = null;
+      mainSearchQuery.value = '';
+      s1Query.value = '';
+      s2Query.value = '';
       s1Results.value = [];
+      s2Results.value = [];
     } else {
       station2.value = null;
       s2Query.value = '';

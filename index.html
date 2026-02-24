@@ -822,7 +822,7 @@
                 <div class="settings-section">
                     <div class="settings-section-title d-flex justify-content-between align-items-center">
                         <span>{{ t.watchedStations }}</span>
-                        <button class="reset-icon-btn" @click="resetStations" v-if="station1 || station2" :title="t.reset">
+                        <button class="reset-icon-btn" @click="(station1 || station2) && resetStations()" :title="t.reset" :style="{ opacity: (station1 || station2) ? 1 : 0.35, cursor: (station1 || station2) ? 'pointer' : 'default' }">
                             <i class="fas fa-undo-alt"></i>
                         </button>
                     </div>
@@ -858,6 +858,8 @@
                               :placeholder="t.addPlaceholder" 
                               v-model="s2Query" 
                               @input="onS2Input"
+                              :disabled="!station1"
+                              :style="!station1 ? { opacity: 0.45, cursor: 'not-allowed' } : {}"
                             >
                             <button v-if="s2Query" @click="clearStation(2)" class="input-action-btn clear-btn">
                                 <i class="fas fa-times"></i>

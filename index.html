@@ -1028,7 +1028,7 @@
         </div>
 
         <div v-else-if="departures.length === 0 && !loading && watchedStations.length > 0" class="text-center py-4 text-muted">
-           <small>{{ t.noDepartures.replace('{t}', duration) }}</small>
+           <small>{{ departuresError ? t.noSignal : t.noDepartures.replace('{t}', duration) }}</small>
         </div>
 
         <!-- Dashboard: show Nearby/Favorites stops when no station is selected -->

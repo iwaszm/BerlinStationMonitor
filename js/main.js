@@ -187,7 +187,18 @@ import { createStationHandlers } from './stations.js';
         let vehicleTrails = {}; 
         let radarInterval; 
         
-        let autoRefreshTimer = null; 
+        let autoRefreshTimer = null;
+        const startDeparturesLoop = () => {
+          if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+          if (watchedStations.value.length === 0) return;
+          // silent refresh every 30s
+          autoRefreshTimer = setInterval(() => fetchDepartures(true), 30000);
+        };
+
+        watch(watchedStations, () => {
+          startDeparturesLoop();
+        }, { deep: true });
+
         
         let searchTimeout;
         const searchAbortController = ref(null);
@@ -570,6 +581,8 @@ import { createStationHandlers } from './stations.js';
         // Data fetch: Departures + Radar
         // ==============================
 
+        const departuresError = ref(false);
+
         const fetchDepartures = async (silent = false) => {
           if (watchedStations.value.length === 0) {
               departuresRaw.value = [];
@@ -594,9 +607,11 @@ import { createStationHandlers } from './stations.js';
             const results = await Promise.all(promises);
             const allDeps = results.flat();
             departuresRaw.value = allDeps;
+            departuresError.value = false;
             startRadarLoop();
           } catch (e) { 
               console.error(e);
+              departuresError.value = true;
               if (!silent) departuresRaw.value = []; 
           } finally { 
               if (!silent) loading.value = false; 
@@ -836,7 +851,7 @@ import { createStationHandlers } from './stations.js';
         const startRadarLoop = () => {
             if (radarInterval) clearInterval(radarInterval);
             fetchRadar(); 
-            radarInterval = setInterval(fetchRadar, 8000); 
+            radarInterval = setInterval(fetchRadar, 30000);
         };
 
         const isTerminalFilterActive = ref(false);
@@ -1056,7 +1071,7 @@ import { createStationHandlers } from './stations.js';
           t, currentLang, toggleLang,
           isLedMode, 
           currentTheme, setTheme, 
-          networkError,
+          networkError, departuresError,
           isTimebarHidden, toggleTimebar,
           isLargeFont, toggleFontSize,
           sidebarRef,

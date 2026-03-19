@@ -389,9 +389,15 @@ import { createStationHandlers } from './stations.js';
               if (routeLayer) routeLayer.clearLayers(); // Clear route on collapse
               return; 
           }
+          
+          // Always clear previous route when switching
+          if (routeLayer) routeLayer.clearLayers();
+
           expandedTripId.value = dep.tripId;
           
-          if(showMap.value) {
+          // Map interaction: skipped on mobile (<768px)
+          const isMobile = window.innerWidth < 768;
+          if(showMap.value && !isMobile) {
              let p = dep.line.product;
              if(p === 'nationalExpress' || p === 'national') p = 'express';
              if(p === 'regionalExp') p = 'regional';

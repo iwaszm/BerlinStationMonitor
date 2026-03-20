@@ -397,6 +397,7 @@ import { createStationHandlers } from './stations.js';
           
           // Map interaction: skipped on mobile (<768px)
           const isMobile = window.innerWidth < 768;
+          
           if(showMap.value && !isMobile) {
              let p = dep.line.product;
              if(p === 'nationalExpress' || p === 'national') p = 'express';

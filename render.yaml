@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: berlin-station-monitor
+    runtime: node
+    plan: free
+    buildCommand: ""
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RATE_LIMIT_MAX
+        value: "60"
+      - key: RATE_LIMIT_WINDOW_MS
+        value: "60000"
+      - key: API_TIMEOUT_MS
+        value: "10000"

@@ -1,10 +1,27 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const url = require('url');
+const https = require('https');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const BVG_API_HOST = 'v6.bvg.transport.rest';
+const PUBLIC_ROOT = __dirname;
+const API_TIMEOUT_MS = Number(process.env.API_TIMEOUT_MS || 10000);
+const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60000);
+const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 60);
+const DEFAULT_CACHE_TTL_MS = Number(process.env.DEFAULT_CACHE_TTL_MS || 30000);
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
+
+const apiCache = new Map();
+const rateLimits = new Map();
+
+const cacheTtls = [
+    { pattern: /^\/locations\/nearby\b/, ttl: 60000 },
+    { pattern: /^\/locations\b/, ttl: 300000 },
+    { pattern: /^\/stops\/[^/]+\/departures\b/, ttl: 15000 },
+    { pattern: /^\/radar\b/, ttl: 15000 },
+    { pattern: /^\/trips\//, ttl: 60000 },
+];
 
 const mimeTypes = {
     '.html': 'text/html',
@@ -13,47 +30,208 @@ const mimeTypes = {
     '.json': 'application/json',
     '.png': 'image/png',
     '.jpg': 'image/jpg',
+    '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
+};
+
+const getClientIp = (req) => {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string' && forwarded.length > 0) {
+        return forwarded.split(',')[0].trim();
+    }
+    return req.socket.remoteAddress || 'unknown';
+};
+
+const getCacheTtl = (pathname) => {
+    const match = cacheTtls.find(item => item.pattern.test(pathname));
+    return match ? match.ttl : DEFAULT_CACHE_TTL_MS;
+};
+
+const setApiHeaders = (req, res, extra = {}) => {
+    const origin = req.headers.origin;
+    if (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'false');
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Accept, Content-Type');
+    Object.entries(extra).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) res.setHeader(key, value);
+    });
+};
+
+const checkRateLimit = (req) => {
+    const now = Date.now();
+    const ip = getClientIp(req);
+    const current = rateLimits.get(ip);
+    if (!current || now > current.resetAt) {
+        rateLimits.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+        return { limited: false };
+    }
+    current.count += 1;
+    if (current.count > RATE_LIMIT_MAX) {
+        return { limited: true, retryAfter: Math.ceil((current.resetAt - now) / 1000) };
+    }
+    return { limited: false };
+};
+
+const pruneMaps = () => {
+    const now = Date.now();
+    for (const [key, entry] of apiCache.entries()) {
+        if (now - entry.fetchedAt > 300000) apiCache.delete(key);
+    }
+    for (const [key, entry] of rateLimits.entries()) {
+        if (now > entry.resetAt) rateLimits.delete(key);
+    }
+};
+
+const sendCachedResponse = (req, res, entry, state) => {
+    setApiHeaders(req, res, {
+        'Content-Type': entry.contentType || 'application/json',
+        'Cache-Control': 'no-store',
+        'X-Proxy-Cache': state,
+        'X-Proxy-Fetched-At': new Date(entry.fetchedAt).toISOString(),
+    });
+    res.writeHead(entry.statusCode);
+    if (req.method === 'HEAD') {
+        res.end();
+    } else {
+        res.end(entry.body);
+    }
+};
+
+const proxyApi = (req, res, parsedUrl) => {
+    if (req.method === 'OPTIONS') {
+        setApiHeaders(req, res);
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+        setApiHeaders(req, res);
+        res.writeHead(405, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Method not allowed' }));
+        return;
+    }
+
+    const limited = checkRateLimit(req);
+    if (limited.limited) {
+        setApiHeaders(req, res, { 'Retry-After': String(limited.retryAfter) });
+        res.writeHead(429, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Rate limit exceeded' }));
+        return;
+    }
+
+    pruneMaps();
+
+    const proxyPathname = parsedUrl.pathname.replace(/^\/api/, '') || '/';
+    const proxyPath = proxyPathname + parsedUrl.search;
+    const cacheKey = `${req.method}:${proxyPath}`;
+    const cached = apiCache.get(cacheKey);
+    const now = Date.now();
+    const cacheTtl = getCacheTtl(proxyPathname);
+
+    if (cached && now - cached.fetchedAt <= cacheTtl) {
+        sendCachedResponse(req, res, cached, 'HIT');
+        return;
+    }
+
+    const options = {
+        hostname: BVG_API_HOST,
+        port: 443,
+        path: proxyPath,
+        method: 'GET',
+        timeout: API_TIMEOUT_MS,
+        headers: {
+            accept: 'application/json',
+            host: BVG_API_HOST,
+            'user-agent': 'BerlinStationMonitor/1.0 (+https://github.com/iwaszm/BerlinStationMonitor)',
+        },
+    };
+
+    const proxyReq = https.request(options, (proxyRes) => {
+        const chunks = [];
+        proxyRes.on('data', chunk => chunks.push(chunk));
+        proxyRes.on('end', () => {
+            const body = Buffer.concat(chunks);
+            const statusCode = proxyRes.statusCode || 502;
+            const contentType = proxyRes.headers['content-type'] || 'application/json';
+
+            if (statusCode >= 200 && statusCode < 300) {
+                apiCache.set(cacheKey, { statusCode, contentType, body, fetchedAt: Date.now() });
+            }
+
+            setApiHeaders(req, res, {
+                'Content-Type': contentType,
+                'Cache-Control': 'no-store',
+                'X-Proxy-Cache': statusCode >= 200 && statusCode < 300 ? 'MISS' : 'BYPASS',
+            });
+            res.writeHead(statusCode);
+            if (req.method === 'HEAD') {
+                res.end();
+            } else {
+                res.end(body);
+            }
+        });
+    });
+
+    proxyReq.on('timeout', () => {
+        proxyReq.destroy(new Error('BVG API timeout'));
+    });
+
+    proxyReq.on('error', (e) => {
+        console.error(`[Proxy Error] ${e.message}`);
+        if (cached) {
+            sendCachedResponse(req, res, cached, 'STALE');
+            return;
+        }
+        setApiHeaders(req, res);
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Proxy error' }));
+    });
+
+    proxyReq.end();
 };
 
 const server = http.createServer((req, res) => {
     console.log(`[Request] ${req.method} ${req.url}`);
 
+    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+
+    if (parsedUrl.pathname === '/healthz') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+        return;
+    }
+
     // API Proxy: Forward requests starting with /api/ to BVG
     // Example: /api/locations?query=... -> https://v6.bvg.transport.rest/locations?query=...
-    if (req.url.startsWith('/api/')) {
-        const proxyPath = req.url.replace(/^\/api/, ''); // Remove /api prefix
-        
-        const options = {
-            hostname: BVG_API_HOST,
-            port: 443,
-            path: proxyPath,
-            method: req.method,
-            headers: {
-                ...req.headers,
-                host: BVG_API_HOST // Important: Set host header for the target
-            }
-        };
-
-        const proxyReq = https.request(options, (proxyRes) => {
-            res.writeHead(proxyRes.statusCode, proxyRes.headers);
-            proxyRes.pipe(res, { end: true });
-        });
-
-        proxyReq.on('error', (e) => {
-            console.error(`[Proxy Error] ${e.message}`);
-            res.writeHead(500);
-            res.end('Proxy Error');
-        });
-
-        req.pipe(proxyReq, { end: true });
+    if (parsedUrl.pathname.startsWith('/api/')) {
+        proxyApi(req, res, parsedUrl);
         return;
     }
 
     // Static File Serving
-    let filePath = '.' + req.url;
-    if (filePath === './') {
-        filePath = './index.html';
+    const rawPath = req.url.split('?')[0].split('#')[0];
+    let pathname;
+    try {
+        pathname = decodeURIComponent(rawPath);
+    } catch (e) {
+        res.writeHead(400);
+        res.end('Bad request');
+        return;
+    }
+
+    if (pathname === '/') {
+        pathname = '/index.html';
+    }
+
+    const filePath = path.resolve(PUBLIC_ROOT, `.${pathname}`);
+    if (!filePath.startsWith(PUBLIC_ROOT + path.sep) && filePath !== PUBLIC_ROOT) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
     }
 
     const extname = String(path.extname(filePath)).toLowerCase();
@@ -74,9 +252,6 @@ const server = http.createServer((req, res) => {
         }
     });
 });
-
-// Need 'https' module for the proxy
-const https = require('https');
 
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);

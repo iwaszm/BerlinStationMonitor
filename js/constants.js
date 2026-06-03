@@ -64,7 +64,7 @@ export const translations = {
   },
 };
 
-export const API_ENDPOINTS = [{ name: "BVG", url: "https://v6.bvg.transport.rest" }];
+export const API_ENDPOINTS = [{ name: "BVG", url: "/api" }];
 
 export const PRODUCT_COLORS = {
   bus: "#A5027D",

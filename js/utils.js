@@ -6,6 +6,16 @@ export function cleanName(name) {
   return name.replace(/\s*\(Berlin\)\s*/gi, "").replace(/,\s*Berlin\s*/gi, "");
 }
 
+export function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[ch]));
+}
+
 export function getBoundingBox(lat, lon, radiusKm) {
   const latDelta = radiusKm / 111;
   const lonDelta = radiusKm / (111 * Math.cos(lat * (Math.PI / 180)));

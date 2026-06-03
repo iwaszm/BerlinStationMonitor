@@ -51,6 +51,24 @@ Styling: Bootstrap 5 + Custom CSS (Light/Dark Mode supported)
 
 Networking: Axios
 
+## Render Deployment
+
+This project can run as a single Render Web Service. The Node server serves the static frontend and proxies BVG API requests under `/api` with short in-memory caching and basic rate limiting.
+
+Recommended Render settings:
+
+* Service type: Web Service
+* Build command: leave empty
+* Start command: `npm start`
+* Health check path: `/healthz`
+
+Optional environment variables:
+
+* `RATE_LIMIT_MAX`: API requests allowed per client per window, default `60`
+* `RATE_LIMIT_WINDOW_MS`: rate-limit window, default `60000`
+* `API_TIMEOUT_MS`: BVG upstream timeout, default `10000`
+* `ALLOWED_ORIGIN`: optional CORS origin when the frontend is hosted on a separate domain
+
 ## Data Source
 
 All transit data is provided by the v6.bvg.transport.rest API. This project relies on the open-source community's efforts to wrap official public data into a developer-friendly format.

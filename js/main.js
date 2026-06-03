@@ -1,5 +1,5 @@
 import { translations, API_ENDPOINTS, PRODUCT_COLORS, DARK_TILES, LIGHT_TILES } from './constants.js';
-import { cleanName, getBoundingBox } from './utils.js';
+import { cleanName, escapeHtml, getBoundingBox } from './utils.js';
 import { createUiHandlers } from './ui.js';
 import { createStationHandlers } from './stations.js';
 
@@ -186,6 +186,7 @@ import { createStationHandlers } from './stations.js';
         let vehicleMarkers = {}; 
         let vehicleTrails = {}; 
         let radarInterval; 
+        let clockTimer = null;
         
         let autoRefreshTimer = null;
         const startDeparturesLoop = () => {
@@ -294,7 +295,7 @@ import { createStationHandlers } from './stations.js';
           });
           resizeObserver.observe(document.getElementById('app'));
 
-          setInterval(() => { now.value = new Date(); currentTime.value = now.value.toLocaleTimeString("de-DE"); }, 1000);
+          clockTimer = setInterval(() => { now.value = new Date(); currentTime.value = now.value.toLocaleTimeString("de-DE"); }, 1000);
           
           autoRefreshTimer = setInterval(() => {
               if (watchedStations.value.length > 0) {
@@ -302,13 +303,23 @@ import { createStationHandlers } from './stations.js';
               }
           }, 30000);
 
-          const saved = localStorage.getItem('bvg_fav_stations');
-          if (saved) { starredStations.value = JSON.parse(saved); }
+          try {
+            const saved = localStorage.getItem('bvg_fav_stations');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              starredStations.value = Array.isArray(parsed) ? parsed : [];
+            }
+          } catch (e) {
+            console.warn('Invalid saved favorites, resetting', e);
+            localStorage.removeItem('bvg_fav_stations');
+            starredStations.value = [];
+          }
         });
 
         onUnmounted(() => {
           if (radarInterval) clearInterval(radarInterval);
           if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+          if (clockTimer) clearInterval(clockTimer);
         });
 
         // ==============================
@@ -343,7 +354,7 @@ import { createStationHandlers } from './stations.js';
 
                     const marker = L.marker([lat, lon], { icon: stationIcon })
                         .addTo(map)
-                        .bindTooltip(`<div>${cleanName(station.name)}</div>`, {
+                        .bindTooltip(`<div>${escapeHtml(cleanName(station.name))}</div>`, {
                             permanent: true, direction: 'top', offset: [0, -22], className: 'station-tooltip' 
                         });
                     
@@ -505,7 +516,7 @@ import { createStationHandlers } from './stations.js';
                             weight: 2,
                             className: 'no-transition',
                             pane: 'customRouteStopsPane' // <--- HIGHER Z-INDEX
-                        }).bindTooltip(cleanName(stop.stop.name), { 
+                        }).bindTooltip(escapeHtml(cleanName(stop.stop.name)), { 
                             permanent: true, 
                             direction: 'auto', 
                             className: 'route-stop-label',
@@ -814,9 +825,9 @@ import { createStationHandlers } from './stations.js';
                 }
 
                 const badgeStyle = `background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; display: inline-block; line-height: 1.2; font-weight: 800;`;
-                const popupContent = `<div style="display: flex; align-items: center; gap: 8px;"><span class="vehicle-popup-badge" style="${badgeStyle}">${v.line.name}</span> <span>${cleanName(v.direction)}</span></div>`;
+                const popupContent = `<div style="display: flex; align-items: center; gap: 8px;"><span class="vehicle-popup-badge" style="${badgeStyle}">${escapeHtml(v.line.name)}</span> <span>${escapeHtml(cleanName(v.direction))}</span></div>`;
 
-                const html = `<div class="vehicle-marker-wrapper"><div class="vehicle-marker ${productClass}">${label}</div></div>`;
+                const html = `<div class="vehicle-marker-wrapper"><div class="vehicle-marker ${productClass}">${escapeHtml(label)}</div></div>`;
                 const icon = L.divIcon({ className: 'smooth-transition', html: html, iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] });
 
                 if (vehicleMarkers[tripId]) {

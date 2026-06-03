@@ -698,6 +698,9 @@
     .vehicle-popup a.leaflet-popup-close-button { display: none; }
     .station-pos-marker { background-color: var(--bvg-yellow); border: 3px solid #ffffff; border-radius: 50%; width: 20px; height: 20px; box-shadow: 0 0 15px rgba(240, 228, 0, 0.8); box-sizing: border-box; }
     .vehicle-marker-wrapper { position: relative; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+    .vehicle-direction-arrow { position: absolute; top: 50%; left: 50%; z-index: 9; width: 32px; height: 32px; transform-origin: 50% 50%; pointer-events: none; }
+    .vehicle-direction-arrow::before { content: ""; position: absolute; top: -5px; left: 50%; width: 0; height: 0; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 13px solid #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.7)); }
+    .vehicle-direction-arrow::after { content: ""; position: absolute; top: -1px; left: 50%; width: 0; height: 0; transform: translateX(-50%); border-left: 3px solid transparent; border-right: 3px solid transparent; border-bottom: 8px solid rgba(20, 20, 20, 0.55); }
     .vehicle-marker { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; color: white; font-family: 'Red Hat Mono', monospace; font-feature-settings: "tnum"; font-weight: bold; font-size: 10px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.4); border: 2px solid white; width: 28px; height: 28px; background-color: #555; cursor: pointer !important; pointer-events: auto; }
 
     .marker-bus { background-color: #A5027D; } .marker-tram { background-color: #CC0000; } .marker-subway { background-color: var(--ubahn-blue); } .marker-suburban { background-color: #008D4F; } .marker-regional { background-color: var(--db-red); } .marker-express { background-color: #fff; color: #333; border-color: #999; }

@@ -185,6 +185,7 @@ import { createStationHandlers } from './stations.js';
         let stationCircles = [];
         let vehicleMarkers = {}; 
         let vehicleTrails = {}; 
+        let vehiclePreviousPositions = {};
         let radarInterval; 
         let clockTimer = null;
         
@@ -381,6 +382,7 @@ import { createStationHandlers } from './stations.js';
             if (routeLayer) routeLayer.clearLayers();
             vehicleMarkers = {};
             vehicleTrails = {};
+            vehiclePreviousPositions = {};
             lastRadarData.value = [];
             isRadarActive.value = false;
         };
@@ -781,6 +783,65 @@ import { createStationHandlers } from './stations.js';
             }
         };
 
+        const isValidPosition = (point) => {
+            return point && typeof point.latitude === 'number' && typeof point.longitude === 'number';
+        };
+
+        const getLocationPoint = (value) => {
+            if (!value) return null;
+            if (isValidPosition(value)) return value;
+            if (isValidPosition(value.location)) return value.location;
+            return null;
+        };
+
+        const calculateBearing = (from, to) => {
+            if (!isValidPosition(from) || !isValidPosition(to)) return null;
+
+            const lat1 = from.latitude * Math.PI / 180;
+            const lat2 = to.latitude * Math.PI / 180;
+            const deltaLon = (to.longitude - from.longitude) * Math.PI / 180;
+            const y = Math.sin(deltaLon) * Math.cos(lat2);
+            const x = Math.cos(lat1) * Math.sin(lat2) -
+                Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
+
+            return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+        };
+
+        const getVehicleBearing = (tripId, currentPosition, frames) => {
+            if (Array.isArray(frames)) {
+                const validFrames = frames.filter(isValidPosition);
+                for (let i = validFrames.length - 1; i > 0; i--) {
+                    const from = validFrames[i - 1];
+                    const to = validFrames[i];
+                    if (L.latLng(from.latitude, from.longitude).distanceTo([to.latitude, to.longitude]) > 1) {
+                        return calculateBearing(from, to);
+                    }
+                }
+
+                const currentFrame = frames.find(frame => Number(frame && frame.t) === 0) || frames[0];
+                const frameOrigin = getLocationPoint(currentFrame && currentFrame.origin);
+                const frameDestination = getLocationPoint(currentFrame && currentFrame.destination);
+                if (
+                    frameOrigin &&
+                    frameDestination &&
+                    L.latLng(frameOrigin.latitude, frameOrigin.longitude).distanceTo([frameDestination.latitude, frameDestination.longitude]) > 1
+                ) {
+                    return calculateBearing(frameOrigin, frameDestination);
+                }
+            }
+
+            const previousPosition = vehiclePreviousPositions[tripId];
+            if (
+                previousPosition &&
+                isValidPosition(currentPosition) &&
+                L.latLng(previousPosition.latitude, previousPosition.longitude).distanceTo([currentPosition.latitude, currentPosition.longitude]) > 1
+            ) {
+                return calculateBearing(previousPosition, currentPosition);
+            }
+
+            return null;
+        };
+
         const updateVehicleMarkers = (vehicles) => {
             if (!map) return;
             const activeIds = new Set();
@@ -810,6 +871,7 @@ import { createStationHandlers } from './stations.js';
                 const productClass = `marker-${prod}`;
                 const label = v.line.name || '?';
                 const color = productColors[prod] || productColors.default;
+                const bearing = getVehicleBearing(tripId, v.location, v.frames);
                 
                 let polylinePoints = [];
                 if (v.frames && Array.isArray(v.frames)) {
@@ -827,8 +889,13 @@ import { createStationHandlers } from './stations.js';
                 const badgeStyle = `background-color: ${color}; color: white; padding: 2px 6px; border-radius: 4px; display: inline-block; line-height: 1.2; font-weight: 800;`;
                 const popupContent = `<div style="display: flex; align-items: center; gap: 8px;"><span class="vehicle-popup-badge" style="${badgeStyle}">${escapeHtml(v.line.name)}</span> <span>${escapeHtml(cleanName(v.direction))}</span></div>`;
 
-                const html = `<div class="vehicle-marker-wrapper"><div class="vehicle-marker ${productClass}">${escapeHtml(label)}</div></div>`;
+                const arrowHtml = bearing === null ? '' : `<div class="vehicle-direction-arrow" style="transform: translate(-50%, -50%) rotate(${bearing.toFixed(1)}deg);"></div>`;
+                const html = `<div class="vehicle-marker-wrapper">${arrowHtml}<div class="vehicle-marker ${productClass}">${escapeHtml(label)}</div></div>`;
                 const icon = L.divIcon({ className: 'smooth-transition', html: html, iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -16] });
+                vehiclePreviousPositions[tripId] = {
+                    latitude: v.location.latitude,
+                    longitude: v.location.longitude
+                };
 
                 if (vehicleMarkers[tripId]) {
                     const marker = vehicleMarkers[tripId];
@@ -862,6 +929,7 @@ import { createStationHandlers } from './stations.js';
                 if (!activeIds.has(id)) {
                     map.removeLayer(vehicleMarkers[id]); delete vehicleMarkers[id];
                     if (vehicleTrails[id]) { map.removeLayer(vehicleTrails[id]); delete vehicleTrails[id]; }
+                    delete vehiclePreviousPositions[id];
                 }
             }
         };
@@ -954,6 +1022,7 @@ import { createStationHandlers } from './stations.js';
                 if (!currentTripIds.has(id)) {
                     map.removeLayer(vehicleMarkers[id]); delete vehicleMarkers[id];
                     if (vehicleTrails[id]) { map.removeLayer(vehicleTrails[id]); delete vehicleTrails[id]; }
+                    delete vehiclePreviousPositions[id];
                 }
             }
             if (lastRadarData.value.length > 0 && showMap.value) { updateVehicleMarkers(lastRadarData.value); }
@@ -1057,6 +1126,7 @@ import { createStationHandlers } from './stations.js';
               if (routeLayer) routeLayer.clearLayers();
               vehicleMarkers = {};
               vehicleTrails = {};
+              vehiclePreviousPositions = {};
               lastRadarData.value = [];
               stationMarkers.forEach(m => map.removeLayer(m));
               stationMarkers = [];

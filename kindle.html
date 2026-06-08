@@ -16,16 +16,17 @@
     }
 
     body {
-      padding: 12px;
+      padding: 12px 42px 12px 12px;
     }
 
     .page {
-      max-width: 760px;
+      box-sizing: border-box;
+      max-width: 790px;
       margin: 0 auto;
     }
 
     .clock {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: bold;
       text-align: center;
       border-bottom: 3px solid #000;
@@ -177,7 +178,7 @@
 
     .dep-time {
       float: right;
-      width: 170px;
+      width: 220px;
       text-align: right;
       min-height: 48px;
       margin-left: 8px;
@@ -186,8 +187,8 @@
 
     .dep-delay {
       display: inline-block;
-      min-width: 42px;
-      font-size: 15px;
+      min-width: 50px;
+      font-size: 17px;
       font-style: italic;
       font-weight: normal;
       line-height: 1;
@@ -197,7 +198,7 @@
 
     .dep-clock {
       display: inline-block;
-      font-size: 30px;
+      font-size: 38px;
       line-height: 1.05;
       font-weight: bold;
       vertical-align: baseline;
@@ -220,7 +221,7 @@
 
     @media (max-width: 600px) {
       body {
-        padding: 8px;
+        padding: 8px 34px 8px 8px;
         font-size: 17px;
       }
 
@@ -249,11 +250,11 @@
       }
 
       .dep-time {
-        width: 142px;
+        width: 180px;
       }
 
       .dep-clock {
-        font-size: 26px;
+        font-size: 32px;
       }
     }
   </style>

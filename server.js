@@ -225,6 +225,8 @@ const server = http.createServer((req, res) => {
 
     if (pathname === '/') {
         pathname = '/index.html';
+    } else if (pathname === '/kindle' || pathname === '/kindle/') {
+        pathname = '/kindle.html';
     }
 
     const filePath = path.resolve(PUBLIC_ROOT, `.${pathname}`);

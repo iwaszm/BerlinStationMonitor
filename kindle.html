@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Berlin Abfahrten Kindle</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    body {
+      padding: 12px;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .clock {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 3px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .search {
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input, button {
+      font: inherit;
+      box-sizing: border-box;
+    }
+
+    input {
+      width: 100%;
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      padding: 10px;
+      border-radius: 0;
+    }
+
+    button {
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
+      padding: 10px 14px;
+      min-height: 48px;
+      min-width: 96px;
+      border-radius: 0;
+      font-weight: bold;
+    }
+
+    button:active {
+      background: #000;
+      color: #fff;
+    }
+
+    .search-row {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+
+    .search-field {
+      display: table-cell;
+      width: 100%;
+      vertical-align: top;
+      padding-right: 8px;
+    }
+
+    .button-row {
+      display: table-cell;
+      width: 260px;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+
+    .button-row button {
+      margin: 0 0 0 6px;
+    }
+
+    .muted {
+      color: #333;
+      font-weight: normal;
+    }
+
+    .error {
+      border: 3px solid #000;
+      padding: 10px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    .results {
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      border-top: 2px solid #000;
+    }
+
+    .results li {
+      border-bottom: 2px solid #000;
+    }
+
+    .result-button {
+      display: block;
+      width: 100%;
+      min-height: 54px;
+      border: 0;
+      text-align: left;
+      padding: 12px 4px;
+      font-weight: bold;
+    }
+
+    .departures {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .departure {
+      border-bottom: 2px solid #000;
+      padding: 10px 0;
+      overflow: hidden;
+    }
+
+    .line {
+      float: left;
+      width: 88px;
+      min-height: 42px;
+      border: 2px solid #000;
+      text-align: center;
+      font-size: 22px;
+      line-height: 42px;
+      font-weight: bold;
+      margin-right: 10px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .dep-main {
+      overflow: hidden;
+      padding-right: 8px;
+    }
+
+    .direction {
+      font-size: 21px;
+      font-weight: bold;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .dep-meta {
+      margin-top: 4px;
+      font-size: 18px;
+    }
+
+    .dep-time {
+      float: right;
+      width: 170px;
+      text-align: right;
+      min-height: 48px;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+
+    .dep-delay {
+      display: inline-block;
+      min-width: 42px;
+      font-size: 15px;
+      font-style: italic;
+      font-weight: normal;
+      line-height: 1;
+      vertical-align: baseline;
+      margin-right: 8px;
+    }
+
+    .dep-clock {
+      display: inline-block;
+      font-size: 30px;
+      line-height: 1.05;
+      font-weight: bold;
+      vertical-align: baseline;
+    }
+
+    .cancelled {
+      text-decoration: line-through;
+    }
+
+    .delay {
+      font-weight: bold;
+    }
+
+    .empty {
+      border: 2px solid #000;
+      padding: 14px;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
+        font-size: 17px;
+      }
+
+      .line {
+        width: 70px;
+        font-size: 20px;
+        margin-right: 8px;
+      }
+
+      .button-row {
+        width: 220px;
+      }
+
+      button {
+        min-width: 0;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .direction {
+        font-size: 19px;
+      }
+
+      .dep-meta {
+        font-size: 16px;
+      }
+
+      .dep-time {
+        width: 142px;
+      }
+
+      .dep-clock {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div id="clock" class="clock">--:--</div>
+    </div>
+
+    <div class="search">
+      <div class="search-row">
+        <div class="search-field">
+          <input id="stationQuery" type="text" autocomplete="off" placeholder="Haltestelle">
+        </div>
+        <div class="button-row">
+          <button id="searchButton" type="button">Suchen</button>
+          <button id="refreshButton" type="button">Aktualisieren</button>
+        </div>
+      </div>
+      <ul id="results" class="results"></ul>
+    </div>
+
+    <div id="message" class="empty">Keine Haltestelle ausgewaehlt.</div>
+    <ul id="departures" class="departures"></ul>
+  </div>
+
+  <script>
+    (function () {
+      var API_BASE = '/api';
+      var STORAGE_KEY = 'bvg_kindle_station';
+      var REFRESH_MS = 60000;
+      var selectedStation = null;
+      var departures = [];
+      var refreshTimer = null;
+      var clockTimer = null;
+
+      var stationQuery = document.getElementById('stationQuery');
+      var searchButton = document.getElementById('searchButton');
+      var refreshButton = document.getElementById('refreshButton');
+      var resultsEl = document.getElementById('results');
+      var messageEl = document.getElementById('message');
+      var departuresEl = document.getElementById('departures');
+      var clockEl = document.getElementById('clock');
+
+      function pad(num) {
+        return num < 10 ? '0' + num : String(num);
+      }
+
+      function updateClock() {
+        var d = new Date();
+        clockEl.innerHTML = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        renderDepartures();
+      }
+
+      function cleanName(name) {
+        if (!name) return '';
+        return String(name)
+          .replace(/^Berlin\s+/i, '')
+          .replace(/\s+\(Berlin\)$/i, '');
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function encodeParams(params) {
+        var parts = [];
+        var key;
+        for (key in params) {
+          if (params.hasOwnProperty(key)) {
+            parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+          }
+        }
+        return parts.join('&');
+      }
+
+      function requestJson(path, params, callback) {
+        var xhr = new XMLHttpRequest();
+        var url = API_BASE + path;
+        var query = params ? encodeParams(params) : '';
+        if (query) url += '?' + query;
+
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+          var data;
+          if (xhr.readyState !== 4) return;
+          if (xhr.status < 200 || xhr.status >= 300) {
+            callback(new Error('HTTP ' + xhr.status), null);
+            return;
+          }
+          try {
+            data = JSON.parse(xhr.responseText);
+          } catch (e) {
+            callback(new Error('Ungueltige Antwort'), null);
+            return;
+          }
+          callback(null, data);
+        };
+        xhr.send(null);
+      }
+
+      function setStatus(text, isError) {
+        if (isError) setMessage(text, true);
+      }
+
+      function setMessage(text, isError) {
+        messageEl.style.display = text ? 'block' : 'none';
+        messageEl.className = isError ? 'empty error' : 'empty';
+        messageEl.innerHTML = escapeHtml(text || '');
+      }
+
+      function clearResults() {
+        resultsEl.innerHTML = '';
+      }
+
+      function saveStation(station) {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            id: station.id,
+            name: station.name
+          }));
+        } catch (e) {
+          return;
+        }
+      }
+
+      function loadSavedStation() {
+        var raw;
+        var parsed;
+        try {
+          raw = window.localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          parsed = JSON.parse(raw);
+          if (parsed && parsed.id && parsed.name) return parsed;
+        } catch (e) {
+          return null;
+        }
+        return null;
+      }
+
+      function clearSavedStation() {
+        try {
+          window.localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+          return;
+        }
+      }
+
+      function selectStation(station) {
+        selectedStation = {
+          id: station.id,
+          name: station.name
+        };
+        stationQuery.value = cleanName(station.name);
+        clearResults();
+        saveStation(selectedStation);
+        fetchDepartures(false);
+        startRefreshLoop();
+      }
+
+      function renderSearchResults(items) {
+        var html = '';
+        var i;
+        var station;
+
+        clearResults();
+        if (!items || items.length === 0) {
+          setMessage('Keine Haltestellen gefunden.');
+          return;
+        }
+
+        for (i = 0; i < items.length; i += 1) {
+          station = items[i];
+          if (!station || !station.id || station.type !== 'stop') continue;
+          html += '<li><button type="button" class="result-button" data-index="' + i + '">' +
+            escapeHtml(cleanName(station.name)) + '</button></li>';
+        }
+
+        resultsEl.innerHTML = html;
+        resultsEl._stations = items;
+        setMessage('');
+      }
+
+      function searchStations() {
+        var query = stationQuery.value.replace(/^\s+|\s+$/g, '');
+        if (!query) {
+          setStatus('Bitte Suchbegriff eingeben.', true);
+          return;
+        }
+
+        setMessage('');
+        clearResults();
+        requestJson('/locations', {
+          query: query,
+          results: 6,
+          stops: 'true'
+        }, function (err, data) {
+          var stops = [];
+          var i;
+          if (err) {
+            setStatus('Suche fehlgeschlagen. Verbindung pruefen.', true);
+            return;
+          }
+          if (data && data.length) {
+            for (i = 0; i < data.length; i += 1) {
+              if (data[i] && data[i].type === 'stop') stops.push(data[i]);
+            }
+          }
+          renderSearchResults(stops);
+        });
+      }
+
+      function getTimeValue(dep) {
+        return dep && (dep.when || dep.plannedWhen) ? new Date(dep.when || dep.plannedWhen) : null;
+      }
+
+      function formatAbsTime(date) {
+        if (!date || isNaN(date.getTime())) return '--:--';
+        return pad(date.getHours()) + ':' + pad(date.getMinutes());
+      }
+
+      function formatDelay(dep) {
+        var min;
+        if (!dep || dep.delay == null || dep.cancelled) return '';
+        min = Math.round(dep.delay / 60);
+        if (min === 0) return '';
+        if (min > 0) return '(+' + min + ')';
+        return '(' + min + ')';
+      }
+
+      function isRail(product) {
+        return product === 'suburban' ||
+          product === 'subway' ||
+          product === 'regional' ||
+          product === 'regionalExp' ||
+          product === 'express' ||
+          product === 'national' ||
+          product === 'nationalExpress';
+      }
+
+      function sortDepartures(a, b) {
+        var at = getTimeValue(a);
+        var bt = getTimeValue(b);
+        var av = at && !isNaN(at.getTime()) ? at.getTime() : 0;
+        var bv = bt && !isNaN(bt.getTime()) ? bt.getTime() : 0;
+        return av - bv;
+      }
+
+      function renderDepartures() {
+        var html = '';
+        var i;
+        var dep;
+        var time;
+        var lineName;
+        var direction;
+        var delay;
+        var platform;
+        var meta;
+
+        departuresEl.innerHTML = '';
+        if (!selectedStation) {
+          setMessage('Keine Haltestelle ausgewaehlt.');
+          return;
+        }
+        if (!departures || departures.length === 0) {
+          setMessage('Keine Abfahrten in den naechsten 60 Minuten.');
+          return;
+        }
+
+        setMessage('');
+        departures.sort(sortDepartures);
+
+        for (i = 0; i < departures.length; i += 1) {
+          dep = departures[i];
+          if (!dep || !dep.line) continue;
+          time = getTimeValue(dep);
+          if (time && time.getTime() < new Date().getTime() - 30000) continue;
+
+          lineName = dep.line.name || '?';
+          direction = cleanName(dep.direction || '');
+          delay = formatDelay(dep);
+          platform = '';
+          if (isRail(dep.line.product) && (dep.platform || dep.plannedPlatform)) {
+            platform = 'Gl. ' + (dep.platform || dep.plannedPlatform);
+          }
+
+          meta = '';
+          if (dep.cancelled) meta = 'faellt aus';
+          if (platform) meta += ' | ' + escapeHtml(platform);
+
+          html += '<li class="departure' + (dep.cancelled ? ' cancelled' : '') + '">' +
+            '<div class="line">' + escapeHtml(lineName) + '</div>' +
+            '<div class="dep-time">' +
+            '<div class="dep-delay">' + escapeHtml(delay) + '</div>' +
+            '<div class="dep-clock">' + escapeHtml(formatAbsTime(time)) + '</div>' +
+            '</div>' +
+            '<div class="dep-main">' +
+            '<div class="direction">' + escapeHtml(direction) + '</div>' +
+            '<div class="dep-meta">' + meta + '</div>' +
+            '</div>' +
+            '</li>';
+        }
+
+        departuresEl.innerHTML = html;
+        if (!html) setMessage('Keine aktuellen Abfahrten in den naechsten 60 Minuten.');
+      }
+
+      function fetchDepartures(silent) {
+        if (!selectedStation) {
+          renderDepartures();
+          return;
+        }
+
+        if (!silent) {
+          departures = [];
+          renderDepartures();
+          setStatus('Lade Abfahrten...', false);
+        }
+
+        requestJson('/stops/' + encodeURIComponent(selectedStation.id) + '/departures', {
+          duration: 60,
+          results: 40
+        }, function (err, data) {
+          if (err) {
+            setStatus('Abfahrten konnten nicht geladen werden.', true);
+            if (!silent) {
+              departures = [];
+              renderDepartures();
+            }
+            return;
+          }
+          departures = data && data.departures ? data.departures : [];
+          renderDepartures();
+        });
+      }
+
+      function startRefreshLoop() {
+        if (refreshTimer) window.clearInterval(refreshTimer);
+        refreshTimer = window.setInterval(function () {
+          fetchDepartures(true);
+        }, REFRESH_MS);
+      }
+
+      resultsEl.onclick = function (event) {
+        var target = event.target || event.srcElement;
+        var index;
+        while (target && target !== resultsEl && target.getAttribute('data-index') == null) {
+          target = target.parentNode;
+        }
+        if (!target || target === resultsEl) return;
+        index = parseInt(target.getAttribute('data-index'), 10);
+        if (resultsEl._stations && resultsEl._stations[index]) {
+          selectStation(resultsEl._stations[index]);
+        }
+      };
+
+      searchButton.onclick = searchStations;
+      refreshButton.onclick = function () {
+        fetchDepartures(false);
+      };
+
+      stationQuery.onkeydown = function (event) {
+        event = event || window.event;
+        if (event.keyCode === 13) {
+          searchStations();
+          return false;
+        }
+        return true;
+      };
+
+      clockTimer = window.setInterval(updateClock, 30000);
+      updateClock();
+
+      selectedStation = loadSavedStation();
+      if (selectedStation) {
+        stationQuery.value = cleanName(selectedStation.name);
+        fetchDepartures(false);
+        startRefreshLoop();
+      } else {
+        renderDepartures();
+      }
+
+      window.onunload = function () {
+        if (refreshTimer) window.clearInterval(refreshTimer);
+        if (clockTimer) window.clearInterval(clockTimer);
+      };
+    }());
+  </script>
+</body>
+</html>

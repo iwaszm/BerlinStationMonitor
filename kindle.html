@@ -304,9 +304,28 @@
         return num < 10 ? '0' + num : String(num);
       }
 
+      function lastSundayUtc(year, monthIndex) {
+        var d = new Date(Date.UTC(year, monthIndex + 1, 0, 1, 0, 0));
+        d.setUTCDate(d.getUTCDate() - d.getUTCDay());
+        return d;
+      }
+
+      function getBerlinOffsetMinutes(utcDate) {
+        var year = utcDate.getUTCFullYear();
+        var dstStart = lastSundayUtc(year, 2);
+        var dstEnd = lastSundayUtc(year, 9);
+        return utcDate >= dstStart && utcDate < dstEnd ? 120 : 60;
+      }
+
+      function getBerlinNow() {
+        var utcNow = new Date();
+        var offset = getBerlinOffsetMinutes(utcNow);
+        return new Date(utcNow.getTime() + offset * 60000);
+      }
+
       function updateClock() {
-        var d = new Date();
-        clockEl.innerHTML = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        var d = getBerlinNow();
+        clockEl.innerHTML = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
         renderDepartures();
       }
 
@@ -477,9 +496,11 @@
         return dep && (dep.when || dep.plannedWhen) ? new Date(dep.when || dep.plannedWhen) : null;
       }
 
-      function formatAbsTime(date) {
-        if (!date || isNaN(date.getTime())) return '--:--';
-        return pad(date.getHours()) + ':' + pad(date.getMinutes());
+      function getTimeText(dep) {
+        var iso = dep && (dep.when || dep.plannedWhen) ? String(dep.when || dep.plannedWhen) : '';
+        var match = iso.match(/T(\d{2}):(\d{2})/);
+        if (match) return match[1] + ':' + match[2];
+        return '--:--';
       }
 
       function formatDelay(dep) {
@@ -555,7 +576,7 @@
             '<div class="line">' + escapeHtml(lineName) + '</div>' +
             '<div class="dep-time">' +
             '<div class="dep-delay">' + escapeHtml(delay) + '</div>' +
-            '<div class="dep-clock">' + escapeHtml(formatAbsTime(time)) + '</div>' +
+            '<div class="dep-clock">' + escapeHtml(getTimeText(dep)) + '</div>' +
             '</div>' +
             '<div class="dep-main">' +
             '<div class="direction">' + escapeHtml(direction) + '</div>' +

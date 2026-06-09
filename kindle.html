@@ -226,6 +226,11 @@
       text-decoration: line-through;
     }
 
+    .cancelled-line,
+    .cancelled-direction {
+      text-decoration: line-through;
+    }
+
     .cancel-label {
       display: inline-block;
       min-width: 72px;
@@ -676,16 +681,16 @@
           }
 
           meta = '';
-          if (platform) meta += ' | ' + escapeHtml(platform);
+          if (platform) meta = escapeHtml(platform);
 
           html += '<li class="departure">' +
-            '<div class="line' + (activeLineFilter === lineName ? ' line-active' : '') + '" data-line="' + escapeAttr(lineName) + '">' + escapeHtml(lineName) + '</div>' +
+            '<div class="line' + (activeLineFilter === lineName ? ' line-active' : '') + (dep.cancelled ? ' cancelled-line' : '') + '" data-line="' + escapeAttr(lineName) + '">' + escapeHtml(lineName) + '</div>' +
             '<div class="dep-time">' +
             (dep.cancelled ? '<div class="cancel-label">faellt aus</div>' : '<div class="dep-delay">' + escapeHtml(delay) + '</div>') +
             '<div class="dep-clock' + (dep.cancelled ? ' cancelled-time' : '') + '">' + escapeHtml(getTimeText(dep)) + '</div>' +
             '</div>' +
             '<div class="dep-main">' +
-            '<div class="direction">' + escapeHtml(direction) + '</div>' +
+            '<div class="direction' + (dep.cancelled ? ' cancelled-direction' : '') + '">' + escapeHtml(direction) + '</div>' +
             '<div class="dep-meta">' + meta + '</div>' +
             '</div>' +
             '</li>';

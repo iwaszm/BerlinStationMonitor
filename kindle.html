@@ -47,7 +47,7 @@
       border: 2px solid #000;
       background: #fff;
       color: #000;
-      padding: 10px;
+      padding: 10px 62px 10px 10px;
       border-radius: 0;
     }
 
@@ -78,18 +78,22 @@
       width: 100%;
       vertical-align: top;
       padding-right: 8px;
+      position: relative;
     }
 
     .status-cell {
-      display: table-cell;
-      width: 56px;
+      position: absolute;
+      top: 50%;
+      right: 18px;
+      margin-top: -10px;
+      height: 20px;
+      line-height: 20px;
       white-space: nowrap;
-      vertical-align: middle;
       text-align: right;
-      padding-right: 8px;
       font-size: 14px;
       font-style: italic;
       color: #333;
+      pointer-events: none;
     }
 
     .button-row {
@@ -218,8 +222,19 @@
       vertical-align: baseline;
     }
 
-    .cancelled {
+    .cancelled-time {
       text-decoration: line-through;
+    }
+
+    .cancel-label {
+      display: inline-block;
+      min-width: 72px;
+      font-size: 17px;
+      font-style: italic;
+      font-weight: normal;
+      line-height: 1;
+      vertical-align: baseline;
+      margin-right: 8px;
     }
 
     .delay {
@@ -252,9 +267,12 @@
       }
 
       .status-cell {
-        width: 48px;
+        right: 14px;
         font-size: 13px;
-        padding-right: 6px;
+      }
+
+      input {
+        padding-right: 54px;
       }
 
       button {
@@ -294,8 +312,8 @@
       <div class="search-row">
         <div class="search-field">
           <input id="stationQuery" type="text" autocomplete="off" placeholder="Haltestelle">
+          <div id="statusText" class="status-cell"></div>
         </div>
-        <div id="statusText" class="status-cell"></div>
         <div class="button-row">
           <button id="searchButton" type="button">Suchen</button>
         </div>
@@ -658,14 +676,13 @@
           }
 
           meta = '';
-          if (dep.cancelled) meta = 'faellt aus';
           if (platform) meta += ' | ' + escapeHtml(platform);
 
-          html += '<li class="departure' + (dep.cancelled ? ' cancelled' : '') + '">' +
+          html += '<li class="departure">' +
             '<div class="line' + (activeLineFilter === lineName ? ' line-active' : '') + '" data-line="' + escapeAttr(lineName) + '">' + escapeHtml(lineName) + '</div>' +
             '<div class="dep-time">' +
-            '<div class="dep-delay">' + escapeHtml(delay) + '</div>' +
-            '<div class="dep-clock">' + escapeHtml(getTimeText(dep)) + '</div>' +
+            (dep.cancelled ? '<div class="cancel-label">faellt aus</div>' : '<div class="dep-delay">' + escapeHtml(delay) + '</div>') +
+            '<div class="dep-clock' + (dep.cancelled ? ' cancelled-time' : '') + '">' + escapeHtml(getTimeText(dep)) + '</div>' +
             '</div>' +
             '<div class="dep-main">' +
             '<div class="direction">' + escapeHtml(direction) + '</div>' +

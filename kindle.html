@@ -156,6 +156,11 @@
       white-space: nowrap;
     }
 
+    .line-active {
+      background: #000;
+      color: #fff;
+    }
+
     .dep-main {
       overflow: hidden;
       padding-right: 8px;
@@ -291,6 +296,7 @@
       var DEPARTURES_CACHE_PREFIX = 'bvg_kindle_departures_';
       var REFRESH_MS = 60000;
       var selectedStation = null;
+      var activeLineFilter = '';
       var departures = [];
       var departuresLastUpdated = null;
       var departuresIsStale = false;
@@ -324,6 +330,10 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
+      }
+
+      function escapeAttr(value) {
+        return escapeHtml(value).replace(/`/g, '&#96;');
       }
 
       function encodeParams(params) {
@@ -491,6 +501,7 @@
         departuresLastUpdated = null;
         departuresIsStale = false;
         lastErrorText = '';
+        activeLineFilter = '';
         stationQuery.value = cleanName(station.name);
         clearResults();
         saveStation(selectedStation);
@@ -528,6 +539,7 @@
           return;
         }
 
+        activeLineFilter = '';
         setMessage('');
         clearResults();
         requestJson('/locations', {
@@ -619,6 +631,7 @@
           if (time && time.getTime() < new Date().getTime() - 30000) continue;
 
           lineName = dep.line.name || '?';
+          if (activeLineFilter && lineName !== activeLineFilter) continue;
           direction = cleanName(dep.direction || '');
           delay = formatDelay(dep);
           platform = '';
@@ -631,7 +644,7 @@
           if (platform) meta += ' | ' + escapeHtml(platform);
 
           html += '<li class="departure' + (dep.cancelled ? ' cancelled' : '') + '">' +
-            '<div class="line">' + escapeHtml(lineName) + '</div>' +
+            '<div class="line' + (activeLineFilter === lineName ? ' line-active' : '') + '" data-line="' + escapeAttr(lineName) + '">' + escapeHtml(lineName) + '</div>' +
             '<div class="dep-time">' +
             '<div class="dep-delay">' + escapeHtml(delay) + '</div>' +
             '<div class="dep-clock">' + escapeHtml(getTimeText(dep)) + '</div>' +
@@ -703,6 +716,19 @@
         if (resultsEl._stations && resultsEl._stations[index]) {
           selectStation(resultsEl._stations[index]);
         }
+      };
+
+      departuresEl.onclick = function (event) {
+        var target = event.target || event.srcElement;
+        var lineName;
+        while (target && target !== departuresEl && (!target.className || String(target.className).indexOf('line') === -1)) {
+          target = target.parentNode;
+        }
+        if (!target || target === departuresEl) return;
+        lineName = target.getAttribute('data-line') || '';
+        if (!lineName) return;
+        activeLineFilter = activeLineFilter === lineName ? '' : lineName;
+        renderDepartures();
       };
 
       searchButton.onclick = searchStations;

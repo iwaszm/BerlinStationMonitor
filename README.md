@@ -67,6 +67,8 @@ Optional environment variables:
 * `RATE_LIMIT_MAX`: API requests allowed per client per window, default `60`
 * `RATE_LIMIT_WINDOW_MS`: rate-limit window, default `60000`
 * `API_TIMEOUT_MS`: BVG upstream timeout, default `10000`
+* `MAX_CACHE_ENTRIES`: maximum in-memory API cache entries, default `1000`
+* `MAX_CACHE_BODY_BYTES`: maximum cached response size, default `1048576`
 * `ALLOWED_ORIGIN`: optional CORS origin when the frontend is hosted on a separate domain
 
 ## Data Source

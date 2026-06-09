@@ -14,3 +14,7 @@ services:
         value: "60000"
       - key: API_TIMEOUT_MS
         value: "10000"
+      - key: MAX_CACHE_ENTRIES
+        value: "1000"
+      - key: MAX_CACHE_BODY_BYTES
+        value: "1048576"

@@ -25,15 +25,6 @@
       margin: 0 auto;
     }
 
-    .clock {
-      font-size: 24px;
-      font-weight: bold;
-      text-align: center;
-      border-bottom: 3px solid #000;
-      padding-bottom: 10px;
-      margin-bottom: 12px;
-    }
-
     .search {
       border-bottom: 2px solid #000;
       padding-bottom: 12px;
@@ -261,10 +252,6 @@
 </head>
 <body>
   <div class="page">
-    <div class="topbar">
-      <div id="clock" class="clock">--:--</div>
-    </div>
-
     <div class="search">
       <div class="search-row">
         <div class="search-field">
@@ -272,7 +259,7 @@
         </div>
         <div class="button-row">
           <button id="searchButton" type="button">Suchen</button>
-          <button id="refreshButton" type="button">Aktualisieren</button>
+          <button id="refreshButton" type="button">Akt</button>
         </div>
       </div>
       <ul id="results" class="results"></ul>
@@ -286,11 +273,16 @@
     (function () {
       var API_BASE = '/api';
       var STORAGE_KEY = 'bvg_kindle_station';
+      var DEPARTURES_CACHE_PREFIX = 'bvg_kindle_departures_';
       var REFRESH_MS = 60000;
       var selectedStation = null;
       var departures = [];
+      var departuresLastUpdated = null;
+      var departuresIsStale = false;
+      var lastErrorText = '';
+      var refreshState = '';
+      var failureCount = 0;
       var refreshTimer = null;
-      var clockTimer = null;
 
       var stationQuery = document.getElementById('stationQuery');
       var searchButton = document.getElementById('searchButton');
@@ -298,35 +290,9 @@
       var resultsEl = document.getElementById('results');
       var messageEl = document.getElementById('message');
       var departuresEl = document.getElementById('departures');
-      var clockEl = document.getElementById('clock');
 
       function pad(num) {
         return num < 10 ? '0' + num : String(num);
-      }
-
-      function lastSundayUtc(year, monthIndex) {
-        var d = new Date(Date.UTC(year, monthIndex + 1, 0, 1, 0, 0));
-        d.setUTCDate(d.getUTCDate() - d.getUTCDay());
-        return d;
-      }
-
-      function getBerlinOffsetMinutes(utcDate) {
-        var year = utcDate.getUTCFullYear();
-        var dstStart = lastSundayUtc(year, 2);
-        var dstEnd = lastSundayUtc(year, 9);
-        return utcDate >= dstStart && utcDate < dstEnd ? 120 : 60;
-      }
-
-      function getBerlinNow() {
-        var utcNow = new Date();
-        var offset = getBerlinOffsetMinutes(utcNow);
-        return new Date(utcNow.getTime() + offset * 60000);
-      }
-
-      function updateClock() {
-        var d = getBerlinNow();
-        clockEl.innerHTML = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
-        renderDepartures();
       }
 
       function cleanName(name) {
@@ -367,22 +333,45 @@
           var data;
           if (xhr.readyState !== 4) return;
           if (xhr.status < 200 || xhr.status >= 300) {
-            callback(new Error('HTTP ' + xhr.status), null);
+            callback(new Error('HTTP ' + xhr.status), null, {
+              status: xhr.status
+            });
             return;
           }
           try {
             data = JSON.parse(xhr.responseText);
           } catch (e) {
-            callback(new Error('Ungueltige Antwort'), null);
+            callback(new Error('Ungueltige Antwort'), null, {
+              status: xhr.status
+            });
             return;
           }
-          callback(null, data);
+          callback(null, data, {
+            status: xhr.status,
+            cacheState: xhr.getResponseHeader('X-Proxy-Cache') || '',
+            fetchedAt: xhr.getResponseHeader('X-Proxy-Fetched-At') || ''
+          });
         };
         xhr.send(null);
       }
 
       function setStatus(text, isError) {
         if (isError) setMessage(text, true);
+      }
+
+      function updateRefreshButton(state) {
+        refreshState = state || '';
+        if (refreshState === 'loading') {
+          refreshButton.innerHTML = 'Akt...';
+        } else if (refreshState === 'stale') {
+          refreshButton.innerHTML = 'Alt';
+        } else if (refreshState === 'slow') {
+          refreshButton.innerHTML = 'Lang';
+        } else if (refreshState === 'error') {
+          refreshButton.innerHTML = 'Err';
+        } else {
+          refreshButton.innerHTML = 'Akt';
+        }
       }
 
       function setMessage(text, isError) {
@@ -428,11 +417,65 @@
         }
       }
 
+      function getDepartureCacheKey() {
+        return selectedStation ? DEPARTURES_CACHE_PREFIX + selectedStation.id : '';
+      }
+
+      function saveDeparturesCache() {
+        var key = getDepartureCacheKey();
+        if (!key) return;
+        try {
+          window.localStorage.setItem(key, JSON.stringify({
+            fetchedAt: departuresLastUpdated ? departuresLastUpdated.toISOString() : new Date().toISOString(),
+            departures: departures || []
+          }));
+        } catch (e) {
+          return;
+        }
+      }
+
+      function loadDeparturesCache() {
+        var key = getDepartureCacheKey();
+        var raw;
+        var parsed;
+        if (!key) return false;
+        try {
+          raw = window.localStorage.getItem(key);
+          if (!raw) return false;
+          parsed = JSON.parse(raw);
+          if (!parsed || !parsed.departures || typeof parsed.departures.length !== 'number') return false;
+          departures = parsed.departures;
+          departuresLastUpdated = parsed.fetchedAt ? new Date(parsed.fetchedAt) : null;
+          departuresIsStale = true;
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function classifyError(err, meta) {
+        var status = meta && meta.status;
+        if (status === 429) return 'Zu viele Anfragen. Aktualisierung verlangsamt.';
+        if (status === 400 || status === 404) return 'Haltestelle konnte nicht geladen werden.';
+        if (status >= 500) return 'Datenquelle nicht erreichbar.';
+        return err && err.message ? err.message : 'Keine Verbindung.';
+      }
+
+      function getRefreshDelay() {
+        if (failureCount >= 3) return 120000;
+        if (failureCount >= 1) return 60000;
+        return REFRESH_MS;
+      }
+
       function selectStation(station) {
         selectedStation = {
           id: station.id,
           name: station.name
         };
+        departures = [];
+        departuresLastUpdated = null;
+        departuresIsStale = false;
+        lastErrorText = '';
         stationQuery.value = cleanName(station.name);
         clearResults();
         saveStation(selectedStation);
@@ -543,11 +586,11 @@
 
         departuresEl.innerHTML = '';
         if (!selectedStation) {
-          setMessage('Keine Haltestelle ausgewaehlt.');
+          setMessage('');
           return;
         }
         if (!departures || departures.length === 0) {
-          setMessage('Keine Abfahrten in den naechsten 60 Minuten.');
+          setMessage(lastErrorText ? 'Keine Daten' : 'Keine Abfahrten in den naechsten 60 Minuten.', !!lastErrorText);
           return;
         }
 
@@ -595,34 +638,43 @@
           return;
         }
 
+        updateRefreshButton('loading');
         if (!silent) {
-          departures = [];
+          if (!departures || departures.length === 0) loadDeparturesCache();
           renderDepartures();
-          setStatus('Lade Abfahrten...', false);
         }
 
         requestJson('/stops/' + encodeURIComponent(selectedStation.id) + '/departures', {
           duration: 60,
           results: 40
-        }, function (err, data) {
+        }, function (err, data, meta) {
           if (err) {
-            setStatus('Abfahrten konnten nicht geladen werden.', true);
-            if (!silent) {
-              departures = [];
-              renderDepartures();
-            }
+            failureCount += 1;
+            lastErrorText = classifyError(err, meta);
+            if (!departures || departures.length === 0) loadDeparturesCache();
+            departuresIsStale = true;
+            updateRefreshButton(failureCount >= 3 ? 'slow' : 'error');
+            renderDepartures();
             return;
           }
           departures = data && data.departures ? data.departures : [];
+          departuresIsStale = meta && String(meta.cacheState).toUpperCase() === 'STALE';
+          departuresLastUpdated = meta && meta.fetchedAt ? new Date(meta.fetchedAt) : new Date();
+          if (!departuresLastUpdated || isNaN(departuresLastUpdated.getTime())) departuresLastUpdated = new Date();
+          lastErrorText = '';
+          failureCount = 0;
+          saveDeparturesCache();
+          updateRefreshButton(departuresIsStale ? 'stale' : '');
           renderDepartures();
         });
       }
 
       function startRefreshLoop() {
-        if (refreshTimer) window.clearInterval(refreshTimer);
-        refreshTimer = window.setInterval(function () {
+        if (refreshTimer) window.clearTimeout(refreshTimer);
+        refreshTimer = window.setTimeout(function () {
           fetchDepartures(true);
-        }, REFRESH_MS);
+          startRefreshLoop();
+        }, getRefreshDelay());
       }
 
       resultsEl.onclick = function (event) {
@@ -652,8 +704,7 @@
         return true;
       };
 
-      clockTimer = window.setInterval(updateClock, 30000);
-      updateClock();
+      updateRefreshButton('');
 
       selectedStation = loadSavedStation();
       if (selectedStation) {
@@ -665,8 +716,7 @@
       }
 
       window.onunload = function () {
-        if (refreshTimer) window.clearInterval(refreshTimer);
-        if (clockTimer) window.clearInterval(clockTimer);
+        if (refreshTimer) window.clearTimeout(refreshTimer);
       };
     }());
   </script>

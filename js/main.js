@@ -166,6 +166,9 @@ import { createStationHandlers } from './stations.js';
         const loading = ref(false);
         const activeFilters = ref(['suburban', 'subway', 'tram', 'bus', 'regional', 'express']);
         const duration = ref(30);
+        const departuresLastUpdated = ref(null);
+        const departuresIsStale = ref(false);
+        const departuresErrorType = ref(null);
         
         const expandedTripId = ref(null);
         const currentTripStopovers = ref([]);
@@ -187,14 +190,24 @@ import { createStationHandlers } from './stations.js';
         let vehicleTrails = {}; 
         let vehiclePreviousPositions = {};
         let radarInterval; 
+        let radarFailureCount = 0;
         let clockTimer = null;
         
         let autoRefreshTimer = null;
+        let departuresFailureCount = 0;
+        let currentDeparturesCacheKey = '';
+        const getRefreshDelay = () => {
+          if (departuresFailureCount >= 3) return 120000;
+          if (departuresFailureCount >= 1) return 60000;
+          return 30000;
+        };
         const startDeparturesLoop = () => {
-          if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+          if (autoRefreshTimer) clearTimeout(autoRefreshTimer);
           if (watchedStations.value.length === 0) return;
-          // silent refresh every 30s
-          autoRefreshTimer = setInterval(() => fetchDepartures(true), 30000);
+          autoRefreshTimer = setTimeout(async () => {
+            await fetchDepartures(true);
+            startDeparturesLoop();
+          }, getRefreshDelay());
         };
 
         watch(watchedStations, () => {
@@ -298,12 +311,6 @@ import { createStationHandlers } from './stations.js';
 
           clockTimer = setInterval(() => { now.value = new Date(); currentTime.value = now.value.toLocaleTimeString("de-DE"); }, 1000);
           
-          autoRefreshTimer = setInterval(() => {
-              if (watchedStations.value.length > 0) {
-                  fetchDepartures(true);
-              }
-          }, 30000);
-
           try {
             const saved = localStorage.getItem('bvg_fav_stations');
             if (saved) {
@@ -318,8 +325,8 @@ import { createStationHandlers } from './stations.js';
         });
 
         onUnmounted(() => {
-          if (radarInterval) clearInterval(radarInterval);
-          if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+          if (radarInterval) clearTimeout(radarInterval);
+          if (autoRefreshTimer) clearTimeout(autoRefreshTimer);
           if (clockTimer) clearInterval(clockTimer);
         });
 
@@ -375,7 +382,7 @@ import { createStationHandlers } from './stations.js';
                  map.fitBounds(bounds, { padding: [50, 50] });
             }
 
-            if (radarInterval) clearInterval(radarInterval);
+            if (radarInterval) clearTimeout(radarInterval);
             
             for (let id in vehicleMarkers) { map.removeLayer(vehicleMarkers[id]); }
             for (let id in vehicleTrails) { map.removeLayer(vehicleTrails[id]); }
@@ -603,36 +610,114 @@ import { createStationHandlers } from './stations.js';
 
         const departuresError = ref(false);
 
+        const departureCacheKey = () => {
+          const stationIds = watchedStations.value.map(station => station.id).filter(Boolean).join('_');
+          return `bvg_departures_cache_${stationIds}_${duration.value}`;
+        };
+
+        const classifyFetchError = (error) => {
+          const status = error && error.response && error.response.status;
+          if (status === 429) return 'rateLimited';
+          if (status === 404 || status === 400) return 'invalidStation';
+          if (status >= 500 || error.code === 'ERR_NETWORK' || error.message === 'Network Error') return 'upstreamError';
+          return 'noSignal';
+        };
+
+        const setDeparturesFromCache = () => {
+          try {
+            const cached = localStorage.getItem(departureCacheKey());
+            if (!cached) return false;
+            const parsed = JSON.parse(cached);
+            if (!parsed || !Array.isArray(parsed.departures)) return false;
+            departuresRaw.value = parsed.departures;
+            departuresLastUpdated.value = parsed.fetchedAt ? new Date(parsed.fetchedAt) : null;
+            departuresIsStale.value = true;
+            return true;
+          } catch (e) {
+            console.warn('Failed to read cached departures', e);
+            return false;
+          }
+        };
+
+        const saveDeparturesCache = (items, fetchedAt) => {
+          try {
+            localStorage.setItem(departureCacheKey(), JSON.stringify({
+              fetchedAt: fetchedAt.toISOString(),
+              departures: items,
+            }));
+          } catch (e) {
+            console.warn('Failed to save cached departures', e);
+          }
+        };
+
+        const departureStatusText = computed(() => {
+          if (!departuresLastUpdated.value) return '';
+          const time = departuresLastUpdated.value.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+          return (departuresIsStale.value ? t.value.staleData : t.value.liveData).replace('{t}', time);
+        });
+
+        const departureErrorText = computed(() => {
+          if (!departuresError.value) return '';
+          return t.value[departuresErrorType.value] || t.value.noSignal;
+        });
+
         const fetchDepartures = async (silent = false) => {
           if (watchedStations.value.length === 0) {
               departuresRaw.value = [];
+              departuresLastUpdated.value = null;
+              departuresIsStale.value = false;
+              departuresError.value = false;
+              currentDeparturesCacheKey = '';
               return;
           }
 
+          const cacheKey = departureCacheKey();
+          const stationSetChanged = cacheKey !== currentDeparturesCacheKey;
+
           if (!silent) {
               loading.value = true;
-              departuresRaw.value = []; // Reset on new search/station change
+              departuresError.value = false;
+              departuresErrorType.value = null;
+              if (stationSetChanged) {
+                departuresRaw.value = [];
+                departuresLastUpdated.value = null;
+                departuresIsStale.value = false;
+              }
+              if (departuresRaw.value.length === 0) setDeparturesFromCache();
           }
 
           try {
-            const promises = watchedStations.value.map(station => 
+            const responses = await Promise.all(watchedStations.value.map(station => 
                 axios.get(`${apiBase.value}/stops/${station.id}/departures`, { 
                     params: { duration: duration.value, results: 50 } 
-                }).then(res => {
-                    const deps = res.data.departures || [];
-                    return deps.map(d => ({...d, stationName: station.name, uniqueId: d.tripId + '_' + station.id}));
                 })
-            );
+            ));
 
-            const results = await Promise.all(promises);
+            const results = responses.map((res, idx) => {
+              const station = watchedStations.value[idx];
+              const deps = res.data.departures || [];
+              return deps.map(d => ({...d, stationName: station.name, uniqueId: d.tripId + '_' + station.id}));
+            });
             const allDeps = results.flat();
+            const staleFromProxy = responses.some(res => String(res.headers['x-proxy-cache'] || '').toUpperCase() === 'STALE');
+            const fetchedHeader = responses.map(res => res.headers['x-proxy-fetched-at']).filter(Boolean).sort()[0];
+            const fetchedAt = fetchedHeader ? new Date(fetchedHeader) : new Date();
             departuresRaw.value = allDeps;
+            departuresLastUpdated.value = isNaN(fetchedAt.getTime()) ? new Date() : fetchedAt;
+            departuresIsStale.value = staleFromProxy;
             departuresError.value = false;
+            departuresErrorType.value = null;
+            departuresFailureCount = 0;
+            currentDeparturesCacheKey = cacheKey;
+            saveDeparturesCache(allDeps, departuresLastUpdated.value);
             startRadarLoop();
           } catch (e) { 
               console.error(e);
+              departuresFailureCount += 1;
               departuresError.value = true;
-              if (!silent) departuresRaw.value = []; 
+              departuresErrorType.value = classifyFetchError(e);
+              currentDeparturesCacheKey = cacheKey;
+              if (departuresRaw.value.length === 0) setDeparturesFromCache();
           } finally { 
               if (!silent) loading.value = false; 
           }
@@ -775,10 +860,13 @@ import { createStationHandlers } from './stations.js';
                 const combinedVehicles = Array.from(vehicleMap.values());
                 isRadarActive.value = true;
                 radarError.value = false;
+                radarFailureCount = 0;
                 lastRadarData.value = combinedVehicles;
                 if (showMap.value) updateVehicleMarkers(combinedVehicles);
             } catch (e) {
                 if (axios.isCancel(e)) return;
+                radarFailureCount += 1;
+                radarError.value = true;
                 console.warn("Radar update skipped/failed"); 
             }
         };
@@ -935,9 +1023,11 @@ import { createStationHandlers } from './stations.js';
         };
 
         const startRadarLoop = () => {
-            if (radarInterval) clearInterval(radarInterval);
-            fetchRadar(); 
-            radarInterval = setInterval(fetchRadar, 30000);
+            if (radarInterval) clearTimeout(radarInterval);
+            fetchRadar().finally(() => {
+                const delay = radarFailureCount >= 3 ? 120000 : (radarFailureCount >= 1 ? 60000 : 30000);
+                radarInterval = setTimeout(startRadarLoop, delay);
+            });
         };
 
         const isTerminalFilterActive = ref(false);
@@ -1119,7 +1209,7 @@ import { createStationHandlers } from './stations.js';
         const clearSearch = () => {
           clearStation(1);
           clearStation(2);
-          if (radarInterval) clearInterval(radarInterval);
+          if (radarInterval) clearTimeout(radarInterval);
           if (map) {
               for (let id in vehicleMarkers) { map.removeLayer(vehicleMarkers[id]); }
               for (let id in vehicleTrails) { map.removeLayer(vehicleTrails[id]); }
@@ -1159,7 +1249,7 @@ import { createStationHandlers } from './stations.js';
           t, currentLang, toggleLang,
           isLedMode, 
           currentTheme, setTheme, 
-          networkError, departuresError,
+          networkError, departuresError, departuresErrorType, departureStatusText, departureErrorText, departuresIsStale,
           isTimebarHidden, toggleTimebar,
           isLargeFont, toggleFontSize,
           sidebarRef,

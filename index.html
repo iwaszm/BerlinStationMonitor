@@ -958,7 +958,7 @@
       <div class="sidebar-header" :class="{ 'hidden': isTimebarHidden }">
           <div class="current-time">
               {{ currentTime }}
-              <i v-if="networkError" class="fas fa-rss ms-2 blink-error" title="Netzwerkfehler"></i>
+              <i v-if="networkError" class="fas fa-rss ms-2 blink-error" :title="departureErrorText || t.noSignal"></i>
           </div>
       </div>
 
@@ -1031,7 +1031,12 @@
         </div>
 
         <div v-else-if="departures.length === 0 && !loading && watchedStations.length > 0" class="text-center py-4 text-muted">
-           <small>{{ departuresError ? t.noSignal : t.noDepartures.replace('{t}', duration) }}</small>
+           <small>{{ departuresError ? departureErrorText : t.noDepartures.replace('{t}', duration) }}</small>
+        </div>
+
+        <div v-if="watchedStations.length > 0 && departureStatusText" class="text-center small px-2 pb-2" :style="{ color: departuresIsStale ? '#ffaa00' : 'var(--text-muted)' }">
+           <span>{{ departureStatusText }}</span>
+           <span v-if="departuresError"> · {{ departureErrorText }}</span>
         </div>
 
         <!-- Dashboard: show Nearby/Favorites stops when no station is selected -->

@@ -14,17 +14,19 @@ const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60000);
 const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 60);
 const DEFAULT_CACHE_TTL_MS = Number(process.env.DEFAULT_CACHE_TTL_MS || 30000);
 const STALE_CACHE_TTL_MS = Number(process.env.STALE_CACHE_TTL_MS || 7200000);
+const MAX_CACHE_ENTRIES = Number(process.env.MAX_CACHE_ENTRIES || 1000);
+const MAX_CACHE_BODY_BYTES = Number(process.env.MAX_CACHE_BODY_BYTES || 1048576);
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
 
 const apiCache = new Map();
 const rateLimits = new Map();
 
-const cacheTtls = [
-    { pattern: /^\/locations\/nearby\b/, ttl: 60000 },
-    { pattern: /^\/locations\b/, ttl: 300000 },
-    { pattern: /^\/stops\/[^/]+\/departures\b/, ttl: 15000 },
-    { pattern: /^\/radar\b/, ttl: 15000 },
-    { pattern: /^\/trips\//, ttl: 60000 },
+const cacheRules = [
+    { pattern: /^\/locations\/nearby\b/, freshTtl: 60000, staleTtl: 604800000 },
+    { pattern: /^\/locations\b/, freshTtl: 300000, staleTtl: 604800000 },
+    { pattern: /^\/stops\/[^/]+\/departures\b/, freshTtl: 20000, staleTtl: 21600000 },
+    { pattern: /^\/radar\b/, freshTtl: 20000, staleTtl: 7200000 },
+    { pattern: /^\/trips\//, freshTtl: 60000, staleTtl: 43200000 },
 ];
 
 const mimeTypes = {
@@ -46,13 +48,15 @@ const getClientIp = (req) => {
     return req.socket.remoteAddress || 'unknown';
 };
 
-const getCacheTtl = (pathname) => {
-    const match = cacheTtls.find(item => item.pattern.test(pathname));
-    return match ? match.ttl : DEFAULT_CACHE_TTL_MS;
+const getCacheRule = (pathname) => {
+    return cacheRules.find(item => item.pattern.test(pathname)) || {
+        freshTtl: DEFAULT_CACHE_TTL_MS,
+        staleTtl: STALE_CACHE_TTL_MS,
+    };
 };
 
-const isStaleCacheUsable = (entry) => {
-    return entry && Date.now() - entry.fetchedAt <= STALE_CACHE_TTL_MS;
+const isStaleCacheUsable = (entry, staleTtl) => {
+    return entry && Date.now() - entry.fetchedAt <= staleTtl;
 };
 
 const setApiHeaders = (req, res, extra = {}) => {
@@ -86,7 +90,12 @@ const checkRateLimit = (req) => {
 const pruneMaps = () => {
     const now = Date.now();
     for (const [key, entry] of apiCache.entries()) {
-        if (now - entry.fetchedAt > STALE_CACHE_TTL_MS) apiCache.delete(key);
+        if (now - entry.fetchedAt > (entry.staleTtl || STALE_CACHE_TTL_MS)) apiCache.delete(key);
+    }
+    while (apiCache.size > MAX_CACHE_ENTRIES) {
+        const oldestKey = apiCache.keys().next().value;
+        if (!oldestKey) break;
+        apiCache.delete(oldestKey);
     }
     for (const [key, entry] of rateLimits.entries()) {
         if (now > entry.resetAt) rateLimits.delete(key);
@@ -138,16 +147,16 @@ const proxyApi = (req, res, parsedUrl) => {
     const cacheKey = `${req.method}:${proxyPath}`;
     const cached = apiCache.get(cacheKey);
     const now = Date.now();
-    const cacheTtl = getCacheTtl(proxyPathname);
+    const cacheRule = getCacheRule(proxyPathname);
 
-    if (cached && now - cached.fetchedAt <= cacheTtl) {
+    if (cached && now - cached.fetchedAt <= cacheRule.freshTtl) {
         sendCachedResponse(req, res, cached, 'HIT');
         return;
     }
 
     const sendProxyError = (message) => {
         console.error(`[Proxy Error] ${message}`);
-        if (isStaleCacheUsable(cached)) {
+        if (isStaleCacheUsable(cached, cacheRule.staleTtl)) {
             sendCachedResponse(req, res, cached, 'STALE');
             return;
         }
@@ -184,13 +193,19 @@ const proxyApi = (req, res, parsedUrl) => {
                 const statusCode = proxyRes.statusCode || 502;
                 const contentType = proxyRes.headers['content-type'] || 'application/json';
 
-                if (statusCode >= 200 && statusCode < 300) {
-                    apiCache.set(cacheKey, { statusCode, contentType, body, fetchedAt: Date.now() });
+                if (statusCode >= 200 && statusCode < 300 && body.length <= MAX_CACHE_BODY_BYTES) {
+                    apiCache.set(cacheKey, {
+                        statusCode,
+                        contentType,
+                        body,
+                        fetchedAt: Date.now(),
+                        staleTtl: cacheRule.staleTtl,
+                    });
                 } else if (statusCode >= 500 && hostIndex < API_HOSTS.length - 1) {
                     console.warn(`[Proxy Warning] ${upstreamHost} returned ${statusCode}; trying fallback`);
                     requestHost(hostIndex + 1);
                     return;
-                } else if (statusCode >= 500 && isStaleCacheUsable(cached)) {
+                } else if (statusCode >= 500 && isStaleCacheUsable(cached, cacheRule.staleTtl)) {
                     sendCachedResponse(req, res, cached, 'STALE');
                     return;
                 }

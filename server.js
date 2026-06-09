@@ -4,12 +4,16 @@ const path = require('path');
 const https = require('https');
 
 const PORT = process.env.PORT || 3000;
-const BVG_API_HOST = 'v6.bvg.transport.rest';
+const API_HOSTS = (process.env.API_HOSTS || 'v6.bvg.transport.rest,v6.vbb.transport.rest')
+    .split(',')
+    .map(host => host.trim())
+    .filter(Boolean);
 const PUBLIC_ROOT = __dirname;
 const API_TIMEOUT_MS = Number(process.env.API_TIMEOUT_MS || 10000);
 const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60000);
 const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 60);
 const DEFAULT_CACHE_TTL_MS = Number(process.env.DEFAULT_CACHE_TTL_MS || 30000);
+const STALE_CACHE_TTL_MS = Number(process.env.STALE_CACHE_TTL_MS || 7200000);
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '';
 
 const apiCache = new Map();
@@ -47,6 +51,10 @@ const getCacheTtl = (pathname) => {
     return match ? match.ttl : DEFAULT_CACHE_TTL_MS;
 };
 
+const isStaleCacheUsable = (entry) => {
+    return entry && Date.now() - entry.fetchedAt <= STALE_CACHE_TTL_MS;
+};
+
 const setApiHeaders = (req, res, extra = {}) => {
     const origin = req.headers.origin;
     if (ALLOWED_ORIGIN && origin === ALLOWED_ORIGIN) {
@@ -78,7 +86,7 @@ const checkRateLimit = (req) => {
 const pruneMaps = () => {
     const now = Date.now();
     for (const [key, entry] of apiCache.entries()) {
-        if (now - entry.fetchedAt > 300000) apiCache.delete(key);
+        if (now - entry.fetchedAt > STALE_CACHE_TTL_MS) apiCache.delete(key);
     }
     for (const [key, entry] of rateLimits.entries()) {
         if (now > entry.resetAt) rateLimits.delete(key);
@@ -137,61 +145,88 @@ const proxyApi = (req, res, parsedUrl) => {
         return;
     }
 
-    const options = {
-        hostname: BVG_API_HOST,
-        port: 443,
-        path: proxyPath,
-        method: 'GET',
-        timeout: API_TIMEOUT_MS,
-        headers: {
-            accept: 'application/json',
-            host: BVG_API_HOST,
-            'user-agent': 'BerlinStationMonitor/1.0 (+https://github.com/iwaszm/BerlinStationMonitor)',
-        },
-    };
-
-    const proxyReq = https.request(options, (proxyRes) => {
-        const chunks = [];
-        proxyRes.on('data', chunk => chunks.push(chunk));
-        proxyRes.on('end', () => {
-            const body = Buffer.concat(chunks);
-            const statusCode = proxyRes.statusCode || 502;
-            const contentType = proxyRes.headers['content-type'] || 'application/json';
-
-            if (statusCode >= 200 && statusCode < 300) {
-                apiCache.set(cacheKey, { statusCode, contentType, body, fetchedAt: Date.now() });
-            }
-
-            setApiHeaders(req, res, {
-                'Content-Type': contentType,
-                'Cache-Control': 'no-store',
-                'X-Proxy-Cache': statusCode >= 200 && statusCode < 300 ? 'MISS' : 'BYPASS',
-            });
-            res.writeHead(statusCode);
-            if (req.method === 'HEAD') {
-                res.end();
-            } else {
-                res.end(body);
-            }
-        });
-    });
-
-    proxyReq.on('timeout', () => {
-        proxyReq.destroy(new Error('BVG API timeout'));
-    });
-
-    proxyReq.on('error', (e) => {
-        console.error(`[Proxy Error] ${e.message}`);
-        if (cached) {
+    const sendProxyError = (message) => {
+        console.error(`[Proxy Error] ${message}`);
+        if (isStaleCacheUsable(cached)) {
             sendCachedResponse(req, res, cached, 'STALE');
             return;
         }
         setApiHeaders(req, res);
         res.writeHead(502, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Proxy error' }));
-    });
+    };
 
-    proxyReq.end();
+    const requestHost = (hostIndex) => {
+        const upstreamHost = API_HOSTS[hostIndex];
+        if (!upstreamHost) {
+            sendProxyError('All upstream API hosts failed');
+            return;
+        }
+
+        const options = {
+            hostname: upstreamHost,
+            port: 443,
+            path: proxyPath,
+            method: 'GET',
+            timeout: API_TIMEOUT_MS,
+            headers: {
+                accept: 'application/json',
+                host: upstreamHost,
+                'user-agent': 'BerlinStationMonitor/1.0 (+https://github.com/iwaszm/BerlinStationMonitor)',
+            },
+        };
+
+        const proxyReq = https.request(options, (proxyRes) => {
+            const chunks = [];
+            proxyRes.on('data', chunk => chunks.push(chunk));
+            proxyRes.on('end', () => {
+                const body = Buffer.concat(chunks);
+                const statusCode = proxyRes.statusCode || 502;
+                const contentType = proxyRes.headers['content-type'] || 'application/json';
+
+                if (statusCode >= 200 && statusCode < 300) {
+                    apiCache.set(cacheKey, { statusCode, contentType, body, fetchedAt: Date.now() });
+                } else if (statusCode >= 500 && hostIndex < API_HOSTS.length - 1) {
+                    console.warn(`[Proxy Warning] ${upstreamHost} returned ${statusCode}; trying fallback`);
+                    requestHost(hostIndex + 1);
+                    return;
+                } else if (statusCode >= 500 && isStaleCacheUsable(cached)) {
+                    sendCachedResponse(req, res, cached, 'STALE');
+                    return;
+                }
+
+                setApiHeaders(req, res, {
+                    'Content-Type': contentType,
+                    'Cache-Control': 'no-store',
+                    'X-Proxy-Cache': statusCode >= 200 && statusCode < 300 ? 'MISS' : 'BYPASS',
+                    'X-Proxy-Upstream': upstreamHost,
+                });
+                res.writeHead(statusCode);
+                if (req.method === 'HEAD') {
+                    res.end();
+                } else {
+                    res.end(body);
+                }
+            });
+        });
+
+        proxyReq.on('timeout', () => {
+            proxyReq.destroy(new Error(`${upstreamHost} API timeout`));
+        });
+
+        proxyReq.on('error', (e) => {
+            console.error(`[Proxy Error] ${upstreamHost}: ${e.message}`);
+            if (hostIndex < API_HOSTS.length - 1) {
+                requestHost(hostIndex + 1);
+                return;
+            }
+            sendProxyError(e.message);
+        });
+
+        proxyReq.end();
+    };
+
+    requestHost(0);
 };
 
 const server = http.createServer((req, res) => {
@@ -258,5 +293,6 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
     console.log(`- Index: http://localhost:${PORT}/index.html`);
+    console.log(`- API upstreams: ${API_HOSTS.join(', ')}`);
     console.log(`- API Proxy: http://localhost:${PORT}/api/...`);
 });

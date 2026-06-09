@@ -80,9 +80,21 @@
       padding-right: 8px;
     }
 
+    .status-cell {
+      display: table-cell;
+      width: 56px;
+      white-space: nowrap;
+      vertical-align: middle;
+      text-align: right;
+      padding-right: 8px;
+      font-size: 14px;
+      font-style: italic;
+      color: #333;
+    }
+
     .button-row {
       display: table-cell;
-      width: 230px;
+      width: 114px;
       white-space: nowrap;
       vertical-align: top;
       text-align: right;
@@ -236,7 +248,13 @@
       }
 
       .button-row {
-        width: 196px;
+        width: 98px;
+      }
+
+      .status-cell {
+        width: 48px;
+        font-size: 13px;
+        padding-right: 6px;
       }
 
       button {
@@ -277,9 +295,9 @@
         <div class="search-field">
           <input id="stationQuery" type="text" autocomplete="off" placeholder="Haltestelle">
         </div>
+        <div id="statusText" class="status-cell"></div>
         <div class="button-row">
           <button id="searchButton" type="button">Suchen</button>
-          <button id="refreshButton" type="button">Akt</button>
         </div>
       </div>
       <ul id="results" class="results"></ul>
@@ -301,13 +319,13 @@
       var departuresLastUpdated = null;
       var departuresIsStale = false;
       var lastErrorText = '';
-      var refreshState = '';
+      var statusState = '';
       var failureCount = 0;
       var refreshTimer = null;
 
       var stationQuery = document.getElementById('stationQuery');
       var searchButton = document.getElementById('searchButton');
-      var refreshButton = document.getElementById('refreshButton');
+      var statusText = document.getElementById('statusText');
       var resultsEl = document.getElementById('results');
       var messageEl = document.getElementById('message');
       var departuresEl = document.getElementById('departures');
@@ -384,18 +402,18 @@
         if (isError) setMessage(text, true);
       }
 
-      function updateRefreshButton(state) {
-        refreshState = state || '';
-        if (refreshState === 'loading') {
-          refreshButton.innerHTML = 'Akt...';
-        } else if (refreshState === 'stale') {
-          refreshButton.innerHTML = 'Alt';
-        } else if (refreshState === 'slow') {
-          refreshButton.innerHTML = 'Lang';
-        } else if (refreshState === 'error') {
-          refreshButton.innerHTML = 'Err';
+      function updateStatusText(state) {
+        statusState = state || '';
+        if (statusState === 'loading') {
+          statusText.innerHTML = '...';
+        } else if (statusState === 'stale') {
+          statusText.innerHTML = 'alt';
+        } else if (statusState === 'slow') {
+          statusText.innerHTML = 'lang';
+        } else if (statusState === 'error') {
+          statusText.innerHTML = 'err';
         } else {
-          refreshButton.innerHTML = 'Akt';
+          statusText.innerHTML = 'live';
         }
       }
 
@@ -666,7 +684,7 @@
           return;
         }
 
-        updateRefreshButton('loading');
+        updateStatusText('loading');
         if (!silent) {
           if (!departures || departures.length === 0) loadDeparturesCache();
           renderDepartures();
@@ -681,7 +699,7 @@
             lastErrorText = classifyError(err, meta);
             if (!departures || departures.length === 0) loadDeparturesCache();
             departuresIsStale = true;
-            updateRefreshButton(failureCount >= 3 ? 'slow' : 'error');
+            updateStatusText(failureCount >= 3 ? 'slow' : 'error');
             renderDepartures();
             return;
           }
@@ -692,7 +710,7 @@
           lastErrorText = '';
           failureCount = 0;
           saveDeparturesCache();
-          updateRefreshButton(departuresIsStale ? 'stale' : '');
+          updateStatusText(departuresIsStale ? 'stale' : '');
           renderDepartures();
         });
       }
@@ -732,9 +750,6 @@
       };
 
       searchButton.onclick = searchStations;
-      refreshButton.onclick = function () {
-        fetchDepartures(false);
-      };
 
       stationQuery.onkeydown = function (event) {
         event = event || window.event;
@@ -745,7 +760,7 @@
         return true;
       };
 
-      updateRefreshButton('');
+      updateStatusText('');
 
       selectedStation = loadSavedStation();
       if (selectedStation) {

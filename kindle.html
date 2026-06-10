@@ -38,11 +38,15 @@
     }
 
     body.rotate-left #contentWrap {
+      -webkit-transform: rotate(-90deg) translateX(-100%);
+      -webkit-transform-origin: top left;
       transform: rotate(-90deg) translateX(-100%);
       transform-origin: top left;
     }
 
     body.rotate-right #contentWrap {
+      -webkit-transform: rotate(90deg) translateY(-100%);
+      -webkit-transform-origin: top left;
       transform: rotate(90deg) translateY(-100%);
       transform-origin: top left;
     }
@@ -282,9 +286,6 @@
     }
 
     .rotate-btn {
-      position: fixed;
-      bottom: 8px;
-      z-index: 9000;
       width: 56px;
       min-width: 56px;
       height: 48px;
@@ -299,12 +300,15 @@
       font-weight: bold;
     }
 
-    .rotate-left-btn {
-      left: 8px;
+    .rotate-row {
+      border-top: 2px solid #000;
+      margin-top: 12px;
+      padding-top: 10px;
+      overflow: hidden;
     }
 
     .rotate-right-btn {
-      right: 34px;
+      float: right;
     }
 
     body.rotate-left .rotate-left-btn,
@@ -389,10 +393,12 @@
 
       <div id="message" class="empty">Keine Haltestelle ausgewaehlt.</div>
       <ul id="departures" class="departures"></ul>
+      <div class="rotate-row">
+        <button id="rotateLeftButton" class="rotate-btn rotate-left-btn" type="button">L</button>
+        <button id="rotateRightButton" class="rotate-btn rotate-right-btn" type="button">R</button>
+      </div>
     </div>
   </div>
-  <button id="rotateLeftButton" class="rotate-btn rotate-left-btn" type="button">L</button>
-  <button id="rotateRightButton" class="rotate-btn rotate-right-btn" type="button">R</button>
 
   <script>
     (function () {

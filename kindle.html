@@ -246,13 +246,14 @@
 
     .dep-delay {
       display: table-cell;
-      min-width: 50px;
+      width: 1%;
       font-size: 17px;
       font-style: italic;
       font-weight: normal;
       line-height: 1;
       vertical-align: baseline;
-      margin-right: 8px;
+      padding-right: 4px;
+      white-space: nowrap;
     }
 
     .dep-clock {
@@ -280,6 +281,14 @@
       vertical-align: baseline;
       min-width: 34px;
       text-align: center;
+    }
+
+    .time-clock {
+      display: inline-block;
+      font-size: 38px;
+      line-height: 1.05;
+      font-weight: bold;
+      vertical-align: baseline;
     }
 
     .cancelled-time {
@@ -475,6 +484,7 @@
       var messageEl = document.getElementById('message');
       var departuresEl = document.getElementById('departures');
       var contentWrap = document.getElementById('contentWrap');
+      var pageEl = contentWrap.getElementsByTagName('div')[0];
       var rotateLeftButton = document.getElementById('rotateLeftButton');
       var rotateRightButton = document.getElementById('rotateRightButton');
 
@@ -575,10 +585,23 @@
         resultsEl.innerHTML = '';
       }
 
+      function getViewportSize() {
+        var doc = document.documentElement || {};
+        var body = document.body || {};
+        var w = doc.clientWidth || body.clientWidth || window.innerWidth || 600;
+        var h = doc.clientHeight || body.clientHeight || window.innerHeight || 800;
+        return {
+          width: w,
+          height: h
+        };
+      }
+
       function setRotation(mode) {
         var cls = document.body.className || '';
-        var viewportW = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 600;
-        var viewportH = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 800;
+        var viewport = getViewportSize();
+        var viewportW = viewport.width;
+        var viewportH = viewport.height;
+        var rotatedWidth = viewportH;
         cls = cls.replace(/\brotate-left\b/g, '').replace(/\brotate-right\b/g, '').replace(/\s+/g, ' ');
         mode = mode === 'left' || mode === 'right' ? mode : '';
         if (mode) cls += ' rotate-' + mode;
@@ -587,21 +610,25 @@
         contentWrap.style.minHeight = '';
         contentWrap.style.webkitTransform = '';
         contentWrap.style.transform = '';
+        pageEl.style.width = '';
         document.body.style.minHeight = '';
+        document.body.style.width = '';
         if (mode) {
-          contentWrap.style.width = viewportH + 'px';
+          contentWrap.style.width = rotatedWidth + 'px';
           contentWrap.style.minHeight = viewportW + 'px';
+          pageEl.style.width = rotatedWidth + 'px';
           if (mode === 'left') {
             contentWrap.style.webkitTransform = 'translateY(' + viewportW + 'px) rotate(-90deg)';
             contentWrap.style.transform = 'translateY(' + viewportW + 'px) rotate(-90deg)';
           } else {
-            contentWrap.style.webkitTransform = 'translateX(' + viewportH + 'px) rotate(90deg)';
-            contentWrap.style.transform = 'translateX(' + viewportH + 'px) rotate(90deg)';
+            contentWrap.style.webkitTransform = 'translateX(' + rotatedWidth + 'px) rotate(90deg)';
+            contentWrap.style.transform = 'translateX(' + rotatedWidth + 'px) rotate(90deg)';
           }
           setTimeout(function () {
             var contentHeight = contentWrap.scrollHeight || viewportW;
-            var scrollHeight = contentHeight - viewportW + viewportH;
-            document.body.style.minHeight = Math.max(viewportH, scrollHeight) + 'px';
+            var scrollHeight = contentHeight - viewportW + rotatedWidth;
+            document.body.style.width = viewportW + 'px';
+            document.body.style.minHeight = Math.max(rotatedWidth, scrollHeight) + 'px';
           }, 0);
         }
         try {
@@ -786,13 +813,18 @@
         return dep && (dep.when || dep.plannedWhen) ? new Date(dep.when || dep.plannedWhen) : null;
       }
 
-      function getMinutesText(dep) {
+      function getTimeDisplay(dep) {
         var date = getTimeValue(dep);
         var diff;
-        if (!date || isNaN(date.getTime())) return '--';
+        if (!date || isNaN(date.getTime())) {
+          return '<span class="time-clock">--:--</span>';
+        }
         diff = Math.ceil((date.getTime() - new Date().getTime()) / 60000);
         if (diff < 0) diff = 0;
-        return String(diff);
+        if (diff <= 10) {
+          return '<span class="time-small">In</span> <span class="time-number">' + escapeHtml(String(diff)) + '</span> <span class="time-small">Min</span>';
+        }
+        return '<span class="time-clock">' + escapeHtml(pad(date.getHours()) + ':' + pad(date.getMinutes())) + '</span>';
       }
 
       function formatDelay(dep) {
@@ -868,7 +900,7 @@
             '<div class="line' + (activeLineFilter === lineName ? ' line-active' : '') + (dep.cancelled ? ' cancelled-line' : '') + '" data-line="' + escapeAttr(lineName) + '">' + escapeHtml(lineName) + '</div>' +
             '<div class="dep-time">' +
             (dep.cancelled ? '<div class="cancel-label">faellt aus</div>' : '<div class="dep-delay">' + escapeHtml(delay) + '</div>') +
-            '<div class="dep-countdown' + (dep.cancelled ? ' cancelled-time' : '') + '"><span class="time-small">In</span> <span class="time-number">' + escapeHtml(getMinutesText(dep)) + '</span> <span class="time-small">Min</span></div>' +
+            '<div class="dep-countdown' + (dep.cancelled ? ' cancelled-time' : '') + '">' + getTimeDisplay(dep) + '</div>' +
             '</div>' +
             '<div class="dep-main">' +
             '<div class="direction' + (dep.cancelled ? ' cancelled-direction' : '') + '">' + escapeHtml(direction) + '</div>' +

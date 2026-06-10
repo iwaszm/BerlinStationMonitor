@@ -241,10 +241,11 @@
       min-height: 48px;
       margin-left: 8px;
       white-space: nowrap;
+      display: table;
     }
 
     .dep-delay {
-      display: inline-block;
+      display: table-cell;
       min-width: 50px;
       font-size: 17px;
       font-style: italic;
@@ -291,7 +292,7 @@
     }
 
     .cancel-label {
-      display: inline-block;
+      display: table-cell;
       min-width: 72px;
       font-size: 17px;
       font-style: italic;
@@ -299,6 +300,11 @@
       line-height: 1;
       vertical-align: baseline;
       margin-right: 8px;
+    }
+
+    .dep-countdown {
+      display: table-cell;
+      white-space: nowrap;
     }
 
     .delay {
@@ -584,7 +590,8 @@
           }
           setTimeout(function () {
             var contentHeight = contentWrap.scrollHeight || viewportW;
-            document.body.style.minHeight = Math.max(viewportH, contentHeight) + 'px';
+            var scrollHeight = contentHeight - viewportW + viewportH;
+            document.body.style.minHeight = Math.max(viewportH, scrollHeight) + 'px';
           }, 0);
         }
         try {

@@ -41,6 +41,8 @@
     body.rotate-right .page {
       max-width: none;
       margin: 0;
+      padding-right: 42px;
+      box-sizing: border-box;
     }
 
     body.rotate-left #contentWrap {
@@ -546,7 +548,6 @@
         if (mode) {
           contentWrap.style.width = viewportH + 'px';
           contentWrap.style.minHeight = viewportW + 'px';
-          document.body.style.minHeight = viewportH + 'px';
           if (mode === 'left') {
             contentWrap.style.webkitTransform = 'translateY(' + viewportW + 'px) rotate(-90deg)';
             contentWrap.style.transform = 'translateY(' + viewportW + 'px) rotate(-90deg)';
@@ -554,6 +555,10 @@
             contentWrap.style.webkitTransform = 'translateX(' + viewportH + 'px) rotate(90deg)';
             contentWrap.style.transform = 'translateX(' + viewportH + 'px) rotate(90deg)';
           }
+          setTimeout(function () {
+            var contentHeight = contentWrap.scrollHeight || viewportW;
+            document.body.style.minHeight = Math.max(viewportH, contentHeight) + 'px';
+          }, 0);
         }
         try {
           window.localStorage.setItem(ROTATION_STORAGE_KEY, mode);
@@ -828,6 +833,7 @@
 
         departuresEl.innerHTML = html;
         if (!html) setMessage('Keine aktuellen Abfahrten in den naechsten 60 Minuten.');
+        refreshRotationLayout();
       }
 
       function fetchDepartures(silent) {

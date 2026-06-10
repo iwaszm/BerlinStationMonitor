@@ -262,6 +262,25 @@
       vertical-align: baseline;
     }
 
+    .time-small {
+      display: inline-block;
+      font-size: 15px;
+      font-style: italic;
+      font-weight: normal;
+      line-height: 1;
+      vertical-align: baseline;
+    }
+
+    .time-number {
+      display: inline-block;
+      font-size: 38px;
+      line-height: 1.05;
+      font-weight: bold;
+      vertical-align: baseline;
+      min-width: 34px;
+      text-align: center;
+    }
+
     .cancelled-time {
       text-decoration: line-through;
     }
@@ -379,6 +398,14 @@
 
       .dep-clock {
         font-size: 32px;
+      }
+
+      .time-number {
+        font-size: 32px;
+      }
+
+      .time-small {
+        font-size: 13px;
       }
     }
   </style>
@@ -742,11 +769,13 @@
         return dep && (dep.when || dep.plannedWhen) ? new Date(dep.when || dep.plannedWhen) : null;
       }
 
-      function getTimeText(dep) {
-        var iso = dep && (dep.when || dep.plannedWhen) ? String(dep.when || dep.plannedWhen) : '';
-        var match = iso.match(/T(\d{2}):(\d{2})/);
-        if (match) return match[1] + ':' + match[2];
-        return '--:--';
+      function getMinutesText(dep) {
+        var date = getTimeValue(dep);
+        var diff;
+        if (!date || isNaN(date.getTime())) return '--';
+        diff = Math.ceil((date.getTime() - new Date().getTime()) / 60000);
+        if (diff < 0) diff = 0;
+        return String(diff);
       }
 
       function formatDelay(dep) {
@@ -822,7 +851,7 @@
             '<div class="line' + (activeLineFilter === lineName ? ' line-active' : '') + (dep.cancelled ? ' cancelled-line' : '') + '" data-line="' + escapeAttr(lineName) + '">' + escapeHtml(lineName) + '</div>' +
             '<div class="dep-time">' +
             (dep.cancelled ? '<div class="cancel-label">faellt aus</div>' : '<div class="dep-delay">' + escapeHtml(delay) + '</div>') +
-            '<div class="dep-clock' + (dep.cancelled ? ' cancelled-time' : '') + '">' + escapeHtml(getTimeText(dep)) + '</div>' +
+            '<div class="dep-countdown' + (dep.cancelled ? ' cancelled-time' : '') + '"><span class="time-small">In</span> <span class="time-number">' + escapeHtml(getMinutesText(dep)) + '</span> <span class="time-small">Min</span></div>' +
             '</div>' +
             '<div class="dep-main">' +
             '<div class="direction' + (dep.cancelled ? ' cancelled-direction' : '') + '">' + escapeHtml(direction) + '</div>' +

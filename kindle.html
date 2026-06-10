@@ -16,7 +16,35 @@
     }
 
     body {
-      padding: 12px 42px 12px 12px;
+      padding: 12px 42px 72px 12px;
+    }
+
+    #contentWrap {
+      width: 100%;
+    }
+
+    body.rotate-left,
+    body.rotate-right {
+      overflow-x: hidden;
+    }
+
+    body.rotate-left #contentWrap,
+    body.rotate-right #contentWrap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vh;
+      min-height: 100vw;
+    }
+
+    body.rotate-left #contentWrap {
+      transform: rotate(-90deg) translateX(-100%);
+      transform-origin: top left;
+    }
+
+    body.rotate-right #contentWrap {
+      transform: rotate(90deg) translateY(-100%);
+      transform-origin: top left;
     }
 
     .page {
@@ -253,9 +281,41 @@
       font-weight: bold;
     }
 
+    .rotate-btn {
+      position: fixed;
+      bottom: 8px;
+      z-index: 9000;
+      width: 56px;
+      min-width: 56px;
+      height: 48px;
+      min-height: 48px;
+      padding: 0;
+      line-height: 44px;
+      text-align: center;
+      background: #fff;
+      color: #000;
+      border: 2px solid #000;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .rotate-left-btn {
+      left: 8px;
+    }
+
+    .rotate-right-btn {
+      right: 34px;
+    }
+
+    body.rotate-left .rotate-left-btn,
+    body.rotate-right .rotate-right-btn {
+      background: #000;
+      color: #fff;
+    }
+
     @media (max-width: 600px) {
       body {
-        padding: 8px 34px 8px 8px;
+        padding: 8px 34px 68px 8px;
         font-size: 17px;
       }
 
@@ -312,29 +372,34 @@
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="search">
-      <div class="search-row">
-        <div class="search-field">
-          <input id="stationQuery" type="text" autocomplete="off" placeholder="Haltestelle">
-          <div id="statusText" class="status-cell"></div>
+  <div id="contentWrap">
+    <div class="page">
+      <div class="search">
+        <div class="search-row">
+          <div class="search-field">
+            <input id="stationQuery" type="text" autocomplete="off" placeholder="Haltestelle">
+            <div id="statusText" class="status-cell"></div>
+          </div>
+          <div class="button-row">
+            <button id="searchButton" type="button">Suchen</button>
+          </div>
         </div>
-        <div class="button-row">
-          <button id="searchButton" type="button">Suchen</button>
-        </div>
+        <ul id="results" class="results"></ul>
       </div>
-      <ul id="results" class="results"></ul>
-    </div>
 
-    <div id="message" class="empty">Keine Haltestelle ausgewaehlt.</div>
-    <ul id="departures" class="departures"></ul>
+      <div id="message" class="empty">Keine Haltestelle ausgewaehlt.</div>
+      <ul id="departures" class="departures"></ul>
+    </div>
   </div>
+  <button id="rotateLeftButton" class="rotate-btn rotate-left-btn" type="button">L</button>
+  <button id="rotateRightButton" class="rotate-btn rotate-right-btn" type="button">R</button>
 
   <script>
     (function () {
       var API_BASE = '/api';
       var STORAGE_KEY = 'bvg_kindle_station';
       var DEPARTURES_CACHE_PREFIX = 'bvg_kindle_departures_';
+      var ROTATION_STORAGE_KEY = 'bvg_kindle_rotation';
       var REFRESH_MS = 60000;
       var selectedStation = null;
       var activeLineFilter = '';
@@ -352,6 +417,8 @@
       var resultsEl = document.getElementById('results');
       var messageEl = document.getElementById('message');
       var departuresEl = document.getElementById('departures');
+      var rotateLeftButton = document.getElementById('rotateLeftButton');
+      var rotateRightButton = document.getElementById('rotateRightButton');
 
       function pad(num) {
         return num < 10 ? '0' + num : String(num);
@@ -448,6 +515,29 @@
 
       function clearResults() {
         resultsEl.innerHTML = '';
+      }
+
+      function setRotation(mode) {
+        var cls = document.body.className || '';
+        cls = cls.replace(/\brotate-left\b/g, '').replace(/\brotate-right\b/g, '').replace(/\s+/g, ' ');
+        mode = mode === 'left' || mode === 'right' ? mode : '';
+        if (mode) cls += ' rotate-' + mode;
+        document.body.className = cls.replace(/^\s+|\s+$/g, '');
+        try {
+          window.localStorage.setItem(ROTATION_STORAGE_KEY, mode);
+        } catch (e) {
+          return;
+        }
+      }
+
+      function loadRotation() {
+        var mode = '';
+        try {
+          mode = window.localStorage.getItem(ROTATION_STORAGE_KEY) || '';
+        } catch (e) {
+          mode = '';
+        }
+        setRotation(mode);
       }
 
       function saveStation(station) {
@@ -772,6 +862,12 @@
       };
 
       searchButton.onclick = searchStations;
+      rotateLeftButton.onclick = function () {
+        setRotation(document.body.className.indexOf('rotate-left') >= 0 ? '' : 'left');
+      };
+      rotateRightButton.onclick = function () {
+        setRotation(document.body.className.indexOf('rotate-right') >= 0 ? '' : 'right');
+      };
 
       stationQuery.onkeydown = function (event) {
         event = event || window.event;
@@ -783,6 +879,7 @@
       };
 
       updateStatusText('');
+      loadRotation();
 
       selectedStation = loadSavedStation();
       if (selectedStation) {

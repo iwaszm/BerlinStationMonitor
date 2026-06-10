@@ -26,6 +26,7 @@
     body.rotate-left,
     body.rotate-right {
       overflow-x: hidden;
+      padding: 0;
     }
 
     body.rotate-left #contentWrap,
@@ -39,9 +40,8 @@
 
     body.rotate-left .page,
     body.rotate-right .page {
-      max-width: none;
       margin: 0;
-      padding-right: 42px;
+      padding: 12px 42px 72px 12px;
       box-sizing: border-box;
     }
 
@@ -61,8 +61,8 @@
 
     .page {
       box-sizing: border-box;
-      max-width: 790px;
-      margin: 0 auto;
+      width: 100%;
+      margin: 0;
     }
 
     .search {
@@ -354,6 +354,16 @@
       body {
         padding: 8px 34px 68px 8px;
         font-size: 17px;
+      }
+
+      body.rotate-left,
+      body.rotate-right {
+        padding: 0;
+      }
+
+      body.rotate-left .page,
+      body.rotate-right .page {
+        padding: 8px 34px 68px 8px;
       }
 
       .line {

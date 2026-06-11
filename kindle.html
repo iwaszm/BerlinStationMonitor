@@ -34,7 +34,7 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 100vh;
+      width: 100vw;
       min-height: 100vw;
     }
 
@@ -53,9 +53,9 @@
     }
 
     body.rotate-right #contentWrap {
-      -webkit-transform: translateX(100vh) rotate(90deg);
+      -webkit-transform: translateX(100vw) rotate(90deg);
       -webkit-transform-origin: top left;
-      transform: translateX(100vh) rotate(90deg);
+      transform: translateX(100vw) rotate(90deg);
       transform-origin: top left;
     }
 
@@ -601,7 +601,7 @@
         var viewport = getViewportSize();
         var viewportW = viewport.width;
         var viewportH = viewport.height;
-        var rotatedWidth = viewportH;
+        var fixedWidth = viewportW < viewportH ? viewportW : viewportH;
         cls = cls.replace(/\brotate-left\b/g, '').replace(/\brotate-right\b/g, '').replace(/\s+/g, ' ');
         mode = mode === 'left' || mode === 'right' ? mode : '';
         if (mode) cls += ' rotate-' + mode;
@@ -614,21 +614,20 @@
         document.body.style.minHeight = '';
         document.body.style.width = '';
         if (mode) {
-          contentWrap.style.width = rotatedWidth + 'px';
-          contentWrap.style.minHeight = viewportW + 'px';
-          pageEl.style.width = rotatedWidth + 'px';
+          contentWrap.style.width = fixedWidth + 'px';
+          contentWrap.style.minHeight = fixedWidth + 'px';
+          pageEl.style.width = fixedWidth + 'px';
           if (mode === 'left') {
-            contentWrap.style.webkitTransform = 'translateY(' + viewportW + 'px) rotate(-90deg)';
-            contentWrap.style.transform = 'translateY(' + viewportW + 'px) rotate(-90deg)';
+            contentWrap.style.webkitTransform = 'translateY(' + fixedWidth + 'px) rotate(-90deg)';
+            contentWrap.style.transform = 'translateY(' + fixedWidth + 'px) rotate(-90deg)';
           } else {
-            contentWrap.style.webkitTransform = 'translateX(' + rotatedWidth + 'px) rotate(90deg)';
-            contentWrap.style.transform = 'translateX(' + rotatedWidth + 'px) rotate(90deg)';
+            contentWrap.style.webkitTransform = 'translateX(' + fixedWidth + 'px) rotate(90deg)';
+            contentWrap.style.transform = 'translateX(' + fixedWidth + 'px) rotate(90deg)';
           }
           setTimeout(function () {
-            var contentHeight = contentWrap.scrollHeight || viewportW;
-            var scrollHeight = contentHeight - viewportW + rotatedWidth;
-            document.body.style.width = viewportW + 'px';
-            document.body.style.minHeight = Math.max(rotatedWidth, scrollHeight) + 'px';
+            var contentHeight = contentWrap.scrollHeight || fixedWidth;
+            document.body.style.width = fixedWidth + 'px';
+            document.body.style.minHeight = Math.max(fixedWidth, contentHeight) + 'px';
           }, 0);
         }
         try {
@@ -813,6 +812,14 @@
         return dep && (dep.when || dep.plannedWhen) ? new Date(dep.when || dep.plannedWhen) : null;
       }
 
+      function getClockText(dep, date) {
+        var raw = dep && (dep.when || dep.plannedWhen) ? String(dep.when || dep.plannedWhen) : '';
+        var match = /T(\d{2}):(\d{2})/.exec(raw);
+        if (match) return match[1] + ':' + match[2];
+        if (date && !isNaN(date.getTime())) return pad(date.getHours()) + ':' + pad(date.getMinutes());
+        return '--:--';
+      }
+
       function getTimeDisplay(dep) {
         var date = getTimeValue(dep);
         var diff;
@@ -824,7 +831,7 @@
         if (diff <= 10) {
           return '<span class="time-small">In</span> <span class="time-number">' + escapeHtml(String(diff)) + '</span> <span class="time-small">Min</span>';
         }
-        return '<span class="time-clock">' + escapeHtml(pad(date.getHours()) + ':' + pad(date.getMinutes())) + '</span>';
+        return '<span class="time-clock">' + escapeHtml(getClockText(dep, date)) + '</span>';
       }
 
       function formatDelay(dep) {

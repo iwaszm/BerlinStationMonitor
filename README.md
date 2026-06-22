@@ -51,6 +51,12 @@ Styling: Bootstrap 5 + Custom CSS (Light/Dark Mode supported)
 
 Networking: Axios
 
+## Kindle LAN Deployment
+
+For a Kindle-friendly local setup, an old Android phone can run this Node server in Termux so the Kindle only opens a LAN HTTP URL such as `http://192.168.178.40:3000/kindle`.
+
+See [docs/android-kindle-proxy.md](docs/android-kindle-proxy.md).
+
 ## Render Deployment
 
 This project can run as a single Render Web Service. The Node server serves the static frontend and proxies BVG API requests under `/api` with short in-memory caching and basic rate limiting.

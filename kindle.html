@@ -467,6 +467,10 @@
       var STORAGE_KEY = 'bvg_kindle_station';
       var DEPARTURES_CACHE_PREFIX = 'bvg_kindle_departures_';
       var ROTATION_STORAGE_KEY = 'bvg_kindle_rotation';
+      var DEFAULT_STATION = {
+        id: '900002256',
+        name: 'Poststadion (Berlin)'
+      };
       var REFRESH_MS = 60000;
       var selectedStation = null;
       var activeLineFilter = '';
@@ -672,13 +676,13 @@
         var parsed;
         try {
           raw = window.localStorage.getItem(STORAGE_KEY);
-          if (!raw) return null;
+          if (!raw) return DEFAULT_STATION;
           parsed = JSON.parse(raw);
           if (parsed && parsed.id && parsed.name) return parsed;
         } catch (e) {
-          return null;
+          return DEFAULT_STATION;
         }
-        return null;
+        return DEFAULT_STATION;
       }
 
       function clearSavedStation() {

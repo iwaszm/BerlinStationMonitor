@@ -1,0 +1,10 @@
+#!/data/data/com.termux/files/usr/bin/sh
+
+termux-wake-lock
+
+cd "$HOME/BerlinStationMonitor" || exit 1
+
+PORT="${PORT:-3000}"
+export PORT
+
+nohup node server.js >> "$HOME/berlin-monitor.log" 2>&1 &

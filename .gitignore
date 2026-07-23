@@ -16,6 +16,8 @@ eggs/
 .eggs/
 lib/
 lib64/
+!lib/
+!lib/*.js
 parts/
 scripts/
 src/
@@ -212,3 +214,5 @@ __marimo__/
 log/*
 !log/
 !log/*.png
+.vercel
+.sqlite

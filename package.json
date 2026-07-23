@@ -5,7 +5,8 @@
   "description": "Berlin transit live monitor with a cached BVG API proxy.",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check js/main.js && node --check js/utils.js && node --check js/constants.js"
+    "check": "node --check server.js && node --check lib/apiProxy.js && node --check lib/poststadionPrediction.js && node --check api/healthz.js && node --check api/[...path].js && node --check js/main.js && node --check js/utils.js && node --check js/constants.js",
+    "deploy:vercel": "vercel --prod"
   },
   "engines": {
     "node": ">=18"

@@ -77,6 +77,31 @@ Optional environment variables:
 * `MAX_CACHE_BODY_BYTES`: maximum cached response size, default `1048576`
 * `ALLOWED_ORIGIN`: optional CORS origin when the frontend is hosted on a separate domain
 
+## Vercel Deployment
+
+This project can also run on Vercel without GitHub integration. Vercel serves the static files directly and runs `/api/*` through Serverless Functions in the `api/` directory.
+
+Local CLI deployment:
+
+```bash
+npx vercel
+npx vercel --prod
+```
+
+Recommended Vercel settings:
+
+* Framework preset: Other
+* Build command: leave empty
+* Output directory: leave empty
+* Install command: `npm install`
+
+Routes:
+
+* `/` serves the main dashboard
+* `/kindle` serves the Kindle-friendly page
+* `/api/*` proxies BVG/VBB upstream APIs
+* `/healthz` returns a JSON health check
+
 ## Data Source
 
 All transit data is provided by the v6.bvg.transport.rest API. This project relies on the open-source community's efforts to wrap official public data into a developer-friendly format.

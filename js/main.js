@@ -83,6 +83,9 @@ import { createStationHandlers } from './stations.js';
         // API (BVG) + Network
         // ==============================
 
+        const POSTSTADION_STOP_ID = '900002256';
+        const POSTSTADION_PREDICTION_LINE = '142';
+
         // --- API Failover Logic REMOVED (Only BVG) ---
         const apiEndpoints = API_ENDPOINTS;
         const currentApiIndex = ref(0);
@@ -661,6 +664,23 @@ import { createStationHandlers } from './stations.js';
           return t.value[departuresErrorType.value] || t.value.noSignal;
         });
 
+        const shouldFetchPoststadionPredictions = () => {
+          return watchedStations.value.some(station => String(station && station.id) === POSTSTADION_STOP_ID);
+        };
+
+        const fetchPoststadionPredictions = async () => {
+          if (!shouldFetchPoststadionPredictions()) return {};
+          try {
+            const res = await axios.get(`${apiBase.value}/predictions/142-poststadion`, {
+              params: { duration: duration.value }
+            });
+            return (res.data && res.data.predictions) || {};
+          } catch (e) {
+            console.warn('Poststadion prediction unavailable', e);
+            return {};
+          }
+        };
+
         const fetchDepartures = async (silent = false) => {
           if (watchedStations.value.length === 0) {
               departuresRaw.value = [];
@@ -696,9 +716,23 @@ import { createStationHandlers } from './stations.js';
             const results = responses.map((res, idx) => {
               const station = watchedStations.value[idx];
               const deps = res.data.departures || [];
-              return deps.map(d => ({...d, stationName: station.name, uniqueId: d.tripId + '_' + station.id}));
+              return deps.map(d => ({...d, stationName: station.name, stationId: String(station.id), uniqueId: d.tripId + '_' + station.id}));
             });
-            const allDeps = results.flat();
+            let allDeps = results.flat();
+            if (shouldFetchPoststadionPredictions()) {
+              const predictions = await fetchPoststadionPredictions();
+              allDeps = allDeps.map(dep => {
+                if (
+                  String(dep.stationId) === POSTSTADION_STOP_ID &&
+                  dep.line &&
+                  dep.line.name === POSTSTADION_PREDICTION_LINE &&
+                  predictions[dep.uniqueId]
+                ) {
+                  return { ...dep, prediction: predictions[dep.uniqueId] };
+                }
+                return dep;
+              });
+            }
             const staleFromProxy = responses.some(res => String(res.headers['x-proxy-cache'] || '').toUpperCase() === 'STALE');
             const fetchedHeader = responses.map(res => res.headers['x-proxy-fetched-at']).filter(Boolean).sort()[0];
             const fetchedAt = fetchedHeader ? new Date(fetchedHeader) : new Date();
@@ -1184,6 +1218,41 @@ import { createStationHandlers } from './stations.js';
             return "status-green"; // On time or early
         };
 
+        const shouldShowPrediction = (dep) => {
+          const predicted = getPredictionArrivalDate(dep);
+          const displayed = dep ? new Date(dep.when || dep.plannedWhen) : null;
+          return !!(
+            dep &&
+            dep.prediction &&
+            String(dep.stationId) === POSTSTADION_STOP_ID &&
+            dep.line &&
+            dep.line.name === POSTSTADION_PREDICTION_LINE &&
+            predicted &&
+            displayed &&
+            !Number.isNaN(displayed.getTime()) &&
+            Math.abs(predicted - displayed) >= 120000
+          );
+        };
+
+        const getPredictionClass = (prediction) => {
+          if (!prediction || typeof prediction.predictedDelayMin !== 'number') return 'prediction-neutral';
+          if (prediction.predictedDelayMin >= 5) return 'prediction-red';
+          if (prediction.predictedDelayMin > 0) return 'prediction-orange';
+          return 'prediction-green';
+        };
+
+        const getPredictionArrivalDate = (dep) => {
+          if (!dep || !dep.prediction || typeof dep.prediction.predictedDelayMin !== 'number') return null;
+          const planned = new Date(dep.plannedWhen || dep.when);
+          if (Number.isNaN(planned.getTime())) return null;
+          return new Date(planned.getTime() + dep.prediction.predictedDelayMin * 60000);
+        };
+
+        const formatPredictionTime = (dep) => {
+          const predicted = getPredictionArrivalDate(dep);
+          return predicted ? formatAbsTime(predicted.toISOString()) : '';
+        };
+
         const formatTime = (iso) => {
           const diff = (new Date(iso) - now.value) / 60000;
           if (diff <= 0) return "";
@@ -1230,6 +1299,7 @@ import { createStationHandlers } from './stations.js';
           currentTime, mainSearchQuery, searchQuery, searchResults, departures, loading, duration, 
           isTypeActive, toggleType, selectStation, onMainInput, clearSearch,
           formatTime, formatAbsTime, getDelayClass, isDeparted, getProductClass,
+          shouldShowPrediction, getPredictionClass, formatPredictionTime,
           onDurationChange: () => fetchDepartures(), expandedTripId, toggleTrip, isTripLoading,
           currentTripStopovers, stopoverDisplayStops, stopoverLimit, formatPlannedWithDelay, isWatchedStop,
           starredStations, isStarred, toggleStar,

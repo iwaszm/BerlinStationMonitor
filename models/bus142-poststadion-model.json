@@ -1,0 +1,3039 @@
+{
+  "modelVersion": "142-poststadion-v1",
+  "generatedAt": "2026-07-23T11:47:34+00:00",
+  "lineName": "142",
+  "stationId": "900002256",
+  "stationName": "Poststadion (Berlin)",
+  "minCount": 3,
+  "trainingRows": 1308,
+  "excludedRows": 190,
+  "validationDate": "2026-05-16",
+  "globalMean": 2.424,
+  "directions": {
+    "S Ostbahnhof via U Amrumer Str.": {
+      "count": 604,
+      "postSequenceCounts": {
+        "9": 604
+      },
+      "usablePrevRows": 604
+    },
+    "U Leopoldplatz via U Rosenthaler Platz": {
+      "count": 704,
+      "postSequenceCounts": {
+        "20": 704
+      },
+      "usablePrevRows": 704
+    }
+  },
+  "lookups": {
+    "direction": {
+      "U Leopoldplatz via U Rosenthaler Platz": {
+        "mean": 2.175,
+        "count": 704
+      },
+      "S Ostbahnhof via U Amrumer Str.": {
+        "mean": 2.715,
+        "count": 604
+      }
+    },
+    "directionHour": {
+      "U Leopoldplatz via U Rosenthaler Platz|6": {
+        "mean": -0.926,
+        "count": 27
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|5": {
+        "mean": 5.8,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|6": {
+        "mean": 0.464,
+        "count": 28
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|7": {
+        "mean": 0.216,
+        "count": 51
+      },
+      "S Ostbahnhof via U Amrumer Str.|7": {
+        "mean": 0.765,
+        "count": 51
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8": {
+        "mean": 2.327,
+        "count": 49
+      },
+      "S Ostbahnhof via U Amrumer Str.|8": {
+        "mean": 2.091,
+        "count": 44
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9": {
+        "mean": 3.4,
+        "count": 50
+      },
+      "S Ostbahnhof via U Amrumer Str.|9": {
+        "mean": 2.378,
+        "count": 45
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10": {
+        "mean": 1.694,
+        "count": 49
+      },
+      "S Ostbahnhof via U Amrumer Str.|10": {
+        "mean": 2.049,
+        "count": 41
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|11": {
+        "mean": 0.565,
+        "count": 46
+      },
+      "S Ostbahnhof via U Amrumer Str.|11": {
+        "mean": 2.213,
+        "count": 47
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12": {
+        "mean": 2.0,
+        "count": 52
+      },
+      "S Ostbahnhof via U Amrumer Str.|12": {
+        "mean": 0.489,
+        "count": 45
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|13": {
+        "mean": 0.962,
+        "count": 52
+      },
+      "S Ostbahnhof via U Amrumer Str.|13": {
+        "mean": 3.0,
+        "count": 47
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|14": {
+        "mean": 2.442,
+        "count": 52
+      },
+      "S Ostbahnhof via U Amrumer Str.|14": {
+        "mean": 5.895,
+        "count": 38
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15": {
+        "mean": 4.375,
+        "count": 56
+      },
+      "S Ostbahnhof via U Amrumer Str.|15": {
+        "mean": 4.388,
+        "count": 49
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16": {
+        "mean": 5.231,
+        "count": 52
+      },
+      "S Ostbahnhof via U Amrumer Str.|16": {
+        "mean": 6.953,
+        "count": 43
+      },
+      "S Ostbahnhof via U Amrumer Str.|17": {
+        "mean": 2.951,
+        "count": 41
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17": {
+        "mean": 1.925,
+        "count": 53
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18": {
+        "mean": 2.86,
+        "count": 50
+      },
+      "S Ostbahnhof via U Amrumer Str.|18": {
+        "mean": 3.184,
+        "count": 49
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19": {
+        "mean": 1.848,
+        "count": 46
+      },
+      "S Ostbahnhof via U Amrumer Str.|19": {
+        "mean": 0.639,
+        "count": 36
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|20": {
+        "mean": -0.357,
+        "count": 14
+      }
+    },
+    "directionDowHour": {
+      "U Leopoldplatz via U Rosenthaler Platz|4|6": {
+        "mean": -0.917,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|6": {
+        "mean": -0.083,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|7": {
+        "mean": -0.2,
+        "count": 20
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|7": {
+        "mean": 0.2,
+        "count": 20
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|8": {
+        "mean": 2.0,
+        "count": 20
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|8": {
+        "mean": 1.471,
+        "count": 17
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|9": {
+        "mean": 1.111,
+        "count": 18
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9": {
+        "mean": 2.278,
+        "count": 18
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10": {
+        "mean": 2.7,
+        "count": 20
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|10": {
+        "mean": -0.667,
+        "count": 18
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|11": {
+        "mean": 0.579,
+        "count": 19
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|11": {
+        "mean": 4.7,
+        "count": 20
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|12": {
+        "mean": 3.45,
+        "count": 20
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|12": {
+        "mean": 0.35,
+        "count": 20
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|13": {
+        "mean": 1.609,
+        "count": 23
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|13": {
+        "mean": 5.476,
+        "count": 21
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|14": {
+        "mean": 2.182,
+        "count": 22
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|14": {
+        "mean": 7.214,
+        "count": 14
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15": {
+        "mean": 0.8,
+        "count": 20
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|15": {
+        "mean": 1.857,
+        "count": 21
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|16": {
+        "mean": 1.81,
+        "count": 21
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|16": {
+        "mean": 0.611,
+        "count": 18
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|17": {
+        "mean": 0.524,
+        "count": 21
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|17": {
+        "mean": -0.05,
+        "count": 20
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18": {
+        "mean": 1.421,
+        "count": 19
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|18": {
+        "mean": 0.588,
+        "count": 17
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|19": {
+        "mean": 0.944,
+        "count": 18
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|19": {
+        "mean": 0.8,
+        "count": 15
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|20": {
+        "mean": 0.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|6": {
+        "mean": 0.167,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|5": {
+        "mean": 10.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|6": {
+        "mean": 3.0,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|7": {
+        "mean": 1.727,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|7": {
+        "mean": 3.0,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|8": {
+        "mean": 1.5,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|8": {
+        "mean": 1.778,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|9": {
+        "mean": 2.818,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|9": {
+        "mean": 2.333,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|10": {
+        "mean": -0.111,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|10": {
+        "mean": 3.125,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|11": {
+        "mean": 0.222,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|11": {
+        "mean": -0.333,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|12": {
+        "mean": 0.7,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|12": {
+        "mean": -1.167,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|13": {
+        "mean": 0.636,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|13": {
+        "mean": 2.182,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|14": {
+        "mean": 1.636,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|14": {
+        "mean": 2.143,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|15": {
+        "mean": 2.75,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|15": {
+        "mean": 3.3,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|16": {
+        "mean": 3.364,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|16": {
+        "mean": 1.727,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17": {
+        "mean": 2.75,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|17": {
+        "mean": 0.625,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|18": {
+        "mean": 2.2,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|18": {
+        "mean": 4.091,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|19": {
+        "mean": 4.0,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|19": {
+        "mean": -0.286,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|20": {
+        "mean": -0.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|6": {
+        "mean": -1.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|6": {
+        "mean": 0.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|7": {
+        "mean": 0.3,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|7": {
+        "mean": -0.2,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|8": {
+        "mean": 5.667,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|8": {
+        "mean": 7.125,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|9": {
+        "mean": 9.0,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|9": {
+        "mean": 4.111,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|10": {
+        "mean": 1.545,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|10": {
+        "mean": 6.714,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|11": {
+        "mean": 0.4,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|11": {
+        "mean": 0.444,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|12": {
+        "mean": 2.0,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|12": {
+        "mean": 1.556,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|13": {
+        "mean": -0.889,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|13": {
+        "mean": -0.25,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|14": {
+        "mean": 2.25,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|14": {
+        "mean": 10.571,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|15": {
+        "mean": 8.75,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15": {
+        "mean": 9.2,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|16": {
+        "mean": 13.545,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|16": {
+        "mean": 15.5,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17": {
+        "mean": 4.917,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|17": {
+        "mean": 10.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|18": {
+        "mean": 3.727,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|18": {
+        "mean": 10.364,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|19": {
+        "mean": 2.222,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|19": {
+        "mean": 0.5,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|20": {
+        "mean": -1.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|6": {
+        "mean": -1.833,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|5": {
+        "mean": -1.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|6": {
+        "mean": -1.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|7": {
+        "mean": -0.7,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|7": {
+        "mean": 0.4,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|8": {
+        "mean": 0.8,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|8": {
+        "mean": -0.6,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|9": {
+        "mean": 3.167,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|9": {
+        "mean": 0.889,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|10": {
+        "mean": 1.444,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|10": {
+        "mean": 3.0,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|11": {
+        "mean": 1.125,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|11": {
+        "mean": 1.0,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|12": {
+        "mean": 0.545,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|12": {
+        "mean": 0.8,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|13": {
+        "mean": 1.556,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|13": {
+        "mean": 0.571,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|14": {
+        "mean": 3.909,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|14": {
+        "mean": 3.4,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|15": {
+        "mean": 7.429,
+        "count": 14
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|15": {
+        "mean": 7.3,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|16": {
+        "mean": 5.333,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|16": {
+        "mean": 22.0,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|17": {
+        "mean": 1.222,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|17": {
+        "mean": 7.875,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|18": {
+        "mean": 5.3,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|18": {
+        "mean": -1.3,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|19": {
+        "mean": 1.455,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|19": {
+        "mean": 1.5,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|20": {
+        "mean": 0.667,
+        "count": 3
+      }
+    },
+    "prevDirectionBucket": {
+      "U Leopoldplatz via U Rosenthaler Platz|ontime_or_early": {
+        "mean": -0.429,
+        "count": 240
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|late_3_5": {
+        "mean": 3.973,
+        "count": 111
+      },
+      "S Ostbahnhof via U Amrumer Str.|late_1_2": {
+        "mean": 1.338,
+        "count": 154
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|early_2plus": {
+        "mean": -2.36,
+        "count": 86
+      },
+      "S Ostbahnhof via U Amrumer Str.|ontime_or_early": {
+        "mean": -0.374,
+        "count": 195
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|late_1_2": {
+        "mean": 1.429,
+        "count": 154
+      },
+      "S Ostbahnhof via U Amrumer Str.|early_2plus": {
+        "mean": -2.155,
+        "count": 71
+      },
+      "S Ostbahnhof via U Amrumer Str.|late_3_5": {
+        "mean": 3.681,
+        "count": 69
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|late_6_9": {
+        "mean": 7.27,
+        "count": 74
+      },
+      "S Ostbahnhof via U Amrumer Str.|late_6_9": {
+        "mean": 7.184,
+        "count": 49
+      },
+      "S Ostbahnhof via U Amrumer Str.|late_10plus": {
+        "mean": 15.97,
+        "count": 66
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|late_10plus": {
+        "mean": 16.359,
+        "count": 39
+      }
+    },
+    "prevDirectionHourBucket": {
+      "U Leopoldplatz via U Rosenthaler Platz|6|ontime_or_early": {
+        "mean": -0.667,
+        "count": 15
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|5|late_3_5": {
+        "mean": 5.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|6|late_1_2": {
+        "mean": 1.143,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|6|early_2plus": {
+        "mean": -2.5,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|6|ontime_or_early": {
+        "mean": -0.562,
+        "count": 16
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|7|ontime_or_early": {
+        "mean": -0.267,
+        "count": 30
+      },
+      "S Ostbahnhof via U Amrumer Str.|7|ontime_or_early": {
+        "mean": -0.5,
+        "count": 18
+      },
+      "S Ostbahnhof via U Amrumer Str.|7|late_1_2": {
+        "mean": 1.526,
+        "count": 19
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|7|late_1_2": {
+        "mean": 1.25,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|7|late_3_5": {
+        "mean": 3.667,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|7|early_2plus": {
+        "mean": -2.0,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8|late_1_2": {
+        "mean": 1.286,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|8|late_1_2": {
+        "mean": 1.4,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8|late_3_5": {
+        "mean": 4.182,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|8|late_3_5": {
+        "mean": 3.167,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8|late_6_9": {
+        "mean": 7.0,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8|ontime_or_early": {
+        "mean": -0.5,
+        "count": 16
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9|early_2plus": {
+        "mean": -2.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|9|ontime_or_early": {
+        "mean": -0.111,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9|late_1_2": {
+        "mean": 1.538,
+        "count": 13
+      },
+      "S Ostbahnhof via U Amrumer Str.|9|late_6_9": {
+        "mean": 7.556,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9|ontime_or_early": {
+        "mean": -0.417,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9|late_3_5": {
+        "mean": 4.091,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9|late_6_9": {
+        "mean": 7.167,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|9|late_10plus": {
+        "mean": 11.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|9|late_1_2": {
+        "mean": 1.231,
+        "count": 13
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10|ontime_or_early": {
+        "mean": -0.529,
+        "count": 17
+      },
+      "S Ostbahnhof via U Amrumer Str.|9|late_3_5": {
+        "mean": 2.875,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|10|early_2plus": {
+        "mean": -2.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10|late_1_2": {
+        "mean": 1.375,
+        "count": 16
+      },
+      "S Ostbahnhof via U Amrumer Str.|10|ontime_or_early": {
+        "mean": -0.5,
+        "count": 14
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10|late_3_5": {
+        "mean": 4.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10|late_6_9": {
+        "mean": 8.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|11|ontime_or_early": {
+        "mean": -0.737,
+        "count": 19
+      },
+      "S Ostbahnhof via U Amrumer Str.|10|late_1_2": {
+        "mean": 0.818,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10|late_10plus": {
+        "mean": 11.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|11|late_6_9": {
+        "mean": 6.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|11|late_1_2": {
+        "mean": 1.583,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|11|early_2plus": {
+        "mean": -2.571,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|11|late_10plus": {
+        "mean": 17.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|11|ontime_or_early": {
+        "mean": 0.0,
+        "count": 14
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|11|late_3_5": {
+        "mean": 4.167,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12|late_1_2": {
+        "mean": 1.294,
+        "count": 17
+      },
+      "S Ostbahnhof via U Amrumer Str.|11|late_1_2": {
+        "mean": 1.238,
+        "count": 21
+      },
+      "S Ostbahnhof via U Amrumer Str.|12|ontime_or_early": {
+        "mean": -0.417,
+        "count": 24
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|11|late_6_9": {
+        "mean": 7.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12|early_2plus": {
+        "mean": -2.167,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12|late_3_5": {
+        "mean": 3.75,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|12|late_1_2": {
+        "mean": 1.444,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12|ontime_or_early": {
+        "mean": -0.188,
+        "count": 16
+      },
+      "S Ostbahnhof via U Amrumer Str.|12|late_3_5": {
+        "mean": 3.4,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|13|late_1_2": {
+        "mean": 1.4,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12|late_10plus": {
+        "mean": 18.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|13|late_3_5": {
+        "mean": 3.375,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|13|late_3_5": {
+        "mean": 4.091,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|13|late_6_9": {
+        "mean": 6.833,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|13|early_2plus": {
+        "mean": -2.286,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|13|ontime_or_early": {
+        "mean": -0.762,
+        "count": 21
+      },
+      "S Ostbahnhof via U Amrumer Str.|13|late_10plus": {
+        "mean": 11.5,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|14|ontime_or_early": {
+        "mean": -0.214,
+        "count": 14
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|14|early_2plus": {
+        "mean": -2.0,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|14|late_3_5": {
+        "mean": 3.615,
+        "count": 13
+      },
+      "S Ostbahnhof via U Amrumer Str.|14|late_3_5": {
+        "mean": 4.0,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|14|late_6_9": {
+        "mean": 7.545,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|14|late_6_9": {
+        "mean": 6.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15|ontime_or_early": {
+        "mean": -0.5,
+        "count": 14
+      },
+      "S Ostbahnhof via U Amrumer Str.|14|late_10plus": {
+        "mean": 15.0,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15|early_2plus": {
+        "mean": -2.4,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|15|late_6_9": {
+        "mean": 7.571,
+        "count": 14
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15|late_1_2": {
+        "mean": 1.5,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15|late_6_9": {
+        "mean": 6.375,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|15|ontime_or_early": {
+        "mean": -0.222,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15|late_10plus": {
+        "mean": 15.455,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|15|late_1_2": {
+        "mean": 1.5,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|15|late_3_5": {
+        "mean": 4.167,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16|late_3_5": {
+        "mean": 3.667,
+        "count": 15
+      },
+      "S Ostbahnhof via U Amrumer Str.|16|late_6_9": {
+        "mean": 8.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16|ontime_or_early": {
+        "mean": -0.333,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|16|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16|late_6_9": {
+        "mean": 7.429,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|16|ontime_or_early": {
+        "mean": -0.308,
+        "count": 13
+      },
+      "S Ostbahnhof via U Amrumer Str.|16|late_1_2": {
+        "mean": 1.6,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|17|ontime_or_early": {
+        "mean": -0.5,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17|ontime_or_early": {
+        "mean": -0.353,
+        "count": 17
+      },
+      "S Ostbahnhof via U Amrumer Str.|17|late_1_2": {
+        "mean": 1.611,
+        "count": 18
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17|early_2plus": {
+        "mean": -2.364,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17|late_1_2": {
+        "mean": 1.444,
+        "count": 9
+      },
+      "S Ostbahnhof via U Amrumer Str.|17|late_3_5": {
+        "mean": 5.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|17|early_2plus": {
+        "mean": -2.4,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18|early_2plus": {
+        "mean": -2.75,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|18|ontime_or_early": {
+        "mean": -0.409,
+        "count": 22
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18|ontime_or_early": {
+        "mean": -0.444,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17|late_6_9": {
+        "mean": 7.75,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18|late_1_2": {
+        "mean": 1.286,
+        "count": 14
+      },
+      "S Ostbahnhof via U Amrumer Str.|18|late_1_2": {
+        "mean": 1.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|18|late_3_5": {
+        "mean": 3.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18|late_3_5": {
+        "mean": 4.333,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18|late_6_9": {
+        "mean": 7.0,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19|ontime_or_early": {
+        "mean": -0.176,
+        "count": 17
+      },
+      "S Ostbahnhof via U Amrumer Str.|19|early_2plus": {
+        "mean": -2.0,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|18|late_10plus": {
+        "mean": 10.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19|late_1_2": {
+        "mean": 1.5,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19|early_2plus": {
+        "mean": -2.667,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|19|ontime_or_early": {
+        "mean": -0.167,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|19|late_3_5": {
+        "mean": 4.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|19|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|20|ontime_or_early": {
+        "mean": -0.2,
+        "count": 10
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|6|late_1_2": {
+        "mean": 1.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|5|late_10plus": {
+        "mean": 10.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|6|late_6_9": {
+        "mean": 6.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|7|early_2plus": {
+        "mean": -2.5,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|7|late_3_5": {
+        "mean": 3.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|7|late_6_9": {
+        "mean": 7.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|8|ontime_or_early": {
+        "mean": -0.636,
+        "count": 11
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|7|late_6_9": {
+        "mean": 9.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|8|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|10|early_2plus": {
+        "mean": -2.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|10|late_3_5": {
+        "mean": 4.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|10|late_6_9": {
+        "mean": 7.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|11|early_2plus": {
+        "mean": -2.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|12|early_2plus": {
+        "mean": -1.6,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|13|ontime_or_early": {
+        "mean": -0.333,
+        "count": 18
+      },
+      "S Ostbahnhof via U Amrumer Str.|13|late_1_2": {
+        "mean": 1.333,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|14|late_1_2": {
+        "mean": 1.5,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|14|ontime_or_early": {
+        "mean": -0.4,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|14|late_1_2": {
+        "mean": 1.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16|late_1_2": {
+        "mean": 1.8,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|15|late_10plus": {
+        "mean": 12.5,
+        "count": 8
+      },
+      "S Ostbahnhof via U Amrumer Str.|16|late_3_5": {
+        "mean": 3.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17|late_3_5": {
+        "mean": 4.4,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|17|late_10plus": {
+        "mean": 12.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|18|late_10plus": {
+        "mean": 16.1,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|19|late_1_2": {
+        "mean": 1.333,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19|late_10plus": {
+        "mean": 17.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|8|late_10plus": {
+        "mean": 14.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8|late_10plus": {
+        "mean": 12.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|9|late_10plus": {
+        "mean": 18.75,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|10|late_10plus": {
+        "mean": 22.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|12|late_6_9": {
+        "mean": 6.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|13|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|16|late_10plus": {
+        "mean": 25.833,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|16|late_10plus": {
+        "mean": 20.0,
+        "count": 13
+      },
+      "S Ostbahnhof via U Amrumer Str.|17|late_10plus": {
+        "mean": 18.8,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|18|late_6_9": {
+        "mean": 8.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|18|early_2plus": {
+        "mean": -2.5,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19|late_6_9": {
+        "mean": 8.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|20|early_2plus": {
+        "mean": -2.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|5|ontime_or_early": {
+        "mean": -1.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|6|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|8|early_2plus": {
+        "mean": -2.0,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|8|early_2plus": {
+        "mean": -1.833,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|12|late_6_9": {
+        "mean": 5.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|14|early_2plus": {
+        "mean": -4.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|15|late_3_5": {
+        "mean": 4.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|19|late_3_5": {
+        "mean": 4.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|20|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|9|early_2plus": {
+        "mean": -2.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|15|early_2plus": {
+        "mean": -2.0,
+        "count": 8
+      }
+    },
+    "prevDirectionDowHourBucket": {
+      "U Leopoldplatz via U Rosenthaler Platz|4|6|ontime_or_early": {
+        "mean": -0.571,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|5|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|6|late_1_2": {
+        "mean": 1.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|6|early_2plus": {
+        "mean": -3.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|6|ontime_or_early": {
+        "mean": -0.833,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|7|ontime_or_early": {
+        "mean": -0.333,
+        "count": 12
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|7|ontime_or_early": {
+        "mean": -0.5,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|7|late_1_2": {
+        "mean": 1.625,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|7|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|7|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|7|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|8|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|8|late_1_2": {
+        "mean": 1.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|8|late_3_5": {
+        "mean": 4.25,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|8|late_3_5": {
+        "mean": 3.0,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|8|late_6_9": {
+        "mean": 7.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|8|ontime_or_early": {
+        "mean": -0.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|9|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9|ontime_or_early": {
+        "mean": -0.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|9|late_1_2": {
+        "mean": 1.5,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9|late_6_9": {
+        "mean": 8.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|9|ontime_or_early": {
+        "mean": -0.5,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|9|late_3_5": {
+        "mean": 4.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|9|late_6_9": {
+        "mean": 6.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9|late_10plus": {
+        "mean": 11.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9|late_1_2": {
+        "mean": 2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10|ontime_or_early": {
+        "mean": -0.833,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9|late_3_5": {
+        "mean": 2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|10|early_2plus": {
+        "mean": -2.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10|late_1_2": {
+        "mean": 1.2,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|10|ontime_or_early": {
+        "mean": -0.778,
+        "count": 9
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10|late_6_9": {
+        "mean": 8.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|11|ontime_or_early": {
+        "mean": -0.8,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|10|late_1_2": {
+        "mean": 0.6,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10|late_10plus": {
+        "mean": 11.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|11|late_6_9": {
+        "mean": 6.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|11|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|11|early_2plus": {
+        "mean": -3.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|11|late_10plus": {
+        "mean": 17.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|11|ontime_or_early": {
+        "mean": 0.0,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|11|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|12|late_1_2": {
+        "mean": 1.333,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|11|late_1_2": {
+        "mean": 1.6,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|12|ontime_or_early": {
+        "mean": -0.083,
+        "count": 12
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|11|late_6_9": {
+        "mean": 7.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|12|early_2plus": {
+        "mean": -2.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|12|late_3_5": {
+        "mean": 4.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|12|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|12|ontime_or_early": {
+        "mean": -0.2,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|12|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|13|late_1_2": {
+        "mean": 1.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|12|late_10plus": {
+        "mean": 18.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|13|late_3_5": {
+        "mean": 3.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|13|late_3_5": {
+        "mean": 3.833,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|13|late_6_9": {
+        "mean": 6.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|13|early_2plus": {
+        "mean": -2.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|13|ontime_or_early": {
+        "mean": -0.667,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|13|late_10plus": {
+        "mean": 11.5,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|14|ontime_or_early": {
+        "mean": -0.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|14|early_2plus": {
+        "mean": -2.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|14|late_3_5": {
+        "mean": 3.5,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|14|late_3_5": {
+        "mean": 4.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|14|late_6_9": {
+        "mean": 8.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|14|late_6_9": {
+        "mean": 6.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15|ontime_or_early": {
+        "mean": -0.6,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|14|late_10plus": {
+        "mean": 17.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15|early_2plus": {
+        "mean": -2.25,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|15|late_6_9": {
+        "mean": 7.286,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15|late_6_9": {
+        "mean": 6.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|15|ontime_or_early": {
+        "mean": -0.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15|late_10plus": {
+        "mean": 14.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|16|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|15|late_1_2": {
+        "mean": 2.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|15|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|16|late_3_5": {
+        "mean": 3.4,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|16|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|16|ontime_or_early": {
+        "mean": -0.5,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|16|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|16|late_6_9": {
+        "mean": 7.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|16|ontime_or_early": {
+        "mean": -0.364,
+        "count": 11
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|16|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|17|ontime_or_early": {
+        "mean": -0.625,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|17|ontime_or_early": {
+        "mean": -0.6,
+        "count": 10
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|17|late_1_2": {
+        "mean": 1.667,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|17|early_2plus": {
+        "mean": -2.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|17|late_1_2": {
+        "mean": 1.6,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|17|late_3_5": {
+        "mean": 5.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|17|early_2plus": {
+        "mean": -2.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18|early_2plus": {
+        "mean": -2.75,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|18|ontime_or_early": {
+        "mean": -0.5,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18|ontime_or_early": {
+        "mean": -0.429,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|17|late_6_9": {
+        "mean": 6.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|18|late_1_2": {
+        "mean": 1.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|18|late_3_5": {
+        "mean": 3.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18|late_3_5": {
+        "mean": 4.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18|late_6_9": {
+        "mean": 7.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|19|ontime_or_early": {
+        "mean": -0.167,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|19|early_2plus": {
+        "mean": -2.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|18|late_10plus": {
+        "mean": 10.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|19|late_1_2": {
+        "mean": 1.667,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|19|early_2plus": {
+        "mean": -2.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|19|ontime_or_early": {
+        "mean": -0.143,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|19|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|19|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|20|ontime_or_early": {
+        "mean": 0.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|6|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|5|late_10plus": {
+        "mean": 10.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|6|ontime_or_early": {
+        "mean": -0.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|6|late_6_9": {
+        "mean": 6.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|6|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|7|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|7|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|7|ontime_or_early": {
+        "mean": 0.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|7|late_1_2": {
+        "mean": 1.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|7|early_2plus": {
+        "mean": -3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|7|late_3_5": {
+        "mean": 3.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|8|ontime_or_early": {
+        "mean": -0.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|7|late_6_9": {
+        "mean": 7.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|8|ontime_or_early": {
+        "mean": -0.4,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|7|late_6_9": {
+        "mean": 9.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|8|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|8|late_3_5": {
+        "mean": 4.667,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|8|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|9|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|8|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|9|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|9|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|9|late_1_2": {
+        "mean": 2.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|9|late_3_5": {
+        "mean": 3.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|9|late_6_9": {
+        "mean": 6.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|10|ontime_or_early": {
+        "mean": -0.6,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|10|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|9|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|10|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|10|late_3_5": {
+        "mean": 4.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|10|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|10|late_6_9": {
+        "mean": 8.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|10|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|11|ontime_or_early": {
+        "mean": -0.667,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|11|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|11|late_1_2": {
+        "mean": 1.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|11|early_2plus": {
+        "mean": -2.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|11|early_2plus": {
+        "mean": -2.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|11|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|12|ontime_or_early": {
+        "mean": -0.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|11|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|12|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|12|ontime_or_early": {
+        "mean": -1.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|12|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|13|ontime_or_early": {
+        "mean": -0.6,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|13|ontime_or_early": {
+        "mean": 0.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|13|late_3_5": {
+        "mean": 3.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|13|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|12|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|13|late_1_2": {
+        "mean": 2.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|13|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|13|late_3_5": {
+        "mean": 4.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|14|ontime_or_early": {
+        "mean": -0.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|14|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|14|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|14|late_3_5": {
+        "mean": 3.25,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|14|late_1_2": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|15|late_1_2": {
+        "mean": 1.2,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|14|late_3_5": {
+        "mean": 5.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|15|ontime_or_early": {
+        "mean": 0.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|15|late_3_5": {
+        "mean": 3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|15|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|15|late_6_9": {
+        "mean": 6.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|15|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|16|late_1_2": {
+        "mean": 2.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|15|late_10plus": {
+        "mean": 15.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|16|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|16|late_1_2": {
+        "mean": 1.857,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|16|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|16|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|16|late_3_5": {
+        "mean": 3.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|16|late_6_9": {
+        "mean": 7.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17|early_2plus": {
+        "mean": -2.667,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|17|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|17|late_1_2": {
+        "mean": 1.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|17|early_2plus": {
+        "mean": -3.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|18|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17|late_6_9": {
+        "mean": 7.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|18|ontime_or_early": {
+        "mean": -0.375,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|18|late_1_2": {
+        "mean": 1.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|17|late_10plus": {
+        "mean": 13.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|18|late_3_5": {
+        "mean": 4.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|18|late_10plus": {
+        "mean": 16.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|19|ontime_or_early": {
+        "mean": 0.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|19|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|19|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|19|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|0|19|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|20|ontime_or_early": {
+        "mean": -0.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|0|19|late_10plus": {
+        "mean": 17.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|6|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|5|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|6|ontime_or_early": {
+        "mean": -1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|6|ontime_or_early": {
+        "mean": -0.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|7|ontime_or_early": {
+        "mean": -0.167,
+        "count": 6
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|6|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|7|ontime_or_early": {
+        "mean": -0.571,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|7|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|7|late_3_5": {
+        "mean": 3.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|7|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|7|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|8|ontime_or_early": {
+        "mean": -0.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|7|late_1_2": {
+        "mean": 2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|8|late_3_5": {
+        "mean": 3.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|8|late_10plus": {
+        "mean": 14.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|8|late_6_9": {
+        "mean": 8.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|8|late_1_2": {
+        "mean": 2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|8|late_3_5": {
+        "mean": 3.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|8|late_10plus": {
+        "mean": 12.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|9|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|9|late_6_9": {
+        "mean": 6.6,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|9|late_10plus": {
+        "mean": 18.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|9|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|9|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|9|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|10|ontime_or_early": {
+        "mean": -0.25,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|9|late_1_2": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|9|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|10|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|10|late_3_5": {
+        "mean": 4.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|10|late_10plus": {
+        "mean": 22.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|10|ontime_or_early": {
+        "mean": 0.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|11|ontime_or_early": {
+        "mean": -0.75,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|10|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|11|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|11|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|11|late_1_2": {
+        "mean": 1.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|11|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|11|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|11|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|12|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|12|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|12|late_3_5": {
+        "mean": 3.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|12|late_1_2": {
+        "mean": 1.667,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|12|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|12|late_6_9": {
+        "mean": 6.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|12|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|13|ontime_or_early": {
+        "mean": -0.857,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|12|late_3_5": {
+        "mean": 3.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|13|ontime_or_early": {
+        "mean": -0.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|13|early_2plus": {
+        "mean": -3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|13|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|13|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|13|late_1_2": {
+        "mean": 1.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|14|ontime_or_early": {
+        "mean": -0.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|14|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|14|late_3_5": {
+        "mean": 3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|14|ontime_or_early": {
+        "mean": -1.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|14|late_1_2": {
+        "mean": 2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|14|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|14|late_10plus": {
+        "mean": 15.2,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|15|late_6_9": {
+        "mean": 9.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15|late_6_9": {
+        "mean": 6.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15|early_2plus": {
+        "mean": -3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|15|late_10plus": {
+        "mean": 11.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|15|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15|late_10plus": {
+        "mean": 19.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|15|late_1_2": {
+        "mean": 2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|16|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|16|late_6_9": {
+        "mean": 7.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|16|late_10plus": {
+        "mean": 27.2,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|16|late_3_5": {
+        "mean": 3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|16|late_10plus": {
+        "mean": 15.5,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|16|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|17|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17|late_3_5": {
+        "mean": 5.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|17|late_1_2": {
+        "mean": 2.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17|late_1_2": {
+        "mean": 1.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17|late_6_9": {
+        "mean": 8.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|18|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|17|late_10plus": {
+        "mean": 10.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|17|late_10plus": {
+        "mean": 38.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|18|late_3_5": {
+        "mean": 4.2,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|18|late_10plus": {
+        "mean": 16.143,
+        "count": 7
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|18|late_6_9": {
+        "mean": 8.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|18|late_6_9": {
+        "mean": 7.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|18|early_2plus": {
+        "mean": -2.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|19|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|19|late_1_2": {
+        "mean": 1.6,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|19|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|19|early_2plus": {
+        "mean": -3.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|19|late_6_9": {
+        "mean": 8.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|19|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|1|19|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|20|early_2plus": {
+        "mean": -2.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|1|20|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|6|early_2plus": {
+        "mean": -2.25,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|5|ontime_or_early": {
+        "mean": -1.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|6|ontime_or_early": {
+        "mean": -1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|6|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|6|ontime_or_early": {
+        "mean": -0.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|7|late_1_2": {
+        "mean": 1.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|7|early_2plus": {
+        "mean": -2.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|7|ontime_or_early": {
+        "mean": -0.429,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|7|early_2plus": {
+        "mean": -2.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|7|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|8|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|7|late_3_5": {
+        "mean": 3.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|8|ontime_or_early": {
+        "mean": -0.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|8|ontime_or_early": {
+        "mean": -0.4,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|8|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|8|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|8|early_2plus": {
+        "mean": -1.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|9|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|8|late_6_9": {
+        "mean": 6.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|9|late_1_2": {
+        "mean": 1.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|9|late_3_5": {
+        "mean": 3.833,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|9|late_1_2": {
+        "mean": 1.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|9|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|9|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|9|late_6_9": {
+        "mean": 8.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|10|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|10|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|10|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|10|late_6_9": {
+        "mean": 6.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|10|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|10|late_3_5": {
+        "mean": 3.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|10|late_3_5": {
+        "mean": 4.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|10|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|11|late_1_2": {
+        "mean": 1.667,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|11|late_1_2": {
+        "mean": 1.125,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|11|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|11|early_2plus": {
+        "mean": -3.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|11|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|11|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|12|early_2plus": {
+        "mean": -2.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|12|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|12|late_1_2": {
+        "mean": 1.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|12|ontime_or_early": {
+        "mean": -0.6,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|12|late_3_5": {
+        "mean": 3.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|12|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|12|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|12|late_6_9": {
+        "mean": 5.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|13|early_2plus": {
+        "mean": -2.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|13|ontime_or_early": {
+        "mean": 0.0,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|13|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|13|late_6_9": {
+        "mean": 8.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|13|ontime_or_early": {
+        "mean": -1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|13|late_1_2": {
+        "mean": 2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|14|ontime_or_early": {
+        "mean": 0.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|13|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|14|early_2plus": {
+        "mean": -6.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|14|late_6_9": {
+        "mean": 7.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|14|late_1_2": {
+        "mean": 2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|14|late_3_5": {
+        "mean": 5.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|14|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|14|late_3_5": {
+        "mean": 3.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|14|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|15|late_1_2": {
+        "mean": 1.75,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|14|late_10plus": {
+        "mean": 11.667,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|15|late_6_9": {
+        "mean": 7.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|15|late_6_9": {
+        "mean": 6.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|15|late_3_5": {
+        "mean": 5.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|15|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|15|late_10plus": {
+        "mean": 12.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|15|late_3_5": {
+        "mean": 4.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|15|late_10plus": {
+        "mean": 13.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|16|ontime_or_early": {
+        "mean": -0.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|16|late_6_9": {
+        "mean": 8.5,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|16|late_1_2": {
+        "mean": 1.5,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|16|late_6_9": {
+        "mean": 9.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|16|late_10plus": {
+        "mean": 23.857,
+        "count": 7
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|16|late_10plus": {
+        "mean": 19.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|16|late_3_5": {
+        "mean": 5.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|17|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|17|early_2plus": {
+        "mean": -2.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|17|late_10plus": {
+        "mean": 14.0,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|17|late_1_2": {
+        "mean": 1.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|17|late_1_2": {
+        "mean": 1.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|17|late_3_5": {
+        "mean": 3.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|17|late_6_9": {
+        "mean": 7.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|18|late_6_9": {
+        "mean": 7.0,
+        "count": 5
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|18|ontime_or_early": {
+        "mean": -0.333,
+        "count": 6
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|18|late_3_5": {
+        "mean": 4.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|18|early_2plus": {
+        "mean": -2.75,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|18|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|18|late_10plus": {
+        "mean": 11.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|19|ontime_or_early": {
+        "mean": -0.5,
+        "count": 4
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|19|late_1_2": {
+        "mean": 1.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|19|ontime_or_early": {
+        "mean": 0.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|19|late_3_5": {
+        "mean": 4.0,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|19|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|20|ontime_or_early": {
+        "mean": 0.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|2|19|late_3_5": {
+        "mean": 5.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|2|20|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|6|late_1_2": {
+        "mean": 1.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|6|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|7|early_2plus": {
+        "mean": -2.5,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|8|ontime_or_early": {
+        "mean": -1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|8|early_2plus": {
+        "mean": -2.0,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|8|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|9|early_2plus": {
+        "mean": -2.0,
+        "count": 5
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|10|early_2plus": {
+        "mean": -3.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|11|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|12|early_2plus": {
+        "mean": -1.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|13|ontime_or_early": {
+        "mean": -0.75,
+        "count": 4
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|13|late_1_2": {
+        "mean": 1.0,
+        "count": 3
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|14|late_1_2": {
+        "mean": 1.333,
+        "count": 3
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|14|early_2plus": {
+        "mean": -2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|14|late_1_2": {
+        "mean": 2.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|15|early_2plus": {
+        "mean": -2.0,
+        "count": 8
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|16|late_1_2": {
+        "mean": 2.0,
+        "count": 2
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|18|early_2plus": {
+        "mean": -2.0,
+        "count": 1
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|19|late_3_5": {
+        "mean": 4.0,
+        "count": 2
+      },
+      "U Leopoldplatz via U Rosenthaler Platz|4|19|late_6_9": {
+        "mean": 7.0,
+        "count": 1
+      },
+      "S Ostbahnhof via U Amrumer Str.|4|19|late_1_2": {
+        "mean": 1.0,
+        "count": 1
+      }
+    }
+  },
+  "notes": [
+    "Prediction target is delay_min at Poststadion for bus 142.",
+    "Inference uses the closest available upstream stop delay first, then historical direction/day/hour fallbacks."
+  ],
+  "sourceFiles": [
+    "log\\data\\bvg_delay_142_123_2026-05-08.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-09.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-10.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-11.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-12.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-13.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-14.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-15.sqlite",
+    "log\\data\\bvg_delay_142_123_2026-05-16.sqlite"
+  ],
+  "allRows": 1498,
+  "validation": {
+    "rows": 190,
+    "mae": 0.713,
+    "directionBaselineMae": 2.669
+  }
+}

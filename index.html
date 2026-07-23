@@ -476,6 +476,28 @@
     
     .time-large { font-family: 'Red Hat Mono', monospace; font-feature-settings: "tnum"; letter-spacing: -0.5px; font-size: 14px; font-weight: bold; color: var(--text-main); line-height: 1.2; }
     .time-sub { font-family: 'Red Hat Mono', monospace; font-feature-settings: "tnum"; font-size: 11px; color: var(--text-sub); text-align: right; margin-top: 2px; }
+    .prediction-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      max-width: 150px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+    .prediction-chip i { font-size: 9px; flex-shrink: 0; }
+    .prediction-green { color: #4dff4d; }
+    .prediction-orange { color: #ffaa00; }
+    .prediction-red { color: #ff6b6b; }
+    .prediction-neutral { color: var(--text-muted); }
 
     .stopover-container { background-color: rgba(0, 0, 0, 0.2); padding: 8px 12px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
     body.light-mode .stopover-container { background-color: rgba(0, 0, 0, 0.03); border-top: 1px solid rgba(0, 0, 0, 0.05); }
@@ -757,6 +779,7 @@
     
     /* LED Mode Second Row Info (Platform & Station Name) */
     .led-mode .card-sub-info { font-family: 'VT323', monospace !important; color: #cc8800 !important; font-size: 15px !important; text-transform: uppercase; letter-spacing: 0.5px; }
+    .led-mode .prediction-chip { border: none; background: transparent; padding: 0; font-size: 15px; color: #ffaa00; }
 
     /* New Route Stop Label */
     .route-stop-label {
@@ -1113,6 +1136,16 @@
                  <span v-if="isRail(dep.line.product) && (dep.platform || dep.plannedPlatform)">
                      Gl. {{ dep.platform || dep.plannedPlatform }}
                  </span>
+
+                 <span
+                   v-if="shouldShowPrediction(dep)"
+                   class="prediction-chip ms-2"
+                   :class="getPredictionClass(dep.prediction)"
+                   :title="'Model ' + dep.prediction.modelVersion + ' · ' + dep.prediction.basis"
+                 >
+                   <i class="fas fa-chart-line"></i>
+                   {{ formatPredictionTime(dep) }}
+                 </span>
               </div>
             </div>
 
@@ -1178,6 +1211,15 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <script type="module" src="./js/main.js"></script>
+  <script>
+    if (window.location.protocol === 'file:') {
+      document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#222;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif;padding:24px;text-align:center;"><div><h1 style="font-size:22px;margin:0 0 12px;">Bitte den lokalen Server verwenden</h1><p style="margin:0 0 10px;">Diese App braucht den Node-Proxy unter <strong>http://localhost:3000/</strong>. Direktes Öffnen per file:// kann API-Fehler oder Zeichensatzprobleme verursachen.</p><p style="margin:0;color:#bbb;">Starte <code style="color:#fff;">npm.cmd start</code> und öffne dann <code style="color:#fff;">http://localhost:3000/</code>.</p></div></div>';
+    } else {
+      var script = document.createElement('script');
+      script.type = 'module';
+      script.src = './js/main.js';
+      document.body.appendChild(script);
+    }
+  </script>
 </body>
 </html>

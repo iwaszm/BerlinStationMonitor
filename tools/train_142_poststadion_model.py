@@ -11,7 +11,6 @@ from collections import defaultdict
 PROJECT = pathlib.Path(__file__).resolve().parents[1]
 DEFAULT_DB_GLOB = PROJECT / "log" / "data" / "bvg_delay_142_123_2026-05-*.sqlite"
 DEFAULT_OUT = PROJECT / "models" / "bus142-poststadion-model.json"
-LINE_NAME = "142"
 POSTSTADION_STOP_ID = "900002256"
 MIN_COUNT = 3
 
@@ -58,7 +57,7 @@ def finalize_stats(stats):
     return out
 
 
-def read_examples(db_path):
+def read_examples(db_path, line_name):
     con = sqlite3.connect(db_path)
     con.row_factory = sqlite3.Row
     rows = con.execute(
@@ -97,7 +96,7 @@ def read_examples(db_path):
           AND target.delay_min IS NOT NULL
         ORDER BY s.service_date, s.target_min, d.direction_name, target.trip_id
         """,
-        (LINE_NAME, POSTSTADION_STOP_ID),
+        (line_name, POSTSTADION_STOP_ID),
     ).fetchall()
     con.close()
 
@@ -161,7 +160,7 @@ def predict_with_tables(model, ex):
     return model["globalMean"], "globalMean", model["trainingRows"]
 
 
-def build_model(examples, validation_date=None):
+def build_model(examples, line_name, validation_date=None):
     train = [ex for ex in examples if ex["service_date"] != validation_date]
     if not train:
         train = examples
@@ -206,9 +205,9 @@ def build_model(examples, validation_date=None):
             current["usablePrevRows"] += 1
 
     model = {
-        "modelVersion": "142-poststadion-v1",
+        "modelVersion": f"{line_name}-poststadion-v1",
         "generatedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-        "lineName": LINE_NAME,
+        "lineName": line_name,
         "stationId": POSTSTADION_STOP_ID,
         "stationName": "Poststadion (Berlin)",
         "minCount": MIN_COUNT,
@@ -226,7 +225,7 @@ def build_model(examples, validation_date=None):
         },
         "lookups": {name: finalize_stats(table) for name, table in stats.items()},
         "notes": [
-            "Prediction target is delay_min at Poststadion for bus 142.",
+            f"Prediction target is delay_min at Poststadion for bus {line_name}.",
             "Inference uses the closest available upstream stop delay first, then historical direction/day/hour fallbacks.",
         ],
     }
@@ -253,24 +252,25 @@ def evaluate(model, examples):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--line", default="142")
     ap.add_argument("--db-glob", default=str(DEFAULT_DB_GLOB))
-    ap.add_argument("--out", default=str(DEFAULT_OUT))
+    ap.add_argument("--out")
     args = ap.parse_args()
 
     paths = sorted(glob.glob(args.db_glob))
     examples = []
     for path in paths:
-        examples.extend(read_examples(path))
+        examples.extend(read_examples(path, args.line))
 
     dates = sorted({ex["service_date"] for ex in examples})
     validation_date = dates[-1] if dates else None
     validation = [ex for ex in examples if ex["service_date"] == validation_date]
-    model = build_model(examples, validation_date=validation_date)
+    model = build_model(examples, args.line, validation_date=validation_date)
     model["sourceFiles"] = [str(pathlib.Path(p).relative_to(PROJECT)) for p in paths]
     model["allRows"] = len(examples)
     model["validation"] = evaluate(model, validation)
 
-    out_path = pathlib.Path(args.out)
+    out_path = pathlib.Path(args.out) if args.out else PROJECT / "models" / f"bus{args.line}-poststadion-model.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(model, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({

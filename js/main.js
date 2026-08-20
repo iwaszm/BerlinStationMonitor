@@ -84,7 +84,7 @@ import { createStationHandlers } from './stations.js';
         // ==============================
 
         const POSTSTADION_STOP_ID = '900002256';
-        const POSTSTADION_PREDICTION_LINE = '142';
+        const POSTSTADION_PREDICTION_LINES = new Set(['123', '142']);
 
         // --- API Failover Logic REMOVED (Only BVG) ---
         const apiEndpoints = API_ENDPOINTS;
@@ -671,7 +671,7 @@ import { createStationHandlers } from './stations.js';
         const fetchPoststadionPredictions = async () => {
           if (!shouldFetchPoststadionPredictions()) return {};
           try {
-            const res = await axios.get(`${apiBase.value}/predictions/142-poststadion`, {
+            const res = await axios.get(`${apiBase.value}/predictions/poststadion`, {
               params: { duration: duration.value }
             });
             return (res.data && res.data.predictions) || {};
@@ -725,7 +725,7 @@ import { createStationHandlers } from './stations.js';
                 if (
                   String(dep.stationId) === POSTSTADION_STOP_ID &&
                   dep.line &&
-                  dep.line.name === POSTSTADION_PREDICTION_LINE &&
+                  POSTSTADION_PREDICTION_LINES.has(dep.line.name) &&
                   predictions[dep.uniqueId]
                 ) {
                   return { ...dep, prediction: predictions[dep.uniqueId] };
@@ -1226,7 +1226,7 @@ import { createStationHandlers } from './stations.js';
             dep.prediction &&
             String(dep.stationId) === POSTSTADION_STOP_ID &&
             dep.line &&
-            dep.line.name === POSTSTADION_PREDICTION_LINE &&
+            POSTSTADION_PREDICTION_LINES.has(dep.line.name) &&
             predicted &&
             displayed &&
             !Number.isNaN(displayed.getTime()) &&

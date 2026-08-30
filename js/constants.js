@@ -86,5 +86,5 @@ export const PRODUCT_COLORS = {
   default: "#555",
 };
 
-export const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-export const LIGHT_TILES = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+export const DARK_TILES = "https://tiles.openfreemap.org/styles/dark";
+export const LIGHT_TILES = "https://tiles.openfreemap.org/styles/positron";

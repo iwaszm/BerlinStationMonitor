@@ -224,6 +224,24 @@ import { createStationHandlers } from './stations.js';
 
         const productColors = PRODUCT_COLORS;
 
+        const createBaseLayer = (styleUrl) => {
+          if (L.maplibreGL) {
+            return L.maplibreGL({
+              style: styleUrl,
+              attribution: 'OpenFreeMap &copy; OpenMapTiles Data from OpenStreetMap'
+            });
+          }
+          return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+          });
+        };
+
+        const updateBaseLayer = () => {
+          if (!map) return;
+          if (baseLayer) map.removeLayer(baseLayer);
+          baseLayer = createBaseLayer(isDarkMode.value ? DARK_TILES : LIGHT_TILES).addTo(map);
+        };
+
         const setTheme = (theme) => {
             currentTheme.value = theme;
         };
@@ -256,11 +274,10 @@ import { createStationHandlers } from './stations.js';
         watch(isDarkMode, (newVal) => {
           if (newVal) {
              document.body.classList.remove('light-mode');
-             if (baseLayer) baseLayer.setUrl(DARK_TILES);
           } else {
              document.body.classList.add('light-mode');
-             if (baseLayer) baseLayer.setUrl(LIGHT_TILES);
           }
+          updateBaseLayer();
         });
 
         watch(infoState, () => {
@@ -278,9 +295,7 @@ import { createStationHandlers } from './stations.js';
           if (!document.getElementById("map")) return;
           map = L.map("map", { zoomControl: false }).setView([52.5200, 13.4050], 13);
           
-          baseLayer = L.tileLayer(isDarkMode.value ? DARK_TILES : LIGHT_TILES, {
-            attribution: '&copy; OpenStreetMap &copy; CARTO'
-          }).addTo(map);
+          updateBaseLayer();
 
           // Create panes for layering
           // Lines go in custom pane

@@ -14,6 +14,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "kindle_vrr.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "js/**",
       "use": "@vercel/static"
     },
@@ -38,6 +42,14 @@
     {
       "src": "/kindle/?",
       "dest": "/kindle.html"
+    },
+    {
+      "src": "/kindel_vrr/?",
+      "dest": "/kindle_vrr.html"
+    },
+    {
+      "src": "/kindle_vrr/?",
+      "dest": "/kindle_vrr.html"
     },
     {
       "src": "/",

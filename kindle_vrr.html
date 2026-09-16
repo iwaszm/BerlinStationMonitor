@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poststadion VRR</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    body {
+      padding: 10px 42px 10px 10px;
+    }
+
+    .page {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 790px;
+      margin: 0 auto;
+    }
+
+    .board {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .row {
+      border-bottom: 2px solid #000;
+      padding: 10px 0;
+      overflow: hidden;
+    }
+
+    .line {
+      float: left;
+      width: 96px;
+      height: 52px;
+      border: 2px solid #000;
+      text-align: center;
+      font-size: 30px;
+      line-height: 52px;
+      font-weight: bold;
+      margin-right: 12px;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .time {
+      float: right;
+      width: 145px;
+      text-align: right;
+      font-size: 34px;
+      line-height: 52px;
+      font-weight: bold;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+
+    .dest {
+      overflow: hidden;
+      font-size: 24px;
+      line-height: 52px;
+      font-weight: bold;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .status {
+      font-size: 14px;
+      font-style: italic;
+      text-align: right;
+      min-height: 18px;
+      margin-bottom: 4px;
+    }
+
+    .empty {
+      border: 2px solid #000;
+      padding: 14px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px 34px 8px 8px;
+        font-size: 18px;
+      }
+
+      .line {
+        width: 82px;
+        height: 48px;
+        font-size: 27px;
+        line-height: 48px;
+        margin-right: 8px;
+      }
+
+      .time {
+        width: 120px;
+        font-size: 30px;
+        line-height: 48px;
+      }
+
+      .dest {
+        font-size: 21px;
+        line-height: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div id="status" class="status">...</div>
+    <ul id="board" class="board"></ul>
+    <div id="message" class="empty" style="display:none">Keine Daten</div>
+  </div>
+
+  <script>
+    (function () {
+      var REFRESH_MS = 60000;
+      var boardEl = document.getElementById('board');
+      var statusEl = document.getElementById('status');
+      var messageEl = document.getElementById('message');
+      var timer = null;
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function setStatus(text) {
+        statusEl.innerHTML = escapeHtml(text || '');
+      }
+
+      function showMessage(text) {
+        messageEl.style.display = text ? 'block' : 'none';
+        messageEl.innerHTML = escapeHtml(text || '');
+      }
+
+      function render(items) {
+        var html = '';
+        var i;
+        var item;
+
+        if (!items || !items.length) {
+          boardEl.innerHTML = '';
+          showMessage('Keine Daten');
+          return;
+        }
+
+        showMessage('');
+        for (i = 0; i < items.length; i += 1) {
+          item = items[i] || {};
+          html += '<li class="row">' +
+            '<div class="line">' + escapeHtml(item.line || '') + '</div>' +
+            '<div class="time">' + escapeHtml(item.time || '') + '</div>' +
+            '<div class="dest">' + escapeHtml(item.destination || '') + '</div>' +
+            '</li>';
+        }
+        boardEl.innerHTML = html;
+      }
+
+      function requestBoard() {
+        var xhr = new XMLHttpRequest();
+        if (window.location && window.location.protocol === 'file:') {
+          setStatus('err');
+          showMessage('Bitte ueber http://Server:3000/kindle_vrr oeffnen');
+          return;
+        }
+        xhr.open('GET', '/api/vrrf/poststadion?results=8', true);
+        xhr.onreadystatechange = function () {
+          var data;
+          if (xhr.readyState !== 4) return;
+          if (xhr.status < 200 || xhr.status >= 300) {
+            setStatus('err');
+            if (!boardEl.innerHTML) showMessage('Keine Verbindung');
+            return;
+          }
+          try {
+            data = JSON.parse(xhr.responseText);
+          } catch (e) {
+            setStatus('err');
+            if (!boardEl.innerHTML) showMessage('Ungueltige Antwort');
+            return;
+          }
+          render(data.departures || []);
+          setStatus('live');
+        };
+        xhr.send(null);
+      }
+
+      function schedule() {
+        if (timer) window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          requestBoard();
+          schedule();
+        }, REFRESH_MS);
+      }
+
+      requestBoard();
+      schedule();
+
+      window.onunload = function () {
+        if (timer) window.clearTimeout(timer);
+      };
+    }());
+  </script>
+</body>
+</html>

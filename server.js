@@ -46,6 +46,8 @@ const server = http.createServer((req, res) => {
         pathname = '/index.html';
     } else if (pathname === '/kindle' || pathname === '/kindle/') {
         pathname = '/kindle.html';
+    } else if (pathname === '/kindle_vrr' || pathname === '/kindle_vrr/' || pathname === '/kindel_vrr' || pathname === '/kindel_vrr/') {
+        pathname = '/kindle_vrr.html';
     }
 
     const filePath = path.resolve(PUBLIC_ROOT, `.${pathname}`);

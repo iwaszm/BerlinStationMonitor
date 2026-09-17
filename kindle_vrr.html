@@ -99,13 +99,37 @@
 
     .time {
       float: right;
-      width: 145px;
+      width: 178px;
       text-align: right;
-      font-size: 34px;
-      line-height: 52px;
       font-weight: bold;
       white-space: nowrap;
       margin-left: 8px;
+      line-height: 52px;
+    }
+
+    .delay {
+      display: inline-block;
+      font-size: 16px;
+      line-height: 1;
+      font-style: italic;
+      font-weight: normal;
+      vertical-align: baseline;
+      margin-right: 3px;
+    }
+
+    .time-small {
+      font-size: 16px;
+      line-height: 1;
+      font-weight: normal;
+      vertical-align: baseline;
+    }
+
+    .time-number,
+    .time-clock {
+      font-size: 34px;
+      line-height: 1;
+      font-weight: bold;
+      vertical-align: baseline;
     }
 
     .dest {
@@ -122,7 +146,8 @@
       font-style: italic;
       text-align: right;
       min-height: 18px;
-      margin-bottom: 4px;
+      margin-top: 4px;
+      margin-bottom: 6px;
     }
 
     .empty {
@@ -188,9 +213,18 @@
       }
 
       .time {
-        width: 120px;
-        font-size: 30px;
+        width: 158px;
         line-height: 48px;
+      }
+
+      .delay,
+      .time-small {
+        font-size: 14px;
+      }
+
+      .time-number,
+      .time-clock {
+        font-size: 31px;
       }
 
       .dest {
@@ -317,6 +351,54 @@
         }
       }
 
+      function getDelayText(item) {
+        var delay = item && typeof item.delay === 'number' ? Math.round(item.delay) : null;
+        if (!delay) return '';
+        return delay > 0 ? '(+' + delay + ')' : '(' + delay + ')';
+      }
+
+      function getMinutesValue(item) {
+        var text;
+        var match;
+        if (item && typeof item.minutes === 'number') return item.minutes;
+        text = String((item && item.relativeTime) || '');
+        match = text.match(/-?\d+/);
+        if (match) return Number(match[0]);
+        if (text.toLowerCase() === 'sofort' || text.toLowerCase() === 'now') return 0;
+        return null;
+      }
+
+      function formatTime(item) {
+        var delayText = getDelayText(item);
+        var delayHtml = delayText ? '<span class="delay">' + escapeHtml(delayText) + '</span>' : '';
+        var minutes = getMinutesValue(item);
+        var timeText = (item && (item.time || item.relativeTime)) || '';
+        if (minutes !== null && minutes < 10) {
+          return delayHtml + '<span class="time-small">In</span> <span class="time-number">' +
+            escapeHtml(minutes) + '</span> <span class="time-small">Min</span>';
+        }
+        return delayHtml + '<span class="time-clock">' + escapeHtml(timeText) + '</span>';
+      }
+
+      function parseTimeMinutes(value) {
+        var match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+        if (!match) return null;
+        return Number(match[1]) * 60 + Number(match[2]);
+      }
+
+      function sortValue(item) {
+        var timeMinutes;
+        if (item && typeof item.minutes === 'number') return item.minutes;
+        timeMinutes = parseTimeMinutes(item && item.time);
+        return timeMinutes === null ? 999999 : timeMinutes;
+      }
+
+      function sortDepartures(items) {
+        return (items || []).sort(function (a, b) {
+          return sortValue(a) - sortValue(b);
+        });
+      }
+
       function render(items) {
         var html = '';
         var i;
@@ -336,7 +418,7 @@
           if (activeLineFilter && line !== activeLineFilter) continue;
           html += '<li class="row">' +
             '<div class="line' + (activeLineFilter === line ? ' line-active' : '') + '" data-line="' + escapeHtml(line) + '">' + escapeHtml(line) + '</div>' +
-            '<div class="time">' + escapeHtml(item.time || '') + '</div>' +
+            '<div class="time">' + formatTime(item) + '</div>' +
             '<div class="dest">' + escapeHtml(item.destination || '') + '</div>' +
             '</li>';
         }
@@ -368,9 +450,9 @@
             if (!boardEl.innerHTML) showMessage('Ungueltige Antwort');
             return;
           }
-          departures = data.departures || [];
+          departures = sortDepartures(data.departures || []);
           render(departures);
-          setStatus('live');
+          setStatus(data.updatedTime || '');
         };
         xhr.send(null);
       }

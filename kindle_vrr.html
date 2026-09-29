@@ -251,7 +251,6 @@
     (function () {
       var ROTATION_STORAGE_KEY = 'bvg_kindle_vrr_rotation';
       var DEFAULT_REFRESH_MS = 60000;
-      var PEAK_REFRESH_MS = 20000;
       var boardEl = document.getElementById('board');
       var statusEl = document.getElementById('status');
       var messageEl = document.getElementById('message');
@@ -260,6 +259,7 @@
       var rotateLeftButton = document.getElementById('rotateLeftButton');
       var rotateRightButton = document.getElementById('rotateRightButton');
       var timer = null;
+      var refreshDelayMs = DEFAULT_REFRESH_MS;
       var activeLineFilter = '';
       var departures = [];
 
@@ -358,13 +358,7 @@
       }
 
       function getMinutesValue(item) {
-        var text;
-        var match;
         if (item && typeof item.minutes === 'number') return item.minutes;
-        text = String((item && item.relativeTime) || '');
-        match = text.match(/-?\d+/);
-        if (match) return Number(match[0]);
-        if (text.toLowerCase() === 'sofort' || text.toLowerCase() === 'now') return 0;
         return null;
       }
 
@@ -372,7 +366,7 @@
         var delayText = getDelayText(item);
         var delayHtml = delayText ? '<span class="delay">' + escapeHtml(delayText) + '</span>' : '';
         var minutes = getMinutesValue(item);
-        var timeText = (item && (item.time || item.relativeTime)) || '';
+        var timeText = (item && item.time) || '';
         if (minutes !== null && minutes < 10) {
           return delayHtml + '<span class="time-small">In</span> <span class="time-number">' +
             escapeHtml(minutes) + '</span> <span class="time-small">Min</span>';
@@ -380,17 +374,9 @@
         return delayHtml + '<span class="time-clock">' + escapeHtml(timeText) + '</span>';
       }
 
-      function parseTimeMinutes(value) {
-        var match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
-        if (!match) return null;
-        return Number(match[1]) * 60 + Number(match[2]);
-      }
-
       function sortValue(item) {
-        var timeMinutes;
-        if (item && typeof item.minutes === 'number') return item.minutes;
-        timeMinutes = parseTimeMinutes(item && item.time);
-        return timeMinutes === null ? 999999 : timeMinutes;
+        if (item && typeof item.arrivalAt === 'number') return item.arrivalAt;
+        return 9999999999;
       }
 
       function sortDepartures(items) {
@@ -441,6 +427,7 @@
           if (xhr.status < 200 || xhr.status >= 300) {
             setStatus('err');
             if (!boardEl.innerHTML) showMessage('Keine Verbindung');
+            schedule(DEFAULT_REFRESH_MS);
             return;
           }
           try {
@@ -448,29 +435,23 @@
           } catch (e) {
             setStatus('err');
             if (!boardEl.innerHTML) showMessage('Ungueltige Antwort');
+            schedule(DEFAULT_REFRESH_MS);
             return;
           }
           departures = sortDepartures(data.departures || []);
           render(departures);
           setStatus(data.updatedTime || '');
+          refreshDelayMs = typeof data.refreshIntervalMs === 'number' ? data.refreshIntervalMs : DEFAULT_REFRESH_MS;
+          schedule(refreshDelayMs);
         };
         xhr.send(null);
       }
 
-      function getRefreshDelay() {
-        var now = new Date();
-        var day = now.getDay();
-        var hour = now.getHours();
-        if (day >= 1 && day <= 5 && hour >= 7 && hour < 9) return PEAK_REFRESH_MS;
-        return DEFAULT_REFRESH_MS;
-      }
-
-      function schedule() {
+      function schedule(delayMs) {
         if (timer) window.clearTimeout(timer);
         timer = window.setTimeout(function () {
           requestBoard();
-          schedule();
-        }, getRefreshDelay());
+        }, delayMs || DEFAULT_REFRESH_MS);
       }
 
       boardEl.onclick = function (event) {
@@ -497,7 +478,6 @@
       window.onresize = refreshRotationLayout;
       loadRotation();
       requestBoard();
-      schedule();
 
       window.onunload = function () {
         if (timer) window.clearTimeout(timer);

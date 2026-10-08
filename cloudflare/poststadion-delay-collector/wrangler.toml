@@ -1,0 +1,19 @@
+name = "poststadion-delay-collector"
+main = "src/worker.mjs"
+compatibility_date = "2025-08-01"
+
+[triggers]
+crons = ["* * * * *"]
+
+[[d1_databases]]
+binding = "DELAY_DB"
+database_name = "poststadion-delay-history"
+database_id = "c4ae52aa-b4fb-4e39-84f2-c41a5ef8ccae"
+
+[vars]
+SOURCE_URL = "https://bsm.zhang-meng.com/api/vrrf/poststadion"
+LINE_FILTER = "123,142"
+RETENTION_DAYS = "28"
+PAST_WINDOW_SECONDS = "60"
+FUTURE_WINDOW_SECONDS = "120"
+MAX_SOURCE_AGE_SECONDS = "150"

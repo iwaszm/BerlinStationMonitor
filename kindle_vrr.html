@@ -150,6 +150,15 @@
       text-overflow: ellipsis;
     }
 
+    .history-badge {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 16px;
+      font-weight: normal;
+      vertical-align: 2px;
+      white-space: nowrap;
+    }
+
     .status {
       font-size: 14px;
       font-style: italic;
@@ -240,6 +249,11 @@
         font-size: 21px;
         line-height: 48px;
       }
+
+      .history-badge {
+        font-size: 14px;
+        margin-left: 4px;
+      }
     }
   </style>
 </head>
@@ -271,6 +285,9 @@
       var refreshDelayMs = DEFAULT_REFRESH_MS;
       var activeLineFilter = '';
       var departures = [];
+      var historyCache = {};
+      var historyRequestInFlight = false;
+      var historyRetryAt = 0;
 
       function escapeHtml(value) {
         return String(value == null ? '' : value)
@@ -383,6 +400,100 @@
         return escapeHtml(line) + (isPlatformTwo(item) ? '<sup class="platform-two">2</sup>' : '');
       }
 
+      function plannedArrivalAt(item) {
+        var arrivalAt = item && typeof item.arrivalAt === 'number' ? item.arrivalAt : null;
+        var delay = item && typeof item.delay === 'number' ? Math.round(item.delay) : null;
+        if (arrivalAt === null) return null;
+        return delay === null ? arrivalAt : arrivalAt - delay * 60;
+      }
+
+      function historyKey(item) {
+        var plannedAt = plannedArrivalAt(item);
+        if (plannedAt === null) return '';
+        return String(item.line || '') + '|' + String(item.destination || '') + '|' + Math.floor(plannedAt / 900);
+      }
+
+      function destinationText(item) {
+        var value = String((item && item.destination) || '').replace(/\s+via\s+.*/i, '').replace(/^\s+|\s+$/g, '');
+        return value.slice(0, 16);
+      }
+
+      function historyBadge(item) {
+        var entry = historyCache[historyKey(item)];
+        var delay;
+        if (item && item.cancelled) {
+          return '<span class="history-badge">[?]</span>';
+        }
+        if (!entry || typeof entry.typicalDelayMin !== 'number' || entry.sampleCount < 4) {
+          return '<span class="history-badge">[?]</span>';
+        }
+        delay = Math.round(entry.typicalDelayMin);
+        if (Math.abs(delay) < 2) {
+          return '';
+        }
+        return '<span class="history-badge">[' + (delay > 0 ? '+' : '') + delay + ']</span>';
+      }
+
+      function base64Url(value) {
+        return btoa(unescape(encodeURIComponent(value)))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+      }
+
+      function requestMissingHistory(items) {
+        var requested = [];
+        var seen = {};
+        var i;
+        var item;
+        var key;
+        var xhr;
+        var payload;
+        var response;
+        var responseItems;
+
+        if (historyRequestInFlight || Date.now() < historyRetryAt) return;
+        for (i = 0; i < items.length && requested.length < 8; i += 1) {
+          item = items[i] || {};
+          if (item.line !== '123' && item.line !== '142') continue;
+          if (item.cancelled) continue;
+          key = historyKey(item);
+          if (!key || historyCache[key] || seen[key]) continue;
+          seen[key] = true;
+          requested.push({
+            id: key,
+            line: item.line,
+            destination: item.destination || '',
+            arrivalAt: item.arrivalAt,
+            delay: item.delay
+          });
+        }
+        if (!requested.length) return;
+
+        historyRequestInFlight = true;
+        payload = encodeURIComponent(base64Url(JSON.stringify(requested)));
+        xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/history/poststadion?items=' + payload, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState !== 4) return;
+          historyRequestInFlight = false;
+          if (xhr.status < 200 || xhr.status >= 300) {
+            historyRetryAt = Date.now() + 300000;
+            return;
+          }
+          try {
+            response = JSON.parse(xhr.responseText);
+            responseItems = response.items || [];
+            for (i = 0; i < responseItems.length; i += 1) {
+              historyCache[responseItems[i].id] = responseItems[i];
+            }
+            render(departures);
+          } catch (e) {
+            historyRetryAt = Date.now() + 300000;
+          }
+        };
+        xhr.send(null);
+      }
 
       function formatTime(item) {
         var delayText = getDelayText(item);
@@ -425,9 +536,9 @@
           line = item.line || '';
           if (activeLineFilter && line !== activeLineFilter) continue;
           html += '<li class="row">' +
-            '<div class="line' + (activeLineFilter === line ? ' line-active' : '') + '" data-line="' + escapeHtml(line) + '">' + lineLabel(item) + '</div>' +
+            '<div class="line' + (activeLineFilter === line ? ' line-active' : '') + '" data-line="' + escapeHtml(line) + '">' + lineLabel(item) + '</div>'+
             '<div class="time">' + formatTime(item) + '</div>' +
-            '<div class="dest">' + escapeHtml(item.destination || '') + '</div>' +
+            '<div class="dest">' + escapeHtml(destinationText(item)) + historyBadge(item) + '</div>' +
             '</li>';
         }
         boardEl.innerHTML = html;
@@ -462,6 +573,7 @@
           }
           departures = sortDepartures(data.departures || []);
           render(departures);
+          requestMissingHistory(departures);
           setStatus(data.updatedTime || '');
           refreshDelayMs = typeof data.refreshIntervalMs === 'number' ? data.refreshIntervalMs : DEFAULT_REFRESH_MS;
           schedule(refreshDelayMs);

@@ -215,4 +215,5 @@ log/*
 !log/
 !log/*.png
 .vercel
+.wrangler/
 .sqlite

@@ -80,6 +80,7 @@
 
     .line {
       float: left;
+      position: relative;
       width: 96px;
       height: 52px;
       border: 2px solid #000;
@@ -95,6 +96,14 @@
     .line-active {
       background: #000;
       color: #fff;
+    }
+
+    .platform-two {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      font-size: 15px;
+      line-height: 0;
     }
 
     .time {
@@ -362,6 +371,19 @@
         return null;
       }
 
+      function isPlatformTwo(item) {
+        var line = String((item && item.line) || '');
+        var destination = String((item && item.destination) || '').toLowerCase();
+        return (line === '123' && destination.indexOf('saatwinkler') >= 0) ||
+          (line === '142' && destination.indexOf('leopoldplatz') >= 0);
+      }
+
+      function lineLabel(item) {
+        var line = String((item && item.line) || '');
+        return escapeHtml(line) + (isPlatformTwo(item) ? '<sup class="platform-two">2</sup>' : '');
+      }
+
+
       function formatTime(item) {
         var delayText = getDelayText(item);
         var delayHtml = delayText ? '<span class="delay">' + escapeHtml(delayText) + '</span>' : '';
@@ -403,7 +425,7 @@
           line = item.line || '';
           if (activeLineFilter && line !== activeLineFilter) continue;
           html += '<li class="row">' +
-            '<div class="line' + (activeLineFilter === line ? ' line-active' : '') + '" data-line="' + escapeHtml(line) + '">' + escapeHtml(line) + '</div>' +
+            '<div class="line' + (activeLineFilter === line ? ' line-active' : '') + '" data-line="' + escapeHtml(line) + '">' + lineLabel(item) + '</div>' +
             '<div class="time">' + formatTime(item) + '</div>' +
             '<div class="dest">' + escapeHtml(item.destination || '') + '</div>' +
             '</li>';
